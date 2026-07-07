@@ -3,13 +3,18 @@ import { authService } from "@/services/auth"
 import { getToken, setToken, clearToken } from "@/lib/api"
 import type { UsuarioSesion } from "@/types/auth"
 
+// TODO: por ahora el código de organización va fijo. Falta definir cómo se
+// resuelve por debajo (subdominio, selector de empresa, etc.) sin pedirlo
+// en el formulario de login.
+const DEFAULT_ORG_CODE = "test"
+
 interface AuthContextType {
   user: UsuarioSesion | null
   token: string | null
   permisos: string[]
   isAuthenticated: boolean
   isLoading: boolean
-  login: (codigoOrganizacion: string, email: string, contrasena: string) => Promise<void>
+  login: (usuario: string, contrasena: string) => Promise<void>
   logout: () => void
   hasPermission: (permiso: string) => boolean
 }
@@ -48,8 +53,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       .finally(() => setIsLoading(false))
   }, [])
 
-  const login = useCallback(async (codigoOrganizacion: string, email: string, contrasena: string) => {
-    const response = await authService.login({ codigoOrganizacion, email, contrasena })
+  const login = useCallback(async (usuario: string, contrasena: string) => {
+    const response = await authService.login({
+      codigoOrganizacion: DEFAULT_ORG_CODE,
+      email: usuario,
+      contrasena,
+    })
     setToken(response.token)
     setTokenState(response.token)
     setUser(response.usuario)
