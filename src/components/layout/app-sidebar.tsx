@@ -11,7 +11,6 @@ import {
   IconFileWord,
   IconFolder,
   IconHelp,
-  IconInnerShadowTop,
   IconListDetails,
   IconReport,
   IconSearch,
@@ -42,74 +41,74 @@ const data = {
   },
   navMain: [
     {
-      title: "Dashboard",
+      title: "Panel",
       url: "#",
       icon: IconDashboard,
     },
     {
-      title: "Lifecycle",
+      title: "Ciclo de Vida",
       url: "#",
       icon: IconListDetails,
     },
     {
-      title: "Analytics",
+      title: "Analíticas",
       url: "#",
       icon: IconChartBar,
     },
     {
-      title: "Projects",
+      title: "Proyectos",
       url: "#",
       icon: IconFolder,
     },
     {
-      title: "Team",
+      title: "Equipo",
       url: "#",
       icon: IconUsers,
     },
   ],
   navClouds: [
     {
-      title: "Capture",
+      title: "Captura",
       icon: IconCamera,
       isActive: true,
       url: "#",
       items: [
         {
-          title: "Active Proposals",
+          title: "Propuestas Activas",
           url: "#",
         },
         {
-          title: "Archived",
+          title: "Archivado",
           url: "#",
         },
       ],
     },
     {
-      title: "Proposal",
+      title: "Propuesta",
       icon: IconFileDescription,
       url: "#",
       items: [
         {
-          title: "Active Proposals",
+          title: "Propuestas Activas",
           url: "#",
         },
         {
-          title: "Archived",
+          title: "Archivado",
           url: "#",
         },
       ],
     },
     {
-      title: "Prompts",
+      title: "Indicaciones",
       icon: IconFileAi,
       url: "#",
       items: [
         {
-          title: "Active Proposals",
+          title: "Propuestas Activas",
           url: "#",
         },
         {
-          title: "Archived",
+          title: "Archivado",
           url: "#",
         },
       ],
@@ -117,34 +116,34 @@ const data = {
   ],
   navSecondary: [
     {
-      title: "Settings",
+      title: "Configuración",
       url: "#",
       icon: IconSettings,
     },
     {
-      title: "Get Help",
+      title: "Ayuda",
       url: "#",
       icon: IconHelp,
     },
     {
-      title: "Search",
+      title: "Buscar",
       url: "#",
       icon: IconSearch,
     },
   ],
   documents: [
     {
-      name: "Data Library",
+      name: "Biblioteca de Datos",
       url: "#",
       icon: IconDatabase,
     },
     {
-      name: "Reports",
+      name: "Informes",
       url: "#",
       icon: IconReport,
     },
     {
-      name: "Word Assistant",
+      name: "Asistente de Word",
       url: "#",
       icon: IconFileWord,
     },
@@ -164,7 +163,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
               className="data-[slot=sidebar-menu-button]:p-1.5!"
             >
               <a href="#">
-                <IconInnerShadowTop className="size-5!" />
+                <img src="/favicon.png" alt="Stock Core" className="size-5!" />
                 <span className="text-base font-semibold">Stock Core</span>
               </a>
             </SidebarMenuButton>
