@@ -106,6 +106,7 @@ import {
   TabsTrigger,
 } from "@/components/ui/tabs"
 
+// eslint-disable-next-line react-refresh/only-export-components
 export const schema = z.object({
   id: z.number(),
   header: z.string(),
@@ -365,6 +366,7 @@ export function DataTable({
     [data]
   )
 
+  // eslint-disable-next-line react-hooks/incompatible-library
   const table = useReactTable({
     data,
     columns,

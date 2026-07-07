@@ -1,25 +1,27 @@
 "use client"
 
 import * as React from "react"
+import { useLocation, useNavigate } from "react-router-dom"
 import {
-  IconCamera,
-  IconChartBar,
   IconDashboard,
   IconDatabase,
-  IconFileAi,
-  IconFileDescription,
-  IconFileWord,
-  IconFolder,
   IconHelp,
-  IconListDetails,
-  IconReport,
-  IconSearch,
-  IconSettings,
+  IconInnerShadowTop,
+  IconPackage,
+  IconCategory,
+  IconRuler,
+  IconTruck,
+  IconBuildingStore,
   IconUsers,
+  IconShield,
+  IconShoppingCart,
+  IconReport,
+  IconSettings,
+  IconSearch,
 } from "@tabler/icons-react"
 
 import { useLayout } from "@/context/layout-provider"
-import { NavDocuments } from "@/components/layout/nav-documents"
+import { useAuth } from "@/context/auth-provider"
 import { NavMain } from "@/components/layout/nav-main"
 import { NavSecondary } from "@/components/layout/nav-secondary"
 import { NavUser } from "@/components/layout/nav-user"
@@ -31,127 +33,22 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
+  SidebarGroup,
+  SidebarGroupContent,
+  SidebarGroupLabel,
 } from "@/components/ui/sidebar"
-
-const data = {
-  user: {
-    name: "shadcn",
-    email: "m@example.com",
-    avatar: "/avatars/shadcn.jpg",
-  },
-  navMain: [
-    {
-      title: "Panel",
-      url: "#",
-      icon: IconDashboard,
-    },
-    {
-      title: "Ciclo de Vida",
-      url: "#",
-      icon: IconListDetails,
-    },
-    {
-      title: "Analíticas",
-      url: "#",
-      icon: IconChartBar,
-    },
-    {
-      title: "Proyectos",
-      url: "#",
-      icon: IconFolder,
-    },
-    {
-      title: "Equipo",
-      url: "#",
-      icon: IconUsers,
-    },
-  ],
-  navClouds: [
-    {
-      title: "Captura",
-      icon: IconCamera,
-      isActive: true,
-      url: "#",
-      items: [
-        {
-          title: "Propuestas Activas",
-          url: "#",
-        },
-        {
-          title: "Archivado",
-          url: "#",
-        },
-      ],
-    },
-    {
-      title: "Propuesta",
-      icon: IconFileDescription,
-      url: "#",
-      items: [
-        {
-          title: "Propuestas Activas",
-          url: "#",
-        },
-        {
-          title: "Archivado",
-          url: "#",
-        },
-      ],
-    },
-    {
-      title: "Indicaciones",
-      icon: IconFileAi,
-      url: "#",
-      items: [
-        {
-          title: "Propuestas Activas",
-          url: "#",
-        },
-        {
-          title: "Archivado",
-          url: "#",
-        },
-      ],
-    },
-  ],
-  navSecondary: [
-    {
-      title: "Configuración",
-      url: "#",
-      icon: IconSettings,
-    },
-    {
-      title: "Ayuda",
-      url: "#",
-      icon: IconHelp,
-    },
-    {
-      title: "Buscar",
-      url: "#",
-      icon: IconSearch,
-    },
-  ],
-  documents: [
-    {
-      name: "Biblioteca de Datos",
-      url: "#",
-      icon: IconDatabase,
-    },
-    {
-      name: "Informes",
-      url: "#",
-      icon: IconReport,
-    },
-    {
-      name: "Asistente de Word",
-      url: "#",
-      icon: IconFileWord,
-    },
-  ],
-}
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const { collapsible, variant } = useLayout()
+  const { user, logout } = useAuth()
+  const location = useLocation()
+  const navigate = useNavigate()
+
+  const isActive = (path: string) => location.pathname === path
+
+  const navMain = [
+    { title: "Panel", url: "/dashboard", icon: IconDashboard },
+  ]
 
   return (
     <Sidebar collapsible={collapsible} variant={variant} {...props}>
@@ -161,9 +58,10 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
             <SidebarMenuButton
               asChild
               className="data-[slot=sidebar-menu-button]:p-1.5!"
+              onClick={() => navigate("/dashboard")}
             >
-              <a href="#">
-                <img src="/favicon.png" alt="Stock Core" className="size-5!" />
+              <a>
+                <IconInnerShadowTop className="size-5!" />
                 <span className="text-base font-semibold">Stock Core</span>
               </a>
             </SidebarMenuButton>
@@ -171,12 +69,159 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         </SidebarMenu>
       </SidebarHeader>
       <SidebarContent>
-        <NavMain items={data.navMain} />
-        <NavDocuments items={data.documents} />
-        <NavSecondary items={data.navSecondary} className="mt-auto" />
+        <NavMain items={navMain} onItemClick={navigate} />
+
+        <SidebarGroup>
+          <SidebarGroupLabel>Catálogo</SidebarGroupLabel>
+          <SidebarGroupContent>
+            <SidebarMenu>
+              <SidebarMenuItem>
+                <SidebarMenuButton
+                  tooltip="Productos"
+                  isActive={isActive("/productos")}
+                  onClick={() => navigate("/productos")}
+                >
+                  <IconPackage />
+                  <span>Productos</span>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+              <SidebarMenuItem>
+                <SidebarMenuButton
+                  tooltip="Categorías"
+                  isActive={isActive("/categorias")}
+                  onClick={() => navigate("/categorias")}
+                >
+                  <IconCategory />
+                  <span>Categorías</span>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+              <SidebarMenuItem>
+                <SidebarMenuButton
+                  tooltip="Unidades"
+                  isActive={isActive("/unidades")}
+                  onClick={() => navigate("/unidades")}
+                >
+                  <IconRuler />
+                  <span>Unidades</span>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+              <SidebarMenuItem>
+                <SidebarMenuButton
+                  tooltip="Proveedores"
+                  isActive={isActive("/proveedores")}
+                  onClick={() => navigate("/proveedores")}
+                >
+                  <IconTruck />
+                  <span>Proveedores</span>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+              <SidebarMenuItem>
+                <SidebarMenuButton
+                  tooltip="Sucursales"
+                  isActive={isActive("/sucursales")}
+                  onClick={() => navigate("/sucursales")}
+                >
+                  <IconBuildingStore />
+                  <span>Sucursales</span>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
+
+        <SidebarGroup>
+          <SidebarGroupLabel>Operaciones</SidebarGroupLabel>
+          <SidebarGroupContent>
+            <SidebarMenu>
+              <SidebarMenuItem>
+                <SidebarMenuButton
+                  tooltip="Stock"
+                  isActive={isActive("/inventario")}
+                  onClick={() => navigate("/inventario")}
+                >
+                  <IconDatabase />
+                  <span>Stock</span>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+              <SidebarMenuItem>
+                <SidebarMenuButton
+                  tooltip="Compras"
+                  isActive={isActive("/compras")}
+                  onClick={() => navigate("/compras")}
+                >
+                  <IconShoppingCart />
+                  <span>Compras</span>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+              <SidebarMenuItem>
+                <SidebarMenuButton
+                  tooltip="Reportes"
+                  isActive={isActive("/reportes")}
+                  onClick={() => navigate("/reportes")}
+                >
+                  <IconReport />
+                  <span>Reportes</span>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
+
+        <SidebarGroup>
+          <SidebarGroupLabel>Configuración</SidebarGroupLabel>
+          <SidebarGroupContent>
+            <SidebarMenu>
+              <SidebarMenuItem>
+                <SidebarMenuButton
+                  tooltip="Usuarios"
+                  isActive={isActive("/usuarios")}
+                  onClick={() => navigate("/usuarios")}
+                >
+                  <IconUsers />
+                  <span>Usuarios</span>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+              <SidebarMenuItem>
+                <SidebarMenuButton
+                  tooltip="Roles"
+                  isActive={isActive("/roles")}
+                  onClick={() => navigate("/roles")}
+                >
+                  <IconShield />
+                  <span>Roles</span>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+              <SidebarMenuItem>
+                <SidebarMenuButton
+                  tooltip="Configuración"
+                  isActive={isActive("/configuracion")}
+                  onClick={() => navigate("/configuracion")}
+                >
+                  <IconSettings />
+                  <span>Configuración</span>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
+
+        <NavSecondary
+          items={[
+            { title: "Ayuda", url: "#", icon: IconHelp },
+            { title: "Buscar", url: "#", icon: IconSearch },
+          ]}
+          className="mt-auto"
+        />
       </SidebarContent>
       <SidebarFooter>
-        <NavUser user={data.user} />
+        <NavUser
+          user={{
+            name: user?.nombres || user?.email || "Usuario",
+            email: user?.email || "",
+            avatar: "",
+          }}
+          onLogout={logout}
+        />
       </SidebarFooter>
     </Sidebar>
   )
