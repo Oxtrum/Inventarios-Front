@@ -1,10 +1,16 @@
+import { ThemeProvider } from "@/context/theme-provider"
+import DashboardPage from "@/pages/dashboard"
+import { Toaster } from "@/components/ui/sonner"
+import { TooltipProvider } from "@/components/ui/tooltip"
+
 function App() {
   return (
-    <div className="flex h-screen w-full items-center justify-center bg-zinc-950 text-white">
-      <h1 className="text-3xl font-bold tracking-tight">
-        StockCore v4 + React Compiler 🚀
-      </h1>
-    </div>
+    <ThemeProvider defaultTheme="system">
+      <TooltipProvider>
+        <DashboardPage />
+        <Toaster />
+      </TooltipProvider>
+    </ThemeProvider>
   )
 }
 
