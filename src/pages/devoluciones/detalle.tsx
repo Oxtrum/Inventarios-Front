@@ -3,7 +3,7 @@ import { useParams, Link } from "react-router-dom"
 import { IconArrowLeft } from "@tabler/icons-react"
 import { toast } from "sonner"
 
-import { useCompra, useAnularCompra } from "@/hooks/useCompras"
+import { useDevolucion, useAnularDevolucion } from "@/hooks/useDevoluciones"
 import { useSucursales } from "@/hooks/useSucursales"
 import { useProveedores } from "@/hooks/useProveedores"
 import { useProductos } from "@/hooks/useProductos"
@@ -24,16 +24,16 @@ import {
   TableRow,
 } from "@/components/ui/table"
 
-export default function CompraDetailPage() {
+export default function DevolucionDetailPage() {
   const { id } = useParams<{ id: string }>()
-  const compraId = id ?? ""
+  const devolucionId = id ?? ""
   const [confirmingAnular, setConfirmingAnular] = useState(false)
 
-  const { data: compra, isLoading } = useCompra(compraId)
+  const { data: devolucion, isLoading } = useDevolucion(devolucionId)
   const { data: sucursales } = useSucursales()
   const { data: proveedores } = useProveedores()
   const { data: productos } = useProductos()
-  const anularCompra = useAnularCompra(compraId)
+  const anularDevolucion = useAnularDevolucion(devolucionId)
 
   const nombrePorId = useMemo(() => {
     const sucursalMap = new Map((sucursales ?? []).map((s) => [s.id, s.nombre]))
@@ -43,12 +43,12 @@ export default function CompraDetailPage() {
   }, [sucursales, proveedores, productos])
 
   function confirmAnular() {
-    anularCompra.mutate(undefined, {
+    anularDevolucion.mutate(undefined, {
       onSuccess: () => {
-        toast.success("Compra anulada")
+        toast.success("Devolución anulada")
         setConfirmingAnular(false)
       },
-      onError: (err) => toast.error(err instanceof ApiError ? err.message : "No se pudo anular la compra"),
+      onError: (err) => toast.error(err instanceof ApiError ? err.message : "No se pudo anular la devolución"),
     })
   }
 
@@ -61,10 +61,10 @@ export default function CompraDetailPage() {
     )
   }
 
-  if (!compra) {
+  if (!devolucion) {
     return (
       <div className="flex flex-1 flex-col gap-4 px-4 py-4 md:py-6 lg:px-6">
-        <p className="text-sm text-muted-foreground">No se encontró la compra.</p>
+        <p className="text-sm text-muted-foreground">No se encontró la devolución.</p>
       </div>
     )
   }
@@ -72,17 +72,17 @@ export default function CompraDetailPage() {
   return (
     <div className="flex flex-1 flex-col gap-4 py-4 md:py-6">
       <PageHeader
-        title={compra.numero ? `Compra ${compra.numero}` : "Detalle de Compra"}
-        description={new Date(compra.fechaCreacion).toLocaleString("es-ES")}
+        title={devolucion.numero ? `Devolución ${devolucion.numero}` : "Detalle de Devolución"}
+        description={new Date(devolucion.fechaCreacion).toLocaleString("es-ES")}
         action={
           <div className="flex items-center gap-2">
             <Button variant="outline" asChild>
-              <Link to="/compras">
+              <Link to="/devoluciones">
                 <IconArrowLeft />
                 Volver
               </Link>
             </Button>
-            {compra.estado === "registrada" && (
+            {devolucion.estado === "registrada" && (
               <Button variant="destructive" onClick={() => setConfirmingAnular(true)}>
                 Anular
               </Button>
@@ -95,23 +95,21 @@ export default function CompraDetailPage() {
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               Datos generales
-              <EstadoBadge estado={compra.estado} />
+              <EstadoBadge estado={devolucion.estado} />
             </CardTitle>
           </CardHeader>
           <CardContent className="grid grid-cols-1 gap-4 sm:grid-cols-3">
             <div>
               <p className="text-xs text-muted-foreground">Sucursal</p>
-              <p className="font-medium">{nombrePorId.sucursalMap.get(compra.sucursalId) ?? "—"}</p>
+              <p className="font-medium">{nombrePorId.sucursalMap.get(devolucion.sucursalId) ?? "—"}</p>
             </div>
             <div>
               <p className="text-xs text-muted-foreground">Proveedor</p>
-              <p className="font-medium">
-                {compra.proveedorId ? nombrePorId.proveedorMap.get(compra.proveedorId) ?? "—" : "—"}
-              </p>
+              <p className="font-medium">{nombrePorId.proveedorMap.get(devolucion.proveedorId) ?? "—"}</p>
             </div>
             <div>
-              <p className="text-xs text-muted-foreground">Observación</p>
-              <p className="font-medium">{compra.observacion ?? "—"}</p>
+              <p className="text-xs text-muted-foreground">Motivo</p>
+              <p className="font-medium">{devolucion.motivo ?? "—"}</p>
             </div>
           </CardContent>
         </Card>
@@ -132,7 +130,7 @@ export default function CompraDetailPage() {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {compra.items.map((item) => (
+                  {devolucion.items.map((item) => (
                     <TableRow key={item.id}>
                       <TableCell>{nombrePorId.productoMap.get(item.productoId) ?? item.productoId}</TableCell>
                       <TableCell className="text-right">{item.cantidad}</TableCell>
@@ -145,7 +143,7 @@ export default function CompraDetailPage() {
             </div>
             <div className="mt-4 flex items-center justify-end gap-4">
               <span className="text-sm font-medium">Total</span>
-              <span className="text-lg font-semibold">{formatCurrency(compra.total)}</span>
+              <span className="text-lg font-semibold">{formatCurrency(devolucion.total)}</span>
             </div>
           </CardContent>
         </Card>
@@ -154,11 +152,11 @@ export default function CompraDetailPage() {
       <ConfirmDialog
         open={confirmingAnular}
         onOpenChange={setConfirmingAnular}
-        title="¿Anular compra?"
-        description="Esta acción revertirá los movimientos de inventario generados por la compra."
+        title="¿Anular devolución?"
+        description="Esta acción revertirá los movimientos de inventario generados por la devolución."
         confirmLabel="Anular"
         variant="destructive"
-        isLoading={anularCompra.isPending}
+        isLoading={anularDevolucion.isPending}
         onConfirm={confirmAnular}
       />
     </div>

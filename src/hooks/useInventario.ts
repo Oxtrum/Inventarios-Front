@@ -18,6 +18,7 @@ export function useStock(filters?: Record<string, string>) {
   return useQuery({
     queryKey: inventarioKeys.stock(filters ?? {}),
     queryFn: () => inventarioService.stock(filters),
+    enabled: !!filters?.productoId && !!filters?.sucursalId,
   })
 }
 

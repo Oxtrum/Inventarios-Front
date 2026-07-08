@@ -3,12 +3,10 @@ import { useParams, Link } from "react-router-dom"
 import { IconArrowLeft } from "@tabler/icons-react"
 import { toast } from "sonner"
 
-import { useCompra, useAnularCompra } from "@/hooks/useCompras"
+import { useTransferencia, useAnularTransferencia } from "@/hooks/useTransferencias"
 import { useSucursales } from "@/hooks/useSucursales"
-import { useProveedores } from "@/hooks/useProveedores"
 import { useProductos } from "@/hooks/useProductos"
 import { ApiError } from "@/lib/api"
-import { formatCurrency } from "@/lib/utils"
 import { PageHeader } from "@/components/shared/PageHeader"
 import { EstadoBadge } from "@/components/shared/StatusBadge"
 import { ConfirmDialog } from "@/components/shared/ConfirmDialog"
@@ -24,31 +22,29 @@ import {
   TableRow,
 } from "@/components/ui/table"
 
-export default function CompraDetailPage() {
+export default function TransferenciaDetailPage() {
   const { id } = useParams<{ id: string }>()
-  const compraId = id ?? ""
+  const transferenciaId = id ?? ""
   const [confirmingAnular, setConfirmingAnular] = useState(false)
 
-  const { data: compra, isLoading } = useCompra(compraId)
+  const { data: transferencia, isLoading } = useTransferencia(transferenciaId)
   const { data: sucursales } = useSucursales()
-  const { data: proveedores } = useProveedores()
   const { data: productos } = useProductos()
-  const anularCompra = useAnularCompra(compraId)
+  const anularTransferencia = useAnularTransferencia(transferenciaId)
 
   const nombrePorId = useMemo(() => {
     const sucursalMap = new Map((sucursales ?? []).map((s) => [s.id, s.nombre]))
-    const proveedorMap = new Map((proveedores ?? []).map((p) => [p.id, p.nombre]))
     const productoMap = new Map((productos ?? []).map((p) => [p.id, p.nombre]))
-    return { sucursalMap, proveedorMap, productoMap }
-  }, [sucursales, proveedores, productos])
+    return { sucursalMap, productoMap }
+  }, [sucursales, productos])
 
   function confirmAnular() {
-    anularCompra.mutate(undefined, {
+    anularTransferencia.mutate(undefined, {
       onSuccess: () => {
-        toast.success("Compra anulada")
+        toast.success("Transferencia anulada")
         setConfirmingAnular(false)
       },
-      onError: (err) => toast.error(err instanceof ApiError ? err.message : "No se pudo anular la compra"),
+      onError: (err) => toast.error(err instanceof ApiError ? err.message : "No se pudo anular la transferencia"),
     })
   }
 
@@ -61,10 +57,10 @@ export default function CompraDetailPage() {
     )
   }
 
-  if (!compra) {
+  if (!transferencia) {
     return (
       <div className="flex flex-1 flex-col gap-4 px-4 py-4 md:py-6 lg:px-6">
-        <p className="text-sm text-muted-foreground">No se encontró la compra.</p>
+        <p className="text-sm text-muted-foreground">No se encontró la transferencia.</p>
       </div>
     )
   }
@@ -72,17 +68,17 @@ export default function CompraDetailPage() {
   return (
     <div className="flex flex-1 flex-col gap-4 py-4 md:py-6">
       <PageHeader
-        title={compra.numero ? `Compra ${compra.numero}` : "Detalle de Compra"}
-        description={new Date(compra.fechaCreacion).toLocaleString("es-ES")}
+        title={transferencia.numero ? `Transferencia ${transferencia.numero}` : "Detalle de Transferencia"}
+        description={new Date(transferencia.fechaCreacion).toLocaleString("es-ES")}
         action={
           <div className="flex items-center gap-2">
             <Button variant="outline" asChild>
-              <Link to="/compras">
+              <Link to="/transferencias">
                 <IconArrowLeft />
                 Volver
               </Link>
             </Button>
-            {compra.estado === "registrada" && (
+            {transferencia.estado === "registrada" && (
               <Button variant="destructive" onClick={() => setConfirmingAnular(true)}>
                 Anular
               </Button>
@@ -95,23 +91,21 @@ export default function CompraDetailPage() {
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               Datos generales
-              <EstadoBadge estado={compra.estado} />
+              <EstadoBadge estado={transferencia.estado} />
             </CardTitle>
           </CardHeader>
           <CardContent className="grid grid-cols-1 gap-4 sm:grid-cols-3">
             <div>
-              <p className="text-xs text-muted-foreground">Sucursal</p>
-              <p className="font-medium">{nombrePorId.sucursalMap.get(compra.sucursalId) ?? "—"}</p>
+              <p className="text-xs text-muted-foreground">Sucursal Origen</p>
+              <p className="font-medium">{nombrePorId.sucursalMap.get(transferencia.sucursalOrigenId) ?? "—"}</p>
             </div>
             <div>
-              <p className="text-xs text-muted-foreground">Proveedor</p>
-              <p className="font-medium">
-                {compra.proveedorId ? nombrePorId.proveedorMap.get(compra.proveedorId) ?? "—" : "—"}
-              </p>
+              <p className="text-xs text-muted-foreground">Sucursal Destino</p>
+              <p className="font-medium">{nombrePorId.sucursalMap.get(transferencia.sucursalDestinoId) ?? "—"}</p>
             </div>
             <div>
               <p className="text-xs text-muted-foreground">Observación</p>
-              <p className="font-medium">{compra.observacion ?? "—"}</p>
+              <p className="font-medium">{transferencia.observacion ?? "—"}</p>
             </div>
           </CardContent>
         </Card>
@@ -127,25 +121,17 @@ export default function CompraDetailPage() {
                   <TableRow>
                     <TableHead>Producto</TableHead>
                     <TableHead className="text-right">Cantidad</TableHead>
-                    <TableHead className="text-right">Costo Unitario</TableHead>
-                    <TableHead className="text-right">Subtotal</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {compra.items.map((item) => (
+                  {transferencia.items.map((item) => (
                     <TableRow key={item.id}>
                       <TableCell>{nombrePorId.productoMap.get(item.productoId) ?? item.productoId}</TableCell>
                       <TableCell className="text-right">{item.cantidad}</TableCell>
-                      <TableCell className="text-right">{formatCurrency(item.costoUnitario)}</TableCell>
-                      <TableCell className="text-right">{formatCurrency(item.subtotal)}</TableCell>
                     </TableRow>
                   ))}
                 </TableBody>
               </Table>
-            </div>
-            <div className="mt-4 flex items-center justify-end gap-4">
-              <span className="text-sm font-medium">Total</span>
-              <span className="text-lg font-semibold">{formatCurrency(compra.total)}</span>
             </div>
           </CardContent>
         </Card>
@@ -154,11 +140,11 @@ export default function CompraDetailPage() {
       <ConfirmDialog
         open={confirmingAnular}
         onOpenChange={setConfirmingAnular}
-        title="¿Anular compra?"
-        description="Esta acción revertirá los movimientos de inventario generados por la compra."
+        title="¿Anular transferencia?"
+        description="Esta acción revertirá los movimientos de inventario generados por la transferencia."
         confirmLabel="Anular"
         variant="destructive"
-        isLoading={anularCompra.isPending}
+        isLoading={anularTransferencia.isPending}
         onConfirm={confirmAnular}
       />
     </div>

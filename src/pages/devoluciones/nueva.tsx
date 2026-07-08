@@ -10,7 +10,8 @@ import { toast } from "sonner"
 import { useSucursales } from "@/hooks/useSucursales"
 import { useProveedores } from "@/hooks/useProveedores"
 import { useProductos } from "@/hooks/useProductos"
-import { useCreateCompra } from "@/hooks/useCompras"
+import { useCompras } from "@/hooks/useCompras"
+import { useCreateDevolucion } from "@/hooks/useDevoluciones"
 import { ApiError } from "@/lib/api"
 import { formatCurrency } from "@/lib/utils"
 import { numberString, positiveNumberString } from "@/lib/validation"
@@ -46,20 +47,22 @@ const itemSchema = z.object({
 
 const formSchema = z.object({
   sucursalId: z.string().min(1, "Selecciona una sucursal"),
-  proveedorId: z.string().optional(),
+  proveedorId: z.string().min(1, "Selecciona un proveedor"),
+  compraId: z.string().optional(),
   numero: z.string().optional(),
-  observacion: z.string().optional(),
+  motivo: z.string().optional(),
   items: z.array(itemSchema).min(1, "Agrega al menos un producto"),
 })
 
 type FormValues = z.infer<typeof formSchema>
 
-export default function CompraFormPage() {
+export default function DevolucionFormPage() {
   const navigate = useNavigate()
   const { data: sucursales } = useSucursales({ activo: "true" })
   const { data: proveedores } = useProveedores({ activo: "true" })
   const { data: productos } = useProductos({ activo: "true" })
-  const createCompra = useCreateCompra()
+  const { data: compras } = useCompras()
+  const createDevolucion = useCreateDevolucion()
 
   const productoPorId = useMemo(() => {
     const map = new Map<string, Producto>()
@@ -71,25 +74,26 @@ export default function CompraFormPage() {
     resolver: zodResolver(formSchema),
     defaultValues: {
       sucursalId: "",
-      proveedorId: NONE,
+      proveedorId: "",
+      compraId: NONE,
       numero: "",
-      observacion: "",
+      motivo: "",
       items: [{ productoId: "", cantidad: "1", costoUnitario: "0" }],
     },
   })
 
   const { fields, append, remove } = useFieldArray({ control: form.control, name: "items" })
   const items = form.watch("items")
-
   const total = items.reduce((sum, item) => sum + (Number(item.cantidad) || 0) * (Number(item.costoUnitario) || 0), 0)
 
   function onSubmit(values: FormValues) {
-    createCompra.mutate(
+    createDevolucion.mutate(
       {
         sucursalId: values.sucursalId,
-        proveedorId: values.proveedorId === NONE ? undefined : values.proveedorId,
+        proveedorId: values.proveedorId,
+        compraId: values.compraId === NONE ? undefined : values.compraId,
         numero: values.numero || undefined,
-        observacion: values.observacion || undefined,
+        motivo: values.motivo || undefined,
         items: values.items.map((item) => ({
           productoId: item.productoId,
           cantidad: Number(item.cantidad),
@@ -97,12 +101,12 @@ export default function CompraFormPage() {
         })),
       },
       {
-        onSuccess: (compra) => {
-          toast.success("Compra registrada")
-          navigate(`/compras/${compra.id}`)
+        onSuccess: (devolucion) => {
+          toast.success("Devolución registrada")
+          navigate(`/devoluciones/${devolucion.id}`)
         },
         onError: (err) => {
-          toast.error(err instanceof ApiError ? err.message : "No se pudo registrar la compra")
+          toast.error(err instanceof ApiError ? err.message : "No se pudo registrar la devolución")
         },
       }
     )
@@ -110,14 +114,14 @@ export default function CompraFormPage() {
 
   return (
     <div className="flex flex-1 flex-col gap-4 py-4 md:py-6">
-      <PageHeader title="Nueva Compra" description="Registra una compra a un proveedor." />
+      <PageHeader title="Nueva Devolución" description="Registra una devolución de mercadería a un proveedor." />
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="flex flex-col gap-4 px-4 lg:px-6">
           <Card>
             <CardHeader>
               <CardTitle>Datos generales</CardTitle>
             </CardHeader>
-            <CardContent className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            <CardContent className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
               <FormField
                 control={form.control}
                 name="sucursalId"
@@ -155,10 +159,34 @@ export default function CompraFormPage() {
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        <SelectItem value={NONE}>Sin proveedor</SelectItem>
                         {(proveedores ?? []).map((proveedor) => (
                           <SelectItem key={proveedor.id} value={proveedor.id}>
                             {proveedor.nombre}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="compraId"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Compra asociada</FormLabel>
+                    <Select value={field.value} onValueChange={field.onChange}>
+                      <FormControl>
+                        <SelectTrigger className="w-full">
+                          <SelectValue placeholder="Seleccionar" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        <SelectItem value={NONE}>Sin compra asociada</SelectItem>
+                        {(compras ?? []).map((compra) => (
+                          <SelectItem key={compra.id} value={compra.id}>
+                            {compra.numero ?? compra.id.slice(0, 8)}
                           </SelectItem>
                         ))}
                       </SelectContent>
@@ -174,7 +202,7 @@ export default function CompraFormPage() {
                   <FormItem>
                     <FormLabel>Número</FormLabel>
                     <FormControl>
-                      <Input placeholder="FAC-001" {...field} />
+                      <Input placeholder="DEV-001" {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -182,12 +210,12 @@ export default function CompraFormPage() {
               />
               <FormField
                 control={form.control}
-                name="observacion"
+                name="motivo"
                 render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Observación</FormLabel>
+                  <FormItem className="sm:col-span-2">
+                    <FormLabel>Motivo</FormLabel>
                     <FormControl>
-                      <Textarea placeholder="Observación opcional" {...field} />
+                      <Textarea placeholder="Motivo de la devolución" {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -293,9 +321,6 @@ export default function CompraFormPage() {
                   </div>
                 )
               })}
-              {form.formState.errors.items?.root && (
-                <p className="text-sm text-destructive">{form.formState.errors.items.root.message}</p>
-              )}
             </CardContent>
           </Card>
 
@@ -305,12 +330,12 @@ export default function CompraFormPage() {
           </div>
 
           <div className="flex justify-end gap-2">
-            <Button type="button" variant="outline" onClick={() => navigate("/compras")}>
+            <Button type="button" variant="outline" onClick={() => navigate("/devoluciones")}>
               Cancelar
             </Button>
-            <Button type="submit" disabled={createCompra.isPending}>
-              {createCompra.isPending && <Loader2 className="animate-spin" />}
-              Registrar compra
+            <Button type="submit" disabled={createDevolucion.isPending}>
+              {createDevolucion.isPending && <Loader2 className="animate-spin" />}
+              Registrar devolución
             </Button>
           </div>
         </form>

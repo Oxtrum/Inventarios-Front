@@ -11,7 +11,7 @@ import type {
 
 export const inventarioService = {
   stock: (params?: Record<string, string>) =>
-    api.get<Stock[]>("/inventario/stock", { params }),
+    api.get<Stock>("/inventario/stock", { params }),
 
   movimientos: (params?: Record<string, string>) =>
     api.get<Movimiento[]>("/inventario/movimientos", { params }),

@@ -14,12 +14,18 @@ import ProveedoresPage from "@/pages/proveedores"
 import SucursalesPage from "@/pages/sucursales"
 import UsuariosPage from "@/pages/usuarios"
 import RolesPage from "@/pages/roles"
+import RolDetailPage from "@/pages/roles/detalle"
 import ComprasPage from "@/pages/compras"
 import CompraFormPage from "@/pages/compras/nueva"
 import CompraDetailPage from "@/pages/compras/detalle"
 import TransferenciasPage from "@/pages/transferencias"
+import TransferenciaFormPage from "@/pages/transferencias/nueva"
+import TransferenciaDetailPage from "@/pages/transferencias/detalle"
 import DevolucionesPage from "@/pages/devoluciones"
+import DevolucionFormPage from "@/pages/devoluciones/nueva"
+import DevolucionDetailPage from "@/pages/devoluciones/detalle"
 import ConteosPage from "@/pages/conteos"
+import ConteoDetailPage from "@/pages/conteos/detalle"
 import InventarioPage from "@/pages/inventario"
 import MovimientosPage from "@/pages/inventario/movimientos"
 import AjustesPage from "@/pages/inventario/ajustes"
@@ -58,12 +64,18 @@ function App() {
                   <Route path="/sucursales" element={<SucursalesPage />} />
                   <Route path="/usuarios" element={<UsuariosPage />} />
                   <Route path="/roles" element={<RolesPage />} />
+                  <Route path="/roles/:id" element={<RolDetailPage />} />
                   <Route path="/compras" element={<ComprasPage />} />
                   <Route path="/compras/nueva" element={<CompraFormPage />} />
                   <Route path="/compras/:id" element={<CompraDetailPage />} />
                   <Route path="/transferencias" element={<TransferenciasPage />} />
+                  <Route path="/transferencias/nueva" element={<TransferenciaFormPage />} />
+                  <Route path="/transferencias/:id" element={<TransferenciaDetailPage />} />
                   <Route path="/devoluciones" element={<DevolucionesPage />} />
+                  <Route path="/devoluciones/nueva" element={<DevolucionFormPage />} />
+                  <Route path="/devoluciones/:id" element={<DevolucionDetailPage />} />
                   <Route path="/conteos" element={<ConteosPage />} />
+                  <Route path="/conteos/:id" element={<ConteoDetailPage />} />
                   <Route path="/inventario" element={<InventarioPage />} />
                   <Route path="/inventario/movimientos" element={<MovimientosPage />} />
                   <Route path="/inventario/ajustes" element={<AjustesPage />} />

@@ -9,5 +9,5 @@ export const reportesService = {
     api.get<KardexItem[]>("/reportes/kardex", { params }),
 
   valoracion: (params?: Record<string, string>) =>
-    api.get<ValoracionInventario[]>("/reportes/valoracion", { params }),
+    api.get<ValoracionInventario>("/reportes/valoracion", { params }),
 }

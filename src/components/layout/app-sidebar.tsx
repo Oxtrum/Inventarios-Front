@@ -15,6 +15,9 @@ import {
   IconUsers,
   IconShield,
   IconShoppingCart,
+  IconTransfer,
+  IconRotate,
+  IconClipboardList,
   IconReport,
   IconSettings,
   IconSearch,
@@ -151,6 +154,36 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                 >
                   <IconShoppingCart />
                   <span>Compras</span>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+              <SidebarMenuItem>
+                <SidebarMenuButton
+                  tooltip="Transferencias"
+                  isActive={isActive("/transferencias")}
+                  onClick={() => navigate("/transferencias")}
+                >
+                  <IconTransfer />
+                  <span>Transferencias</span>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+              <SidebarMenuItem>
+                <SidebarMenuButton
+                  tooltip="Devoluciones"
+                  isActive={isActive("/devoluciones")}
+                  onClick={() => navigate("/devoluciones")}
+                >
+                  <IconRotate />
+                  <span>Devoluciones</span>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+              <SidebarMenuItem>
+                <SidebarMenuButton
+                  tooltip="Conteos"
+                  isActive={isActive("/conteos")}
+                  onClick={() => navigate("/conteos")}
+                >
+                  <IconClipboardList />
+                  <span>Conteos</span>
                 </SidebarMenuButton>
               </SidebarMenuItem>
               <SidebarMenuItem>
