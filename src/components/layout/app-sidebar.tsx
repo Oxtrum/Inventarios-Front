@@ -18,7 +18,10 @@ import {
   IconTransfer,
   IconRotate,
   IconClipboardList,
-  IconReport,
+  IconHistory,
+  IconAdjustments,
+  IconAlertTriangle,
+  IconReportMoney,
   IconSettings,
   IconSearch,
 } from "@tabler/icons-react"
@@ -118,22 +121,12 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                   <span>Proveedores</span>
                 </SidebarMenuButton>
               </SidebarMenuItem>
-              <SidebarMenuItem>
-                <SidebarMenuButton
-                  tooltip="Sucursales"
-                  isActive={isActive("/sucursales")}
-                  onClick={() => navigate("/sucursales")}
-                >
-                  <IconBuildingStore />
-                  <span>Sucursales</span>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
 
         <SidebarGroup>
-          <SidebarGroupLabel>Operaciones</SidebarGroupLabel>
+          <SidebarGroupLabel>Inventario</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
               <SidebarMenuItem>
@@ -146,6 +139,44 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                   <span>Stock</span>
                 </SidebarMenuButton>
               </SidebarMenuItem>
+              <SidebarMenuItem>
+                <SidebarMenuButton
+                  tooltip="Movimientos"
+                  isActive={isActive("/inventario/movimientos")}
+                  onClick={() => navigate("/inventario/movimientos")}
+                >
+                  <IconHistory />
+                  <span>Movimientos</span>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+              <SidebarMenuItem>
+                <SidebarMenuButton
+                  tooltip="Ajustes"
+                  isActive={isActive("/inventario/ajustes")}
+                  onClick={() => navigate("/inventario/ajustes")}
+                >
+                  <IconAdjustments />
+                  <span>Ajustes</span>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+              <SidebarMenuItem>
+                <SidebarMenuButton
+                  tooltip="Conteos"
+                  isActive={isActive("/conteos")}
+                  onClick={() => navigate("/conteos")}
+                >
+                  <IconClipboardList />
+                  <span>Conteos</span>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
+
+        <SidebarGroup>
+          <SidebarGroupLabel>Operaciones</SidebarGroupLabel>
+          <SidebarGroupContent>
+            <SidebarMenu>
               <SidebarMenuItem>
                 <SidebarMenuButton
                   tooltip="Compras"
@@ -176,24 +207,42 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                   <span>Devoluciones</span>
                 </SidebarMenuButton>
               </SidebarMenuItem>
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
+
+        <SidebarGroup>
+          <SidebarGroupLabel>Reportes</SidebarGroupLabel>
+          <SidebarGroupContent>
+            <SidebarMenu>
               <SidebarMenuItem>
                 <SidebarMenuButton
-                  tooltip="Conteos"
-                  isActive={isActive("/conteos")}
-                  onClick={() => navigate("/conteos")}
+                  tooltip="Stock Bajo"
+                  isActive={isActive("/reportes/stock-bajo")}
+                  onClick={() => navigate("/reportes/stock-bajo")}
                 >
-                  <IconClipboardList />
-                  <span>Conteos</span>
+                  <IconAlertTriangle />
+                  <span>Stock Bajo</span>
                 </SidebarMenuButton>
               </SidebarMenuItem>
               <SidebarMenuItem>
                 <SidebarMenuButton
-                  tooltip="Reportes"
-                  isActive={isActive("/reportes")}
-                  onClick={() => navigate("/reportes")}
+                  tooltip="Kardex"
+                  isActive={isActive("/reportes/kardex")}
+                  onClick={() => navigate("/reportes/kardex")}
                 >
-                  <IconReport />
-                  <span>Reportes</span>
+                  <IconHistory />
+                  <span>Kardex</span>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+              <SidebarMenuItem>
+                <SidebarMenuButton
+                  tooltip="Valoración"
+                  isActive={isActive("/reportes/valoracion")}
+                  onClick={() => navigate("/reportes/valoracion")}
+                >
+                  <IconReportMoney />
+                  <span>Valoración</span>
                 </SidebarMenuButton>
               </SidebarMenuItem>
             </SidebarMenu>
@@ -204,6 +253,16 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
           <SidebarGroupLabel>Configuración</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
+              <SidebarMenuItem>
+                <SidebarMenuButton
+                  tooltip="General"
+                  isActive={isActive("/configuracion")}
+                  onClick={() => navigate("/configuracion")}
+                >
+                  <IconSettings />
+                  <span>General</span>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
               <SidebarMenuItem>
                 <SidebarMenuButton
                   tooltip="Usuarios"
@@ -226,12 +285,12 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
               </SidebarMenuItem>
               <SidebarMenuItem>
                 <SidebarMenuButton
-                  tooltip="Configuración"
-                  isActive={isActive("/configuracion")}
-                  onClick={() => navigate("/configuracion")}
+                  tooltip="Sucursales"
+                  isActive={isActive("/sucursales")}
+                  onClick={() => navigate("/sucursales")}
                 >
-                  <IconSettings />
-                  <span>Configuración</span>
+                  <IconBuildingStore />
+                  <span>Sucursales</span>
                 </SidebarMenuButton>
               </SidebarMenuItem>
             </SidebarMenu>
