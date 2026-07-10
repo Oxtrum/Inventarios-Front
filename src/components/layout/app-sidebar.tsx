@@ -13,6 +13,7 @@ import {
   IconTruck,
   IconBriefcase,
   IconBuildingStore,
+  IconBoxSeam,
   IconTags,
   IconUsers,
   IconShield,
@@ -123,6 +124,16 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                 >
                   <IconTruck />
                   <span>Proveedores</span>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+              <SidebarMenuItem>
+                <SidebarMenuButton
+                  tooltip="Tipos de Producto"
+                  isActive={isActive("/tipos-producto")}
+                  onClick={() => navigate("/tipos-producto")}
+                >
+                  <IconBoxSeam />
+                  <span>Tipos de Producto</span>
                 </SidebarMenuButton>
               </SidebarMenuItem>
               <SidebarMenuItem>
