@@ -29,6 +29,7 @@ import ConteoDetailPage from "@/pages/conteos/detalle"
 import InventarioPage from "@/pages/inventario"
 import MovimientosPage from "@/pages/inventario/movimientos"
 import AjustesPage from "@/pages/inventario/ajustes"
+import ReservasPage from "@/pages/inventario/reservas"
 import ReportesPage from "@/pages/reportes"
 import StockBajoPage from "@/pages/reportes/stock-bajo"
 import KardexPage from "@/pages/reportes/kardex"
@@ -79,6 +80,7 @@ function App() {
                   <Route path="/inventario" element={<InventarioPage />} />
                   <Route path="/inventario/movimientos" element={<MovimientosPage />} />
                   <Route path="/inventario/ajustes" element={<AjustesPage />} />
+                  <Route path="/inventario/reservas" element={<ReservasPage />} />
                   <Route path="/reportes" element={<ReportesPage />} />
                   <Route path="/reportes/stock-bajo" element={<StockBajoPage />} />
                   <Route path="/reportes/kardex" element={<KardexPage />} />

@@ -20,6 +20,7 @@ import {
   IconClipboardList,
   IconHistory,
   IconAdjustments,
+  IconLock,
   IconAlertTriangle,
   IconReportMoney,
   IconSettings,
@@ -157,6 +158,16 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                 >
                   <IconAdjustments />
                   <span>Ajustes</span>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+              <SidebarMenuItem>
+                <SidebarMenuButton
+                  tooltip="Reservas"
+                  isActive={isActive("/inventario/reservas")}
+                  onClick={() => navigate("/inventario/reservas")}
+                >
+                  <IconLock />
+                  <span>Reservas</span>
                 </SidebarMenuButton>
               </SidebarMenuItem>
               <SidebarMenuItem>
