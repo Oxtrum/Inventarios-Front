@@ -41,6 +41,7 @@ import AtributosPage from "@/pages/atributos"
 import AtributoDetailPage from "@/pages/atributos/detalle"
 import TiposProductoPage from "@/pages/tipos-producto"
 import TipoProductoDetailPage from "@/pages/tipos-producto/detalle"
+import ProductoVariantesPage from "@/pages/productos/variantes"
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -98,6 +99,7 @@ function App() {
                   <Route path="/atributos/:id" element={<AtributoDetailPage />} />
                   <Route path="/tipos-producto" element={<TiposProductoPage />} />
                   <Route path="/tipos-producto/:id" element={<TipoProductoDetailPage />} />
+                  <Route path="/productos/:id/variantes" element={<ProductoVariantesPage />} />
                 </Route>
               </Routes>
             </BrowserRouter>

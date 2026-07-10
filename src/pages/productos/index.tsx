@@ -1,5 +1,6 @@
 import { useMemo, useState } from "react"
-import { IconDotsVertical, IconPlus } from "@tabler/icons-react"
+import { useNavigate } from "react-router-dom"
+import { IconAdjustments, IconDotsVertical, IconPlus } from "@tabler/icons-react"
 import { toast } from "sonner"
 import type { ColumnDef } from "@tanstack/react-table"
 
@@ -33,6 +34,7 @@ import { ProductoForm } from "./ProductoForm"
 const ALL = "__all__"
 
 export default function ProductosPage() {
+  const navigate = useNavigate()
   const [nombre, setNombre] = useState("")
   const [categoriaId, setCategoriaId] = useState(ALL)
   const [formOpen, setFormOpen] = useState(false)
@@ -126,6 +128,10 @@ export default function ProductosPage() {
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-40">
               <DropdownMenuItem onClick={() => handleEdit(producto)}>Editar</DropdownMenuItem>
+              <DropdownMenuItem onClick={() => navigate(`/productos/${producto.id}/variantes`)}>
+                <IconAdjustments />
+                Variantes
+              </DropdownMenuItem>
               {producto.activo ? (
                 <DropdownMenuItem variant="destructive" onClick={() => setDeactivating(producto)}>
                   Desactivar
