@@ -24,6 +24,7 @@ import {
   IconAlertTriangle,
   IconReportMoney,
   IconSettings,
+  IconBuilding,
   IconSearch,
 } from "@tabler/icons-react"
 
@@ -302,6 +303,16 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                 >
                   <IconBuildingStore />
                   <span>Sucursales</span>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+              <SidebarMenuItem>
+                <SidebarMenuButton
+                  tooltip="Organizaciones"
+                  isActive={isActive("/organizaciones")}
+                  onClick={() => navigate("/organizaciones")}
+                >
+                  <IconBuilding />
+                  <span>Organizaciones</span>
                 </SidebarMenuButton>
               </SidebarMenuItem>
             </SidebarMenu>

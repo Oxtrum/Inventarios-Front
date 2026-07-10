@@ -35,6 +35,7 @@ import StockBajoPage from "@/pages/reportes/stock-bajo"
 import KardexPage from "@/pages/reportes/kardex"
 import ValoracionPage from "@/pages/reportes/valoracion"
 import ConfiguracionPage from "@/pages/configuracion"
+import OrganizacionesPage from "@/pages/organizaciones"
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -86,6 +87,7 @@ function App() {
                   <Route path="/reportes/kardex" element={<KardexPage />} />
                   <Route path="/reportes/valoracion" element={<ValoracionPage />} />
                   <Route path="/configuracion" element={<ConfiguracionPage />} />
+                  <Route path="/organizaciones" element={<OrganizacionesPage />} />
                 </Route>
               </Routes>
             </BrowserRouter>
