@@ -35,7 +35,6 @@ import StockBajoPage from "@/pages/reportes/stock-bajo"
 import KardexPage from "@/pages/reportes/kardex"
 import ValoracionPage from "@/pages/reportes/valoracion"
 import ConfiguracionPage from "@/pages/configuracion"
-import OrganizacionesPage from "@/pages/organizaciones"
 import TiposNegocioPage from "@/pages/tipos-negocio"
 import AtributosPage from "@/pages/atributos"
 import AtributoDetailPage from "@/pages/atributos/detalle"
@@ -44,6 +43,7 @@ import TipoProductoDetailPage from "@/pages/tipos-producto/detalle"
 import ProductoVariantesPage from "@/pages/productos/variantes"
 import PlantillasPage from "@/pages/plantillas"
 import CatalogoPage from "@/pages/catalogo"
+import { RequirePermission } from "@/components/shared/RequirePermission"
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -71,10 +71,10 @@ function App() {
                   <Route path="/categorias" element={<CategoriasPage />} />
                   <Route path="/unidades" element={<UnidadesPage />} />
                   <Route path="/proveedores" element={<ProveedoresPage />} />
-                  <Route path="/sucursales" element={<SucursalesPage />} />
-                  <Route path="/usuarios" element={<UsuariosPage />} />
-                  <Route path="/roles" element={<RolesPage />} />
-                  <Route path="/roles/:id" element={<RolDetailPage />} />
+                  <Route path="/sucursales" element={<RequirePermission permiso="sucursales:leer"><SucursalesPage /></RequirePermission>} />
+                  <Route path="/usuarios" element={<RequirePermission permiso="usuarios:leer"><UsuariosPage /></RequirePermission>} />
+                  <Route path="/roles" element={<RequirePermission permiso="roles:leer"><RolesPage /></RequirePermission>} />
+                  <Route path="/roles/:id" element={<RequirePermission permiso="roles:leer"><RolDetailPage /></RequirePermission>} />
                   <Route path="/compras" element={<ComprasPage />} />
                   <Route path="/compras/nueva" element={<CompraFormPage />} />
                   <Route path="/compras/:id" element={<CompraDetailPage />} />
@@ -95,7 +95,6 @@ function App() {
                   <Route path="/reportes/kardex" element={<KardexPage />} />
                   <Route path="/reportes/valoracion" element={<ValoracionPage />} />
                   <Route path="/configuracion" element={<ConfiguracionPage />} />
-                  <Route path="/organizaciones" element={<OrganizacionesPage />} />
                   <Route path="/tipos-negocio" element={<TiposNegocioPage />} />
                   <Route path="/atributos" element={<AtributosPage />} />
                   <Route path="/atributos/:id" element={<AtributoDetailPage />} />

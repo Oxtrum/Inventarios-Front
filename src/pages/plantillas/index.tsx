@@ -10,7 +10,6 @@ import { PageHeader } from "@/components/shared/PageHeader"
 import { EmptyState } from "@/components/shared/EmptyState"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
-import { Checkbox } from "@/components/ui/checkbox"
 import { Skeleton } from "@/components/ui/skeleton"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import {
@@ -29,33 +28,16 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog"
 
-const DEFAULT_INCLUDE = {
-  incluirTiposProducto: true,
-  incluirAtributos: true,
-  incluirValores: true,
-  incluirRelaciones: true,
-  incluirConfiguraciones: true,
-}
-
-const INCLUDE_OPTIONS: { key: keyof typeof DEFAULT_INCLUDE; label: string }[] = [
-  { key: "incluirTiposProducto", label: "Tipos de producto" },
-  { key: "incluirAtributos", label: "Atributos" },
-  { key: "incluirValores", label: "Valores de atributo" },
-  { key: "incluirRelaciones", label: "Relaciones tipo de producto ↔ atributo" },
-  { key: "incluirConfiguraciones", label: "Configuraciones" },
-]
-
 export default function PlantillasPage() {
   const [tipoNegocioId, setTipoNegocioId] = useState("")
   const [dialogOpen, setDialogOpen] = useState(false)
-  const [include, setInclude] = useState(DEFAULT_INCLUDE)
 
   const { data: tiposNegocio } = useTiposNegocio({ activo: "true" })
   const { data: detalle, isLoading } = useDetallePlantilla(tipoNegocioId)
   const aplicarPlantilla = useAplicarPlantilla(tipoNegocioId)
 
   function handleAplicar() {
-    aplicarPlantilla.mutate(include, {
+    aplicarPlantilla.mutate({}, {
       onSuccess: (result) => {
         toast.success(
           `Plantilla aplicada: ${result.tiposProducto} tipos de producto, ${result.atributos} atributos, ${result.valores} valores, ${result.relaciones} relaciones, ${result.configuraciones} configuraciones`
@@ -98,17 +80,11 @@ export default function PlantillasPage() {
               <DialogHeader>
                 <DialogTitle>Aplicar plantilla</DialogTitle>
               </DialogHeader>
-              <div className="flex flex-col gap-3">
-                {INCLUDE_OPTIONS.map((option) => (
-                  <label key={option.key} className="flex items-center gap-3 text-sm">
-                    <Checkbox
-                      checked={include[option.key]}
-                      onCheckedChange={(checked) => setInclude((prev) => ({ ...prev, [option.key]: !!checked }))}
-                    />
-                    {option.label}
-                  </label>
-                ))}
-              </div>
+              <p className="text-sm text-muted-foreground">
+                Se copiarán los tipos de producto, atributos, valores, relaciones y configuraciones de la plantilla a tu organización.
+                Los atributos ya existentes con el mismo código se actualizarán con la definición de esta plantilla.
+                Los datos existentes no se eliminarán.
+              </p>
               <DialogFooter>
                 <Button onClick={handleAplicar} disabled={aplicarPlantilla.isPending}>
                   {aplicarPlantilla.isPending && <Loader2 className="animate-spin" />}

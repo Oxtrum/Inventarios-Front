@@ -130,20 +130,25 @@ export function AtributoForm({ open, onOpenChange, atributo }: AtributoFormProps
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Tipo de Dato</FormLabel>
-                  <Select value={field.value} onValueChange={field.onChange}>
-                    <FormControl>
-                      <SelectTrigger className="w-full">
-                        <SelectValue />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      <SelectItem value="texto">Texto</SelectItem>
-                      <SelectItem value="numero">Número</SelectItem>
-                      <SelectItem value="booleano">Booleano</SelectItem>
-                      <SelectItem value="fecha">Fecha</SelectItem>
-                      <SelectItem value="opcion">Opción (lista de valores)</SelectItem>
-                    </SelectContent>
-                  </Select>
+                  <FormControl>
+                    {isEditing ? (
+                      <Input value={field.value} disabled className="text-muted-foreground" />
+                    ) : (
+                      <Select value={field.value} onValueChange={field.onChange}>
+                        <SelectTrigger className="w-full">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="texto">Texto</SelectItem>
+                          <SelectItem value="numero">Número</SelectItem>
+                          <SelectItem value="booleano">Booleano</SelectItem>
+                          <SelectItem value="fecha">Fecha</SelectItem>
+                          <SelectItem value="opcion">Opción (lista de valores)</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    )}
+                  </FormControl>
+                  {isEditing && <p className="text-xs text-muted-foreground">No se puede cambiar el tipo de dato después de crear el atributo.</p>}
                   <FormMessage />
                 </FormItem>
               )}

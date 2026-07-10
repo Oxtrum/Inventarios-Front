@@ -7,6 +7,7 @@ import { toast } from "sonner"
 
 import { useCategorias } from "@/hooks/useCategorias"
 import { useUnidades } from "@/hooks/useUnidades"
+import { useTiposProducto } from "@/hooks/useTiposProducto"
 import { useCreateProducto, useUpdateProducto } from "@/hooks/useProductos"
 import { ApiError } from "@/lib/api"
 import { numberString } from "@/lib/validation"
@@ -22,6 +23,7 @@ import {
 } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
+import { Checkbox } from "@/components/ui/checkbox"
 import {
   Select,
   SelectContent,
@@ -46,6 +48,8 @@ const formSchema = z.object({
   descripcion: z.string().optional(),
   categoriaId: z.string().optional(),
   unidadId: z.string().optional(),
+  tipoProductoId: z.string().optional(),
+  esVarianteRequerida: z.boolean(),
   costo: numberString,
   precio: numberString,
   stockMinimo: numberString,
@@ -63,6 +67,7 @@ export function ProductoForm({ open, onOpenChange, producto }: ProductoFormProps
   const isEditing = !!producto
   const { data: categorias } = useCategorias({ activo: "true" })
   const { data: unidades } = useUnidades({ activo: "true" })
+  const { data: tiposProducto } = useTiposProducto({ activo: "true" })
   const createProducto = useCreateProducto()
   const updateProducto = useUpdateProducto(producto?.id ?? "")
 
@@ -74,6 +79,8 @@ export function ProductoForm({ open, onOpenChange, producto }: ProductoFormProps
       descripcion: "",
       categoriaId: NONE,
       unidadId: NONE,
+      tipoProductoId: NONE,
+      esVarianteRequerida: false,
       costo: "0",
       precio: "0",
       stockMinimo: "0",
@@ -88,6 +95,8 @@ export function ProductoForm({ open, onOpenChange, producto }: ProductoFormProps
       descripcion: producto?.descripcion ?? "",
       categoriaId: producto?.categoriaId ?? NONE,
       unidadId: producto?.unidadId ?? NONE,
+      tipoProductoId: producto?.tipoProductoId ?? NONE,
+      esVarianteRequerida: producto?.esVarianteRequerida ?? false,
       costo: String(producto?.costo ?? 0),
       precio: String(producto?.precio ?? 0),
       stockMinimo: String(producto?.stockMinimo ?? 0),
@@ -103,6 +112,8 @@ export function ProductoForm({ open, onOpenChange, producto }: ProductoFormProps
       descripcion: values.descripcion || undefined,
       categoriaId: values.categoriaId === NONE ? undefined : values.categoriaId,
       unidadId: values.unidadId === NONE ? undefined : values.unidadId,
+      tipoProductoId: values.tipoProductoId === NONE ? undefined : values.tipoProductoId,
+      esVarianteRequerida: values.esVarianteRequerida,
       costo: Number(values.costo || 0),
       precio: Number(values.precio || 0),
       stockMinimo: Number(values.stockMinimo || 0),
@@ -227,6 +238,43 @@ export function ProductoForm({ open, onOpenChange, producto }: ProductoFormProps
                 )}
               />
             </div>
+            <FormField
+              control={form.control}
+              name="tipoProductoId"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Tipo de Producto</FormLabel>
+                  <Select value={field.value} onValueChange={field.onChange}>
+                    <FormControl>
+                      <SelectTrigger className="w-full">
+                        <SelectValue placeholder="Seleccionar" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      <SelectItem value={NONE}>Sin tipo</SelectItem>
+                      {(tiposProducto ?? []).map((tp) => (
+                        <SelectItem key={tp.id} value={tp.id}>
+                          {tp.nombre}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="esVarianteRequerida"
+              render={({ field }) => (
+                <FormItem className="flex flex-row items-center gap-2">
+                  <FormControl>
+                    <Checkbox checked={field.value} onCheckedChange={field.onChange} />
+                  </FormControl>
+                  <FormLabel className="!mt-0">Requiere variantes</FormLabel>
+                </FormItem>
+              )}
+            />
             <div className="grid grid-cols-3 gap-4">
               <FormField
                 control={form.control}

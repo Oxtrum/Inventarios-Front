@@ -24,6 +24,7 @@ import { PageHeader } from "@/components/shared/PageHeader"
 import { CrudTable } from "@/components/shared/CrudTable"
 import { ConfirmDialog } from "@/components/shared/ConfirmDialog"
 import { EstadoBadge } from "@/components/shared/StatusBadge"
+import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
@@ -193,7 +194,7 @@ function NuevaReservaForm() {
                   <FormItem className="sm:col-span-3">
                     <FormLabel>Cantidad</FormLabel>
                     <FormControl>
-                      <Input type="number" step="0.01" {...field} />
+                      <Input type="number" step="1" {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -298,7 +299,20 @@ export default function ReservasPage() {
       header: () => <div className="text-right">Items</div>,
       cell: ({ row }) => <div className="text-right">{row.original.items.length}</div>,
     },
-    { accessorKey: "estado", header: "Estado", cell: ({ row }) => <EstadoBadge estado={row.original.estado} /> },
+    {
+      accessorKey: "estado",
+      header: "Estado",
+      cell: ({ row }) => {
+        const reserva = row.original
+        const vencida = reserva.estado === "activa" && new Date(reserva.fechaExpiracion) < new Date()
+        return (
+          <div className="flex items-center gap-2">
+            <EstadoBadge estado={reserva.estado} />
+            {vencida && <Badge variant="destructive">Por expirar</Badge>}
+          </div>
+        )
+      },
+    },
     {
       accessorKey: "fechaExpiracion",
       header: "Expira",
@@ -334,7 +348,7 @@ export default function ReservasPage() {
     <div className="flex flex-1 flex-col gap-4 py-4 md:py-6">
       <PageHeader
         title="Reservas de Stock"
-        description="Reservas de inventario para integración con eshop u otros consumidores."
+        description="Una reserva aparta stock disponible sin sacarlo del inventario (para un carrito o pedido externo). Confirmar = genera una venta definitiva. Liberar / Expirar = cancela y devuelve el stock."
         action={
           <Button variant="outline" asChild>
             <Link to="/inventario">

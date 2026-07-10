@@ -27,9 +27,12 @@ export default function RolDetailPage() {
 
   const asignadoIds = useMemo(() => new Set((asignados ?? []).map((p) => p.id)), [asignados])
 
+  const RECURSOS_PLATAFORMA = new Set(["organizaciones", "permisos", "tipos_negocio"])
+
   const grupos = useMemo(() => {
     const map = new Map<string, Permiso[]>()
     for (const permiso of permisos ?? []) {
+      if (RECURSOS_PLATAFORMA.has(permiso.recurso)) continue
       const list = map.get(permiso.recurso) ?? []
       list.push(permiso)
       map.set(permiso.recurso, list)

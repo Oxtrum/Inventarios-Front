@@ -41,7 +41,7 @@ export default function ProductosPage() {
   const [editing, setEditing] = useState<Producto | undefined>(undefined)
   const [deactivating, setDeactivating] = useState<Producto | undefined>(undefined)
 
-  const { data: categorias } = useCategorias({ activo: "true" })
+  const { data: categorias } = useCategorias({})
   const { data: productos, isLoading } = useProductos({
     ...(nombre ? { nombre } : {}),
     ...(categoriaId !== ALL ? { categoriaId } : {}),

@@ -9,6 +9,8 @@ export interface Producto {
   costo: number
   precio: number
   stockMinimo: number
+  tipoProductoId?: string
+  esVarianteRequerida?: boolean
   activo: boolean
   fechaCreacion: string
   fechaActualizacion: string
@@ -23,6 +25,8 @@ export interface CreateProductoInput {
   costo?: number
   precio?: number
   stockMinimo?: number
+  tipoProductoId?: string
+  esVarianteRequerida?: boolean
 }
 
 export interface UpdateProductoInput {
@@ -34,4 +38,6 @@ export interface UpdateProductoInput {
   costo?: number
   precio?: number
   stockMinimo?: number
+  tipoProductoId?: string
+  esVarianteRequerida?: boolean
 }

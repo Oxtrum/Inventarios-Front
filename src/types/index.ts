@@ -1,5 +1,4 @@
 export type * from "./common"
-export type * from "./organizacion"
 export type * from "./categoria"
 export type * from "./unidad"
 export type * from "./producto"
