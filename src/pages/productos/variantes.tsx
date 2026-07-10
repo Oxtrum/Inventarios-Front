@@ -3,7 +3,7 @@ import { useParams, Link } from "react-router-dom"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { z } from "zod"
-import { IconArrowLeft, IconDotsVertical, IconPlus } from "@tabler/icons-react"
+import { IconAdjustments, IconArrowLeft, IconDotsVertical, IconPlus } from "@tabler/icons-react"
 import { Loader2 } from "lucide-react"
 import { toast } from "sonner"
 import type { ColumnDef } from "@tanstack/react-table"
@@ -19,6 +19,9 @@ import {
   useProductoAtributos,
   useSetProductoAtributo,
   useRemoveProductoAtributo,
+  useVarianteAtributos,
+  useSetVarianteAtributo,
+  useRemoveVarianteAtributo,
 } from "@/hooks/useProductoVariantes"
 import { ApiError } from "@/lib/api"
 import { formatCurrency } from "@/lib/utils"
@@ -498,12 +501,91 @@ function ProductoAtributosTab({ productoId }: { productoId: string }) {
   )
 }
 
+interface VarianteAtributosSheetProps {
+  open: boolean
+  onOpenChange: (open: boolean) => void
+  variante?: ProductoVariante
+}
+
+function VarianteAtributosSheet({ open, onOpenChange, variante }: VarianteAtributosSheetProps) {
+  const varianteId = variante?.id ?? ""
+  const { data: atributos } = useAtributos({ activo: "true" })
+  const { data: asignados, isLoading } = useVarianteAtributos(varianteId)
+  const setAtributo = useSetVarianteAtributo(varianteId)
+  const removeAtributo = useRemoveVarianteAtributo(varianteId)
+
+  const atributoPorId = useMemo(() => {
+    const map = new Map<string, Atributo>()
+    for (const atributo of atributos ?? []) map.set(atributo.id, atributo)
+    return map
+  }, [atributos])
+
+  const atributoValorNombrePorId = useMemo(() => new Map<string, string>(), [])
+  const asignadoIds = useMemo(() => new Set((asignados ?? []).map((a) => a.atributoId)), [asignados])
+  const disponibles = (atributos ?? []).filter((atributo) => !asignadoIds.has(atributo.id))
+
+  function handleAsignar(data: SetAtributoValorInput) {
+    setAtributo.mutate(data, {
+      onSuccess: () => toast.success("Atributo asignado"),
+      onError: (err) => toast.error(err instanceof ApiError ? err.message : "No se pudo asignar el atributo"),
+    })
+  }
+
+  function handleRemove(atributoId: string) {
+    removeAtributo.mutate(atributoId, {
+      onSuccess: () => toast.success("Atributo removido"),
+      onError: (err) => toast.error(err instanceof ApiError ? err.message : "No se pudo remover el atributo"),
+    })
+  }
+
+  const columns: ColumnDef<ProductoAtributoValor>[] = [
+    { id: "nombre", header: "Atributo", cell: ({ row }) => atributoPorId.get(row.original.atributoId)?.nombre ?? "—" },
+    { id: "valor", header: "Valor", cell: ({ row }) => valorDisplay(row.original, atributoValorNombrePorId) },
+    {
+      id: "actions",
+      cell: ({ row }) => (
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="ghost" size="icon" className="size-8 text-muted-foreground">
+              <IconDotsVertical />
+              <span className="sr-only">Abrir menú</span>
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end" className="w-40">
+            <DropdownMenuItem variant="destructive" onClick={() => handleRemove(row.original.atributoId)}>
+              Remover
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      ),
+    },
+  ]
+
+  return (
+    <Sheet open={open} onOpenChange={onOpenChange}>
+      <SheetContent className="sm:max-w-lg">
+        <SheetHeader>
+          <SheetTitle>{variante ? `Atributos de ${variante.nombre}` : "Atributos de la variante"}</SheetTitle>
+          <SheetDescription>Valores de atributo que distinguen esta variante (talla, color, etc.).</SheetDescription>
+        </SheetHeader>
+        <div className="flex flex-col gap-4 overflow-y-auto px-4">
+          <div className="flex justify-end">
+            <AsignarAtributoDialog atributosDisponibles={disponibles} onSubmit={handleAsignar} isSubmitting={setAtributo.isPending} />
+          </div>
+          <CrudTable columns={columns} data={asignados ?? []} isLoading={isLoading} emptyMessage="Sin atributos asignados a esta variante." />
+        </div>
+      </SheetContent>
+    </Sheet>
+  )
+}
+
 export default function ProductoVariantesPage() {
   const { id } = useParams<{ id: string }>()
   const productoId = id ?? ""
   const [formOpen, setFormOpen] = useState(false)
   const [editing, setEditing] = useState<ProductoVariante | undefined>(undefined)
   const [deactivating, setDeactivating] = useState<ProductoVariante | undefined>(undefined)
+  const [atributosSheetTarget, setAtributosSheetTarget] = useState<ProductoVariante | undefined>(undefined)
 
   const { data: producto } = useProducto(productoId)
   const { data: variantes, isLoading } = useProductoVariantes(productoId)
@@ -563,6 +645,10 @@ export default function ProductoVariantesPage() {
               <DropdownMenuItem onClick={() => { setEditing(variante); setFormOpen(true) }}>
                 Editar
               </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => setAtributosSheetTarget(variante)}>
+                <IconAdjustments />
+                Atributos
+              </DropdownMenuItem>
               {variante.activo ? (
                 <DropdownMenuItem
                   variant="destructive"
@@ -621,6 +707,11 @@ export default function ProductoVariantesPage() {
       </div>
 
       <VarianteForm open={formOpen} onOpenChange={setFormOpen} productoId={productoId} variante={editing} />
+      <VarianteAtributosSheet
+        open={!!atributosSheetTarget}
+        onOpenChange={(open) => !open && setAtributosSheetTarget(undefined)}
+        variante={atributosSheetTarget}
+      />
       <ConfirmDialog
         open={!!deactivating}
         onOpenChange={(open) => !open && setDeactivating(undefined)}
