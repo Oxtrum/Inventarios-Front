@@ -44,17 +44,31 @@ export interface ReservaStockItem {
   cantidad: number
 }
 
+export interface CatalogoVariante {
+  id: string
+  sku: string
+  codigoBarras?: string
+  nombre: string
+  precio: number
+  stockDisponible: number
+  atributos: Record<string, string>
+  fechaActualizacion: string
+}
+
 export interface CatalogoProducto {
   id: string
   categoriaId?: string
   unidadId?: string
+  tipoProductoId?: string
+  tipoProducto?: string
   codigo?: string
   nombre: string
   descripcion?: string
-  precio: number
   stockMinimo: number
   stockDisponible: number
   sucursalId: string
+  atributos: Record<string, string>
+  variantes: CatalogoVariante[]
   fechaActualizacion: string
 }
 
