@@ -36,6 +36,7 @@ import KardexPage from "@/pages/reportes/kardex"
 import ValoracionPage from "@/pages/reportes/valoracion"
 import ConfiguracionPage from "@/pages/configuracion"
 import OrganizacionesPage from "@/pages/organizaciones"
+import TiposNegocioPage from "@/pages/tipos-negocio"
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -88,6 +89,7 @@ function App() {
                   <Route path="/reportes/valoracion" element={<ValoracionPage />} />
                   <Route path="/configuracion" element={<ConfiguracionPage />} />
                   <Route path="/organizaciones" element={<OrganizacionesPage />} />
+                  <Route path="/tipos-negocio" element={<TiposNegocioPage />} />
                 </Route>
               </Routes>
             </BrowserRouter>

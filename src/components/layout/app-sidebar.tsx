@@ -11,6 +11,7 @@ import {
   IconCategory,
   IconRuler,
   IconTruck,
+  IconBriefcase,
   IconBuildingStore,
   IconUsers,
   IconShield,
@@ -121,6 +122,24 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                 >
                   <IconTruck />
                   <span>Proveedores</span>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
+
+        <SidebarGroup>
+          <SidebarGroupLabel>Plantillas</SidebarGroupLabel>
+          <SidebarGroupContent>
+            <SidebarMenu>
+              <SidebarMenuItem>
+                <SidebarMenuButton
+                  tooltip="Tipos de Negocio"
+                  isActive={isActive("/tipos-negocio")}
+                  onClick={() => navigate("/tipos-negocio")}
+                >
+                  <IconBriefcase />
+                  <span>Tipos de Negocio</span>
                 </SidebarMenuButton>
               </SidebarMenuItem>
             </SidebarMenu>
