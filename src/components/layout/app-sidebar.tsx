@@ -29,6 +29,7 @@ import {
   IconSettings,
   IconTemplate,
   IconBuilding,
+  IconWorld,
   IconSearch,
 } from "@tabler/icons-react"
 
@@ -145,6 +146,16 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                 >
                   <IconTags />
                   <span>Atributos</span>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+              <SidebarMenuItem>
+                <SidebarMenuButton
+                  tooltip="Catálogo Público"
+                  isActive={isActive("/catalogo")}
+                  onClick={() => navigate("/catalogo")}
+                >
+                  <IconWorld />
+                  <span>Catálogo Público</span>
                 </SidebarMenuButton>
               </SidebarMenuItem>
             </SidebarMenu>
