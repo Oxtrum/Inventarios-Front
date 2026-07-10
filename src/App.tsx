@@ -37,6 +37,8 @@ import ValoracionPage from "@/pages/reportes/valoracion"
 import ConfiguracionPage from "@/pages/configuracion"
 import OrganizacionesPage from "@/pages/organizaciones"
 import TiposNegocioPage from "@/pages/tipos-negocio"
+import AtributosPage from "@/pages/atributos"
+import AtributoDetailPage from "@/pages/atributos/detalle"
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -90,6 +92,8 @@ function App() {
                   <Route path="/configuracion" element={<ConfiguracionPage />} />
                   <Route path="/organizaciones" element={<OrganizacionesPage />} />
                   <Route path="/tipos-negocio" element={<TiposNegocioPage />} />
+                  <Route path="/atributos" element={<AtributosPage />} />
+                  <Route path="/atributos/:id" element={<AtributoDetailPage />} />
                 </Route>
               </Routes>
             </BrowserRouter>
