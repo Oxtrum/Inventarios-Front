@@ -22,11 +22,21 @@ import { Input } from "@/components/ui/input"
 import { PasswordInput } from "@/components/password-input"
 
 const formSchema = z.object({
+  codigoOrganizacion: z.string().trim().min(1, "Ingresa el código de tu organización"),
   usuario: z.string().min(1, "Ingresa tu usuario"),
   contrasena: z.string().min(1, "Ingresa tu contraseña"),
 })
 
 type FormValues = z.infer<typeof formSchema>
+const LAST_ORG_CODE_KEY = "last_organization_code"
+
+function getLastOrganizationCode(): string {
+  try {
+    return localStorage.getItem(LAST_ORG_CODE_KEY) ?? ""
+  } catch {
+    return ""
+  }
+}
 
 export default function LoginPage() {
   const [isLoading, setIsLoading] = useState(false)
@@ -36,6 +46,7 @@ export default function LoginPage() {
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
+      codigoOrganizacion: getLastOrganizationCode(),
       usuario: "",
       contrasena: "",
     },
@@ -44,7 +55,12 @@ export default function LoginPage() {
   async function onSubmit(values: FormValues) {
     try {
       setIsLoading(true)
-      await login(values.usuario, values.contrasena)
+      await login(values.codigoOrganizacion, values.usuario, values.contrasena)
+      try {
+        localStorage.setItem(LAST_ORG_CODE_KEY, values.codigoOrganizacion)
+      } catch {
+        // El acceso sigue funcionando aunque el navegador bloquee localStorage.
+      }
       navigate("/dashboard", { replace: true })
     } catch (err) {
       const message =
@@ -99,6 +115,23 @@ export default function LoginPage() {
               onSubmit={form.handleSubmit(onSubmit)}
               className="grid gap-4"
             >
+              <FormField
+                control={form.control}
+                name="codigoOrganizacion"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Organización</FormLabel>
+                    <FormControl>
+                      <Input
+                        autoComplete="organization"
+                        placeholder="Código de tu organización"
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
               <FormField
                 control={form.control}
                 name="usuario"
