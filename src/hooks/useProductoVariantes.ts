@@ -10,6 +10,7 @@ import type {
 export const productoVariantesKeys = {
   all: ["productoVariantes"] as const,
   list: (productoId: string) => [...productoVariantesKeys.all, productoId] as const,
+  detail: (varianteId: string) => [...productoVariantesKeys.all, "detail", varianteId] as const,
   varianteAtributos: (varianteId: string) => [...productoVariantesKeys.all, "atributos", varianteId] as const,
 }
 
@@ -23,6 +24,14 @@ export function useProductoVariantes(productoId: string) {
     queryKey: productoVariantesKeys.list(productoId),
     queryFn: () => productoVariantesService.list(productoId),
     enabled: !!productoId,
+  })
+}
+
+export function useProductoVariante(varianteId: string) {
+  return useQuery({
+    queryKey: productoVariantesKeys.detail(varianteId),
+    queryFn: () => productoVariantesService.getById(varianteId),
+    enabled: !!varianteId,
   })
 }
 

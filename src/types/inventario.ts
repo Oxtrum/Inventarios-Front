@@ -5,6 +5,7 @@ export interface Movimiento {
   organizacionId: string
   sucursalId: string
   productoId: string
+  productoVarianteId: string
   tipo: MovementType
   cantidad: number
   motivo?: string
@@ -17,6 +18,7 @@ export interface Movimiento {
 
 export interface Stock {
   productoId: string
+  productoVarianteId: string
   sucursalId: string
   stockActual: number
   stockReservado: number
@@ -41,6 +43,7 @@ export interface ReservaStockItem {
   id: string
   reservaId: string
   productoId: string
+  productoVarianteId: string
   cantidad: number
 }
 
@@ -74,6 +77,7 @@ export interface CatalogoProducto {
 
 export interface AjusteRequest {
   productoId: string
+  productoVarianteId?: string
   sucursalId: string
   tipo: string
   cantidad: number
@@ -82,6 +86,7 @@ export interface AjusteRequest {
 
 export interface MermaRequest {
   productoId: string
+  productoVarianteId?: string
   sucursalId: string
   cantidad: number
   motivo?: string
@@ -96,5 +101,6 @@ export interface CrearReservaRequest {
 
 export interface CrearReservaItem {
   productoId: string
+  productoVarianteId?: string
   cantidad: number
 }

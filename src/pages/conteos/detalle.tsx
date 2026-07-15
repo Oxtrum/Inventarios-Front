@@ -20,6 +20,7 @@ import { numberString } from "@/lib/validation"
 import { PageHeader } from "@/components/shared/PageHeader"
 import { EstadoBadge } from "@/components/shared/StatusBadge"
 import { ConfirmDialog } from "@/components/shared/ConfirmDialog"
+import { ProductoVarianteLabel } from "@/components/shared/ProductoVarianteLabel"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
@@ -38,6 +39,7 @@ const formSchema = z.object({
   items: z.array(
     z.object({
       productoId: z.string(),
+      productoVarianteId: z.string(),
       cantidadContada: numberString,
     })
   ),
@@ -76,6 +78,7 @@ export default function ConteoDetailPage() {
     form.reset({
       items: conteo.items.map((item) => ({
         productoId: item.productoId,
+        productoVarianteId: item.productoVarianteId,
         cantidadContada: item.cantidadContada != null ? String(item.cantidadContada) : "",
       })),
     })
@@ -84,7 +87,11 @@ export default function ConteoDetailPage() {
   function onSubmit(values: FormValues) {
     const items = values.items
       .filter((item) => item.cantidadContada !== "")
-      .map((item) => ({ productoId: item.productoId, cantidadContada: Number(item.cantidadContada) }))
+      .map((item) => ({
+        productoId: item.productoId,
+        productoVarianteId: item.productoVarianteId,
+        cantidadContada: Number(item.cantidadContada),
+      }))
 
     if (items.length === 0) {
       toast.error("Ingresa la cantidad contada de al menos un producto")
@@ -207,7 +214,12 @@ export default function ConteoDetailPage() {
                         const item = conteo.items[index]
                         return (
                           <TableRow key={fieldItem.id}>
-                            <TableCell>{nombrePorId.productoMap.get(item.productoId) ?? item.productoId}</TableCell>
+                            <TableCell>
+                              <ProductoVarianteLabel
+                                productoNombre={nombrePorId.productoMap.get(item.productoId) ?? item.productoId}
+                                productoVarianteId={item.productoVarianteId}
+                              />
+                            </TableCell>
                             <TableCell className="text-right">{item.cantidadTeorica}</TableCell>
                             <TableCell className="text-right">
                               {isAbierto ? (

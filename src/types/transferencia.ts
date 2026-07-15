@@ -16,6 +16,7 @@ export interface TransferenciaItem {
   id: string
   transferenciaId: string
   productoId: string
+  productoVarianteId: string
   cantidad: number
 }
 
@@ -29,5 +30,6 @@ export interface CreateTransferenciaInput {
 
 export interface CreateTransferenciaItem {
   productoId: string
+  productoVarianteId?: string
   cantidad: number
 }

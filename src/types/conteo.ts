@@ -16,6 +16,7 @@ export interface ConteoItem {
   id: string
   conteoId: string
   productoId: string
+  productoVarianteId: string
   cantidadTeorica: number
   cantidadContada?: number
   diferencia?: number
@@ -25,10 +26,12 @@ export interface CreateConteoInput {
   sucursalId: string
   observacion?: string
   productoIds: string[]
+  productoVarianteIds?: string[]
 }
 
 export interface RegistrarConteoItem {
   productoId: string
+  productoVarianteId: string
   cantidadContada: number
 }
 

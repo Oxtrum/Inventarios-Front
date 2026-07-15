@@ -13,6 +13,7 @@ export interface StockBajoItem {
 export interface KardexItem {
   movimientoId: string
   productoId: string
+  productoVarianteId: string
   sucursalId: string
   tipo: string
   cantidad: number

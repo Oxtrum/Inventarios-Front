@@ -8,6 +8,7 @@ import { useSucursales } from "@/hooks/useSucursales"
 import { useProductos } from "@/hooks/useProductos"
 import { ApiError } from "@/lib/api"
 import { PageHeader } from "@/components/shared/PageHeader"
+import { ProductoVarianteLabel } from "@/components/shared/ProductoVarianteLabel"
 import { EstadoBadge } from "@/components/shared/StatusBadge"
 import { ConfirmDialog } from "@/components/shared/ConfirmDialog"
 import { Button } from "@/components/ui/button"
@@ -126,7 +127,12 @@ export default function TransferenciaDetailPage() {
                 <TableBody>
                   {transferencia.items.map((item) => (
                     <TableRow key={item.id}>
-                      <TableCell>{nombrePorId.productoMap.get(item.productoId) ?? item.productoId}</TableCell>
+                      <TableCell>
+                        <ProductoVarianteLabel
+                          productoNombre={nombrePorId.productoMap.get(item.productoId) ?? item.productoId}
+                          productoVarianteId={item.productoVarianteId}
+                        />
+                      </TableCell>
                       <TableCell className="text-right">{item.cantidad}</TableCell>
                     </TableRow>
                   ))}

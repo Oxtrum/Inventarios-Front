@@ -13,6 +13,7 @@ import { useCreateTransferencia } from "@/hooks/useTransferencias"
 import { ApiError } from "@/lib/api"
 import { positiveNumberString } from "@/lib/validation"
 import { PageHeader } from "@/components/shared/PageHeader"
+import { ProductoVariantePicker } from "@/components/shared/ProductoVariantePicker"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
@@ -35,6 +36,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 
 const itemSchema = z.object({
   productoId: z.string().min(1, "Selecciona un producto"),
+  productoVarianteId: z.string().optional(),
   cantidad: positiveNumberString,
 })
 
@@ -66,7 +68,7 @@ export default function TransferenciaFormPage() {
       sucursalDestinoId: "",
       numero: "",
       observacion: "",
-      items: [{ productoId: "", cantidad: "1" }],
+      items: [{ productoId: "", productoVarianteId: "", cantidad: "1" }],
     },
   })
   // La sucursal de origen se pre-rellena con la activa del header; el destino se elige.
@@ -81,7 +83,11 @@ export default function TransferenciaFormPage() {
         sucursalDestinoId: values.sucursalDestinoId,
         numero: values.numero || undefined,
         observacion: values.observacion || undefined,
-        items: values.items.map((item) => ({ productoId: item.productoId, cantidad: Number(item.cantidad) })),
+        items: values.items.map((item) => ({
+          productoId: item.productoId,
+          productoVarianteId: item.productoVarianteId || undefined,
+          cantidad: Number(item.cantidad),
+        })),
       },
       {
         onSuccess: (transferencia) => {
@@ -185,7 +191,7 @@ export default function TransferenciaFormPage() {
           <Card>
             <CardHeader className="flex flex-row items-center justify-between">
               <CardTitle>Items</CardTitle>
-              <Button type="button" variant="outline" size="sm" onClick={() => append({ productoId: "", cantidad: "1" })}>
+              <Button type="button" variant="outline" size="sm" onClick={() => append({ productoId: "", productoVarianteId: "", cantidad: "1" })}>
                 <IconPlus />
                 Agregar item
               </Button>
@@ -193,29 +199,13 @@ export default function TransferenciaFormPage() {
             <CardContent className="flex flex-col gap-4">
               {fields.map((fieldItem, index) => (
                 <div key={fieldItem.id} className="grid grid-cols-1 gap-3 rounded-lg border p-3 sm:grid-cols-12 sm:items-end">
-                  <FormField
-                    control={form.control}
-                    name={`items.${index}.productoId`}
-                    render={({ field }) => (
-                      <FormItem className="sm:col-span-8">
-                        <FormLabel>Producto</FormLabel>
-                        <Select value={field.value} onValueChange={field.onChange}>
-                          <FormControl>
-                            <SelectTrigger className="w-full">
-                              <SelectValue placeholder="Seleccionar producto" />
-                            </SelectTrigger>
-                          </FormControl>
-                          <SelectContent>
-                            {(productos ?? []).map((producto) => (
-                              <SelectItem key={producto.id} value={producto.id}>
-                                {producto.codigo ? `${producto.codigo} · ${producto.nombre}` : producto.nombre}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                        <FormMessage />
-                      </FormItem>
-                    )}
+                  <ProductoVariantePicker
+                    productos={productos ?? []}
+                    productoId={form.watch(`items.${index}.productoId`)}
+                    productoVarianteId={form.watch(`items.${index}.productoVarianteId`)}
+                    onProductoChange={(value) => form.setValue(`items.${index}.productoId`, value, { shouldValidate: true })}
+                    onVarianteChange={(value) => form.setValue(`items.${index}.productoVarianteId`, value)}
+                    className="grid grid-cols-1 gap-3 sm:col-span-8 sm:grid-cols-2"
                   />
                   <FormField
                     control={form.control}

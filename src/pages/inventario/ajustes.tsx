@@ -13,6 +13,7 @@ import { useSucursalDefault } from "@/hooks/useSucursalDefault"
 import { ApiError } from "@/lib/api"
 import { positiveNumberString } from "@/lib/validation"
 import { PageHeader } from "@/components/shared/PageHeader"
+import { ProductoVariantePicker } from "@/components/shared/ProductoVariantePicker"
 import { Button } from "@/components/ui/button"
 import { Textarea } from "@/components/ui/textarea"
 import {
@@ -36,6 +37,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 
 const ajusteSchema = z.object({
   productoId: z.string().min(1, "Selecciona un producto"),
+  productoVarianteId: z.string().optional(),
   sucursalId: z.string().min(1, "Selecciona una sucursal"),
   tipo: z.enum(["entrada", "salida"]),
   cantidad: positiveNumberString,
@@ -51,7 +53,7 @@ function AjusteForm() {
 
   const form = useForm<AjusteValues>({
     resolver: zodResolver(ajusteSchema),
-    defaultValues: { productoId: "", sucursalId: "", tipo: "entrada", cantidad: "1", motivo: "" },
+    defaultValues: { productoId: "", productoVarianteId: "", sucursalId: "", tipo: "entrada", cantidad: "1", motivo: "" },
   })
   useSucursalDefault(form, "sucursalId")
 
@@ -59,6 +61,7 @@ function AjusteForm() {
     ajustarStock.mutate(
       {
         productoId: values.productoId,
+        productoVarianteId: values.productoVarianteId || undefined,
         sucursalId: values.sucursalId,
         tipo: values.tipo,
         cantidad: Number(values.cantidad),
@@ -67,7 +70,7 @@ function AjusteForm() {
       {
         onSuccess: () => {
           toast.success("Ajuste registrado")
-          form.reset({ productoId: "", sucursalId: "", tipo: "entrada", cantidad: "1", motivo: "" })
+          form.reset({ productoId: "", productoVarianteId: "", sucursalId: "", tipo: "entrada", cantidad: "1", motivo: "" })
         },
         onError: (err) => toast.error(err instanceof ApiError ? err.message : "No se pudo registrar el ajuste"),
       }
@@ -77,29 +80,12 @@ function AjusteForm() {
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-        <FormField
-          control={form.control}
-          name="productoId"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Producto</FormLabel>
-              <Select value={field.value} onValueChange={field.onChange}>
-                <FormControl>
-                  <SelectTrigger className="w-full">
-                    <SelectValue placeholder="Seleccionar producto" />
-                  </SelectTrigger>
-                </FormControl>
-                <SelectContent>
-                  {(productos ?? []).map((producto) => (
-                    <SelectItem key={producto.id} value={producto.id}>
-                      {producto.codigo ? `${producto.codigo} · ${producto.nombre}` : producto.nombre}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              <FormMessage />
-            </FormItem>
-          )}
+        <ProductoVariantePicker
+          productos={productos ?? []}
+          productoId={form.watch("productoId")}
+          productoVarianteId={form.watch("productoVarianteId")}
+          onProductoChange={(value) => form.setValue("productoId", value, { shouldValidate: true })}
+          onVarianteChange={(value) => form.setValue("productoVarianteId", value)}
         />
         <FormField
           control={form.control}
@@ -185,6 +171,7 @@ function AjusteForm() {
 
 const mermaSchema = z.object({
   productoId: z.string().min(1, "Selecciona un producto"),
+  productoVarianteId: z.string().optional(),
   sucursalId: z.string().min(1, "Selecciona una sucursal"),
   cantidad: positiveNumberString,
   motivo: z.string().min(1, "El motivo es obligatorio"),
@@ -199,7 +186,7 @@ function MermaForm() {
 
   const form = useForm<MermaValues>({
     resolver: zodResolver(mermaSchema),
-    defaultValues: { productoId: "", sucursalId: "", cantidad: "1", motivo: "" },
+    defaultValues: { productoId: "", productoVarianteId: "", sucursalId: "", cantidad: "1", motivo: "" },
   })
   useSucursalDefault(form, "sucursalId")
 
@@ -207,6 +194,7 @@ function MermaForm() {
     registrarMerma.mutate(
       {
         productoId: values.productoId,
+        productoVarianteId: values.productoVarianteId || undefined,
         sucursalId: values.sucursalId,
         cantidad: Number(values.cantidad),
         motivo: values.motivo,
@@ -214,7 +202,7 @@ function MermaForm() {
       {
         onSuccess: () => {
           toast.success("Merma registrada")
-          form.reset({ productoId: "", sucursalId: "", cantidad: "1", motivo: "" })
+          form.reset({ productoId: "", productoVarianteId: "", sucursalId: "", cantidad: "1", motivo: "" })
         },
         onError: (err) => toast.error(err instanceof ApiError ? err.message : "No se pudo registrar la merma"),
       }
@@ -224,29 +212,12 @@ function MermaForm() {
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-        <FormField
-          control={form.control}
-          name="productoId"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Producto</FormLabel>
-              <Select value={field.value} onValueChange={field.onChange}>
-                <FormControl>
-                  <SelectTrigger className="w-full">
-                    <SelectValue placeholder="Seleccionar producto" />
-                  </SelectTrigger>
-                </FormControl>
-                <SelectContent>
-                  {(productos ?? []).map((producto) => (
-                    <SelectItem key={producto.id} value={producto.id}>
-                      {producto.codigo ? `${producto.codigo} · ${producto.nombre}` : producto.nombre}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              <FormMessage />
-            </FormItem>
-          )}
+        <ProductoVariantePicker
+          productos={productos ?? []}
+          productoId={form.watch("productoId")}
+          productoVarianteId={form.watch("productoVarianteId")}
+          onProductoChange={(value) => form.setValue("productoId", value, { shouldValidate: true })}
+          onVarianteChange={(value) => form.setValue("productoVarianteId", value)}
         />
         <FormField
           control={form.control}

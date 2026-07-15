@@ -5,6 +5,8 @@ import type { ColumnDef } from "@tanstack/react-table"
 
 import { useMovimientos } from "@/hooks/useInventario"
 import { useProductos } from "@/hooks/useProductos"
+import { VarianteSelect } from "@/components/shared/ProductoVariantePicker"
+import { ProductoVarianteLabel } from "@/components/shared/ProductoVarianteLabel"
 import { useSucursal } from "@/context/sucursal-provider"
 import type { Movimiento } from "@/types/inventario"
 import type { MovementType } from "@/types/common"
@@ -37,6 +39,7 @@ const TIPOS: MovementType[] = [
 
 export default function MovimientosPage() {
   const [productoId, setProductoId] = useState(TODOS)
+  const [productoVarianteId, setProductoVarianteId] = useState("")
   const [tipo, setTipo] = useState(TODOS)
   const [fechaDesde, setFechaDesde] = useState("")
   const [fechaHasta, setFechaHasta] = useState("")
@@ -46,6 +49,7 @@ export default function MovimientosPage() {
 
   const filters: Record<string, string> = {}
   if (productoId !== TODOS) filters.productoId = productoId
+  if (productoVarianteId) filters.productoVarianteId = productoVarianteId
   if (sucursalId) filters.sucursalId = sucursalId
   if (tipo !== TODOS) filters.tipo = tipo
   if (fechaDesde) filters.fechaDesde = fechaDesde
@@ -68,7 +72,12 @@ export default function MovimientosPage() {
     {
       accessorKey: "productoId",
       header: "Producto",
-      cell: ({ row }) => nombrePorId.productoMap.get(row.original.productoId) ?? row.original.productoId,
+      cell: ({ row }) => (
+        <ProductoVarianteLabel
+          productoNombre={nombrePorId.productoMap.get(row.original.productoId) ?? row.original.productoId}
+          productoVarianteId={row.original.productoVarianteId}
+        />
+      ),
     },
     {
       accessorKey: "sucursalId",
@@ -96,7 +105,7 @@ export default function MovimientosPage() {
       />
       <div className="flex flex-col gap-4 px-4 lg:px-6">
         <div className="flex flex-wrap gap-3">
-          <Select value={productoId} onValueChange={setProductoId}>
+          <Select value={productoId} onValueChange={(value) => { setProductoId(value); setProductoVarianteId("") }}>
             <SelectTrigger className="w-56">
               <SelectValue placeholder="Producto" />
             </SelectTrigger>
@@ -109,6 +118,12 @@ export default function MovimientosPage() {
               ))}
             </SelectContent>
           </Select>
+          <VarianteSelect
+            productoId={productoId === TODOS ? "" : productoId}
+            productoVarianteId={productoVarianteId}
+            onVarianteChange={setProductoVarianteId}
+            className="w-64"
+          />
           <Select value={tipo} onValueChange={setTipo}>
             <SelectTrigger className="w-48">
               <SelectValue placeholder="Tipo" />

@@ -8,26 +8,21 @@ import { useSucursal } from "@/context/sucursal-provider"
 import { PageHeader } from "@/components/shared/PageHeader"
 import { EmptyState } from "@/components/shared/EmptyState"
 import { Button } from "@/components/ui/button"
-import { Label } from "@/components/ui/label"
+import { ProductoVariantePicker } from "@/components/shared/ProductoVariantePicker"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Skeleton } from "@/components/ui/skeleton"
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select"
 
 export default function InventarioPage() {
   const navigate = useNavigate()
   const [productoId, setProductoId] = useState("")
+  const [productoVarianteId, setProductoVarianteId] = useState("")
   const { sucursalId, sucursalActiva } = useSucursal()
 
   const { data: productos } = useProductos({ activo: "true" })
 
   const canQuery = !!productoId
   const stockFilters: Record<string, string> = { productoId }
+  if (productoVarianteId) stockFilters.productoVarianteId = productoVarianteId
   if (sucursalId) stockFilters.sucursalId = sucursalId
   const { data: stock, isLoading } = useStock(canQuery ? stockFilters : undefined)
 
@@ -50,23 +45,14 @@ export default function InventarioPage() {
         }
       />
       <div className="flex flex-col gap-4 px-4 lg:px-6">
-        <div className="flex flex-wrap gap-3">
-          <div className="flex flex-col gap-2">
-            <Label>Producto</Label>
-            <Select value={productoId} onValueChange={setProductoId}>
-              <SelectTrigger className="w-56">
-                <SelectValue placeholder="Seleccionar producto" />
-              </SelectTrigger>
-              <SelectContent>
-                {(productos ?? []).map((producto) => (
-                  <SelectItem key={producto.id} value={producto.id}>
-                    {producto.codigo ? `${producto.codigo} · ${producto.nombre}` : producto.nombre}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-        </div>
+        <ProductoVariantePicker
+          productos={productos ?? []}
+          productoId={productoId}
+          productoVarianteId={productoVarianteId}
+          onProductoChange={setProductoId}
+          onVarianteChange={setProductoVarianteId}
+          className="grid max-w-2xl grid-cols-1 gap-3 sm:grid-cols-2"
+        />
 
         {!canQuery && (
           <EmptyState title="Selecciona un producto" description="Elige un producto para consultar su stock. La sucursal se controla desde el selector del encabezado." />

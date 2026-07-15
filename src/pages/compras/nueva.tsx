@@ -17,6 +17,7 @@ import { formatCurrency } from "@/lib/utils"
 import { numberString, positiveNumberString } from "@/lib/validation"
 import type { Producto } from "@/types/producto"
 import { PageHeader } from "@/components/shared/PageHeader"
+import { ProductoVariantePicker } from "@/components/shared/ProductoVariantePicker"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
@@ -41,6 +42,7 @@ const NONE = "__none__"
 
 const itemSchema = z.object({
   productoId: z.string().min(1, "Selecciona un producto"),
+  productoVarianteId: z.string().optional(),
   cantidad: positiveNumberString,
   costoUnitario: numberString,
 })
@@ -75,7 +77,7 @@ export default function CompraFormPage() {
       proveedorId: NONE,
       numero: "",
       observacion: "",
-      items: [{ productoId: "", cantidad: "1", costoUnitario: "0" }],
+      items: [{ productoId: "", productoVarianteId: "", cantidad: "1", costoUnitario: "0" }],
     },
   })
   useSucursalDefault(form, "sucursalId")
@@ -94,6 +96,7 @@ export default function CompraFormPage() {
         observacion: values.observacion || undefined,
         items: values.items.map((item) => ({
           productoId: item.productoId,
+          productoVarianteId: item.productoVarianteId || undefined,
           cantidad: Number(item.cantidad),
           costoUnitario: Number(item.costoUnitario),
         })),
@@ -205,7 +208,7 @@ export default function CompraFormPage() {
                 type="button"
                 variant="outline"
                 size="sm"
-                onClick={() => append({ productoId: "", cantidad: "1", costoUnitario: "0" })}
+                onClick={() => append({ productoId: "", productoVarianteId: "", cantidad: "1", costoUnitario: "0" })}
               >
                 <IconPlus />
                 Agregar item
@@ -217,38 +220,17 @@ export default function CompraFormPage() {
                 const subtotal = (Number(item?.cantidad) || 0) * (Number(item?.costoUnitario) || 0)
                 return (
                   <div key={fieldItem.id} className="grid grid-cols-1 gap-3 rounded-lg border p-3 sm:grid-cols-12 sm:items-end">
-                    <FormField
-                      control={form.control}
-                      name={`items.${index}.productoId`}
-                      render={({ field }) => (
-                        <FormItem className="sm:col-span-5">
-                          <FormLabel>Producto</FormLabel>
-                          <Select
-                            value={field.value}
-                            onValueChange={(value) => {
-                              field.onChange(value)
-                              const producto = productoPorId.get(value)
-                              if (producto) {
-                                form.setValue(`items.${index}.costoUnitario`, String(producto.costo))
-                              }
-                            }}
-                          >
-                            <FormControl>
-                              <SelectTrigger className="w-full">
-                                <SelectValue placeholder="Seleccionar producto" />
-                              </SelectTrigger>
-                            </FormControl>
-                            <SelectContent>
-                              {(productos ?? []).map((producto) => (
-                                <SelectItem key={producto.id} value={producto.id}>
-                                  {producto.codigo ? `${producto.codigo} · ${producto.nombre}` : producto.nombre}
-                                </SelectItem>
-                              ))}
-                            </SelectContent>
-                          </Select>
-                          <FormMessage />
-                        </FormItem>
-                      )}
+                    <ProductoVariantePicker
+                      productos={productos ?? []}
+                      productoId={form.watch(`items.${index}.productoId`)}
+                      productoVarianteId={form.watch(`items.${index}.productoVarianteId`)}
+                      onProductoChange={(value) => {
+                        form.setValue(`items.${index}.productoId`, value, { shouldValidate: true })
+                        const producto = productoPorId.get(value)
+                        if (producto) form.setValue(`items.${index}.costoUnitario`, String(producto.costo))
+                      }}
+                      onVarianteChange={(value) => form.setValue(`items.${index}.productoVarianteId`, value)}
+                      className="grid grid-cols-1 gap-3 sm:col-span-5 sm:grid-cols-2"
                     />
                     <FormField
                       control={form.control}

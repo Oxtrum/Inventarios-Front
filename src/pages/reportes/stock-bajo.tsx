@@ -7,6 +7,7 @@ import { useSucursal } from "@/context/sucursal-provider"
 import type { StockBajoItem } from "@/types/reporte"
 import { PageHeader } from "@/components/shared/PageHeader"
 import { CrudTable } from "@/components/shared/CrudTable"
+import { ProductoVarianteLabel } from "@/components/shared/ProductoVarianteLabel"
 import { Button } from "@/components/ui/button"
 
 type Row = StockBajoItem & { id: string }
@@ -19,7 +20,16 @@ export default function StockBajoPage() {
 
   const columns: ColumnDef<Row>[] = [
     { accessorKey: "codigo", header: "Código", cell: ({ row }) => row.original.codigo ?? "—" },
-    { accessorKey: "nombre", header: "Producto" },
+    {
+      accessorKey: "nombre",
+      header: "Producto",
+      cell: ({ row }) => (
+        <ProductoVarianteLabel
+          productoNombre={row.original.nombre}
+          productoVarianteId={row.original.productoVarianteId}
+        />
+      ),
+    },
     { accessorKey: "stockActual", header: "Stock Actual" },
     { accessorKey: "stockDisponible", header: "Disponible" },
     { accessorKey: "stockMinimo", header: "Stock Mínimo" },

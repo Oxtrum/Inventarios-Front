@@ -18,6 +18,7 @@ export interface DevolucionItem {
   id: string
   devolucionId: string
   productoId: string
+  productoVarianteId: string
   cantidad: number
   costoUnitario: number
   subtotal: number
@@ -34,6 +35,7 @@ export interface CreateDevolucionInput {
 
 export interface CreateDevolucionItem {
   productoId: string
+  productoVarianteId?: string
   cantidad: number
   costoUnitario: number
 }

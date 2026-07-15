@@ -6,6 +6,7 @@ import type { ColumnDef } from "@tanstack/react-table"
 import { useKardex } from "@/hooks/useReportes"
 import { useSucursal } from "@/context/sucursal-provider"
 import { useProductos } from "@/hooks/useProductos"
+import { ProductoVariantePicker } from "@/components/shared/ProductoVariantePicker"
 import type { KardexItem } from "@/types/reporte"
 import { PageHeader } from "@/components/shared/PageHeader"
 import { CrudTable } from "@/components/shared/CrudTable"
@@ -13,18 +14,12 @@ import { EmptyState } from "@/components/shared/EmptyState"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select"
 
 type Row = KardexItem & { id: string }
 
 export default function KardexPage() {
   const [productoId, setProductoId] = useState("")
+  const [productoVarianteId, setProductoVarianteId] = useState("")
   const [fechaDesde, setFechaDesde] = useState("")
   const [fechaHasta, setFechaHasta] = useState("")
 
@@ -34,6 +29,7 @@ export default function KardexPage() {
   const filters: Record<string, string> = {}
   if (sucursalId) filters.sucursalId = sucursalId
   if (productoId) filters.productoId = productoId
+  if (productoVarianteId) filters.productoVarianteId = productoVarianteId
   if (fechaDesde) filters.fechaDesde = fechaDesde
   if (fechaHasta) filters.fechaHasta = fechaHasta
 
@@ -71,21 +67,14 @@ export default function KardexPage() {
       />
       <div className="flex flex-col gap-4 px-4 lg:px-6">
         <div className="flex flex-wrap gap-3">
-          <div className="flex flex-col gap-2">
-            <Label>Producto</Label>
-            <Select value={productoId} onValueChange={setProductoId}>
-              <SelectTrigger className="w-56">
-                <SelectValue placeholder="Seleccionar producto" />
-              </SelectTrigger>
-              <SelectContent>
-                {(productos ?? []).map((producto) => (
-                  <SelectItem key={producto.id} value={producto.id}>
-                    {producto.codigo ? `${producto.codigo} · ${producto.nombre}` : producto.nombre}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
+          <ProductoVariantePicker
+            productos={productos ?? []}
+            productoId={productoId}
+            productoVarianteId={productoVarianteId}
+            onProductoChange={setProductoId}
+            onVarianteChange={setProductoVarianteId}
+            className="grid grid-cols-1 gap-3 sm:grid-cols-2"
+          />
           <div className="flex flex-col gap-2">
             <Label>Desde</Label>
             <Input type="date" className="w-40" value={fechaDesde} onChange={(e) => setFechaDesde(e.target.value)} />

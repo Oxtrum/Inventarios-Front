@@ -10,6 +10,7 @@ import { useProductos } from "@/hooks/useProductos"
 import { ApiError } from "@/lib/api"
 import { formatCurrency } from "@/lib/utils"
 import { PageHeader } from "@/components/shared/PageHeader"
+import { ProductoVarianteLabel } from "@/components/shared/ProductoVarianteLabel"
 import { EstadoBadge } from "@/components/shared/StatusBadge"
 import { ConfirmDialog } from "@/components/shared/ConfirmDialog"
 import { Button } from "@/components/ui/button"
@@ -132,7 +133,12 @@ export default function DevolucionDetailPage() {
                 <TableBody>
                   {devolucion.items.map((item) => (
                     <TableRow key={item.id}>
-                      <TableCell>{nombrePorId.productoMap.get(item.productoId) ?? item.productoId}</TableCell>
+                      <TableCell>
+                        <ProductoVarianteLabel
+                          productoNombre={nombrePorId.productoMap.get(item.productoId) ?? item.productoId}
+                          productoVarianteId={item.productoVarianteId}
+                        />
+                      </TableCell>
                       <TableCell className="text-right">{item.cantidad}</TableCell>
                       <TableCell className="text-right">{formatCurrency(item.costoUnitario)}</TableCell>
                       <TableCell className="text-right">{formatCurrency(item.subtotal)}</TableCell>

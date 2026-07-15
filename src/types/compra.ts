@@ -17,6 +17,7 @@ export interface CompraItem {
   id: string
   compraId: string
   productoId: string
+  productoVarianteId: string
   cantidad: number
   costoUnitario: number
   subtotal: number
@@ -32,6 +33,7 @@ export interface CreateCompraInput {
 
 export interface CreateCompraItem {
   productoId: string
+  productoVarianteId?: string
   cantidad: number
   costoUnitario: number
 }

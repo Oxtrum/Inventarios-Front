@@ -23,6 +23,7 @@ import { ApiError } from "@/lib/api"
 import { positiveNumberString } from "@/lib/validation"
 import type { ReservaStock } from "@/types/inventario"
 import { PageHeader } from "@/components/shared/PageHeader"
+import { ProductoVariantePicker } from "@/components/shared/ProductoVariantePicker"
 import { CrudTable } from "@/components/shared/CrudTable"
 import { ConfirmDialog } from "@/components/shared/ConfirmDialog"
 import { EstadoBadge } from "@/components/shared/StatusBadge"
@@ -56,6 +57,7 @@ const ALL = "__all__"
 
 const itemSchema = z.object({
   productoId: z.string().min(1, "Selecciona un producto"),
+  productoVarianteId: z.string().optional(),
   cantidad: positiveNumberString,
 })
 
@@ -79,7 +81,7 @@ function NuevaReservaForm() {
       sucursalId: "",
       referenciaExterna: "",
       minutosExpiracion: "",
-      items: [{ productoId: "", cantidad: "1" }],
+      items: [{ productoId: "", productoVarianteId: "", cantidad: "1" }],
     },
   })
   useSucursalDefault(form, "sucursalId")
@@ -94,13 +96,14 @@ function NuevaReservaForm() {
         minutosExpiracion: values.minutosExpiracion ? Number(values.minutosExpiracion) : undefined,
         items: values.items.map((item) => ({
           productoId: item.productoId,
+          productoVarianteId: item.productoVarianteId || undefined,
           cantidad: Number(item.cantidad),
         })),
       },
       {
         onSuccess: () => {
           toast.success("Reserva creada")
-          form.reset({ sucursalId: "", referenciaExterna: "", minutosExpiracion: "", items: [{ productoId: "", cantidad: "1" }] })
+          form.reset({ sucursalId: "", referenciaExterna: "", minutosExpiracion: "", items: [{ productoId: "", productoVarianteId: "", cantidad: "1" }] })
         },
         onError: (err) => toast.error(err instanceof ApiError ? err.message : "No se pudo crear la reserva"),
       }
@@ -166,29 +169,13 @@ function NuevaReservaForm() {
         <div className="flex flex-col gap-3">
           {fields.map((fieldItem, index) => (
             <div key={fieldItem.id} className="grid grid-cols-1 gap-3 rounded-lg border p-3 sm:grid-cols-12 sm:items-end">
-              <FormField
-                control={form.control}
-                name={`items.${index}.productoId`}
-                render={({ field }) => (
-                  <FormItem className="sm:col-span-8">
-                    <FormLabel>Producto</FormLabel>
-                    <Select value={field.value} onValueChange={field.onChange}>
-                      <FormControl>
-                        <SelectTrigger className="w-full">
-                          <SelectValue placeholder="Seleccionar producto" />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        {(productos ?? []).map((producto) => (
-                          <SelectItem key={producto.id} value={producto.id}>
-                            {producto.codigo ? `${producto.codigo} · ${producto.nombre}` : producto.nombre}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                    <FormMessage />
-                  </FormItem>
-                )}
+              <ProductoVariantePicker
+                productos={productos ?? []}
+                productoId={form.watch(`items.${index}.productoId`)}
+                productoVarianteId={form.watch(`items.${index}.productoVarianteId`)}
+                onProductoChange={(value) => form.setValue(`items.${index}.productoId`, value, { shouldValidate: true })}
+                onVarianteChange={(value) => form.setValue(`items.${index}.productoVarianteId`, value)}
+                className="grid grid-cols-1 gap-3 sm:col-span-8 sm:grid-cols-2"
               />
               <FormField
                 control={form.control}
@@ -214,7 +201,7 @@ function NuevaReservaForm() {
           {form.formState.errors.items?.root && (
             <p className="text-sm text-destructive">{form.formState.errors.items.root.message}</p>
           )}
-          <Button type="button" variant="outline" size="sm" className="self-start" onClick={() => append({ productoId: "", cantidad: "1" })}>
+          <Button type="button" variant="outline" size="sm" className="self-start" onClick={() => append({ productoId: "", productoVarianteId: "", cantidad: "1" })}>
             <IconPlus />
             Agregar item
           </Button>
