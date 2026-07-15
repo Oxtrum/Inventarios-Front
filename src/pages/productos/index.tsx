@@ -1,6 +1,6 @@
 import { useMemo, useState } from "react"
 import { useNavigate } from "react-router-dom"
-import { IconAdjustments, IconDotsVertical, IconPlus } from "@tabler/icons-react"
+import { IconDotsVertical, IconPlus, IconSearch } from "@tabler/icons-react"
 import { toast } from "sonner"
 import type { ColumnDef } from "@tanstack/react-table"
 
@@ -119,28 +119,36 @@ export default function ProductosPage() {
       cell: ({ row }) => {
         const producto = row.original
         return (
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="ghost" size="icon" className="size-8 text-muted-foreground">
-                <IconDotsVertical />
-                <span className="sr-only">Abrir menú</span>
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-40">
-              <DropdownMenuItem onClick={() => handleEdit(producto)}>Editar</DropdownMenuItem>
-              <DropdownMenuItem onClick={() => navigate(`/productos/${producto.id}/variantes`)}>
-                <IconAdjustments />
-                Variantes
-              </DropdownMenuItem>
-              {producto.activo ? (
-                <DropdownMenuItem variant="destructive" onClick={() => setDeactivating(producto)}>
-                  Desactivar
-                </DropdownMenuItem>
-              ) : (
-                <DropdownMenuItem onClick={() => handleRestore(producto)}>Restaurar</DropdownMenuItem>
-              )}
-            </DropdownMenuContent>
-          </DropdownMenu>
+          <div className="flex items-center justify-end gap-1">
+            <Button
+              variant="ghost"
+              size="icon"
+              className="size-8 text-muted-foreground"
+              title={`Ver variantes de ${producto.nombre}`}
+              onClick={() => navigate(`/productos/${producto.id}/variantes`)}
+            >
+              <IconSearch />
+              <span className="sr-only">Ver variantes de {producto.nombre}</span>
+            </Button>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" size="icon" className="size-8 text-muted-foreground">
+                  <IconDotsVertical />
+                  <span className="sr-only">Abrir menú</span>
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-40">
+                <DropdownMenuItem onClick={() => handleEdit(producto)}>Editar</DropdownMenuItem>
+                {producto.activo ? (
+                  <DropdownMenuItem variant="destructive" onClick={() => setDeactivating(producto)}>
+                    Desactivar
+                  </DropdownMenuItem>
+                ) : (
+                  <DropdownMenuItem onClick={() => handleRestore(producto)}>Restaurar</DropdownMenuItem>
+                )}
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
         )
       },
     },

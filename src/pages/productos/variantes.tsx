@@ -35,6 +35,7 @@ import { StatusBadge } from "@/components/shared/StatusBadge"
 import { EmptyState } from "@/components/shared/EmptyState"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
+import { InputGroup, InputGroupAddon, InputGroupInput } from "@/components/ui/input-group"
 import { Checkbox } from "@/components/ui/checkbox"
 import { Badge } from "@/components/ui/badge"
 import {
@@ -273,7 +274,7 @@ function AsignarAtributoDialog({ atributosDisponibles, onSubmit, isSubmitting }:
 }
 
 const varianteFormSchema = z.object({
-  codigoSku: z.string().min(1, "El SKU es obligatorio"),
+  codigoSku: z.string().trim().min(1, "Agrega el código de la variante"),
   codigoBarras: z.string().optional(),
   nombre: z.string().min(1, "El nombre es obligatorio"),
   costo: numberString,
@@ -287,11 +288,14 @@ interface VarianteFormProps {
   open: boolean
   onOpenChange: (open: boolean) => void
   productoId: string
+  productoCodigo?: string
   variante?: ProductoVariante
 }
 
-function VarianteForm({ open, onOpenChange, productoId, variante }: VarianteFormProps) {
+function VarianteForm({ open, onOpenChange, productoId, productoCodigo, variante }: VarianteFormProps) {
   const isEditing = !!variante
+  const codigoBase = productoCodigo?.trim() ?? ""
+  const skuPrefix = !isEditing && codigoBase ? `${codigoBase}-` : ""
   const createVariante = useCreateProductoVariante(productoId)
   const updateVariante = useUpdateProductoVariante(productoId, variante?.id ?? "")
 
@@ -303,7 +307,7 @@ function VarianteForm({ open, onOpenChange, productoId, variante }: VarianteForm
   useMemo(() => {
     if (!open) return
     form.reset({
-      codigoSku: variante?.codigoSku ?? "",
+      codigoSku: isEditing ? variante.codigoSku : "",
       codigoBarras: variante?.codigoBarras ?? "",
       nombre: variante?.nombre ?? "",
       costo: String(variante?.costo ?? 0),
@@ -311,13 +315,13 @@ function VarianteForm({ open, onOpenChange, productoId, variante }: VarianteForm
       esDefault: variante?.esDefault ?? false,
     })
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [open, variante])
+  }, [open, variante, isEditing, skuPrefix])
 
   const isSubmitting = createVariante.isPending || updateVariante.isPending
 
   function onSubmit(values: VarianteFormValues) {
     const payload = {
-      codigoSku: values.codigoSku,
+      codigoSku: skuPrefix ? `${skuPrefix}${values.codigoSku.trim()}` : values.codigoSku.trim(),
       codigoBarras: values.codigoBarras || undefined,
       nombre: values.nombre,
       costo: Number(values.costo || 0),
@@ -352,8 +356,22 @@ function VarianteForm({ open, onOpenChange, productoId, variante }: VarianteForm
                 <FormItem>
                   <FormLabel>SKU</FormLabel>
                   <FormControl>
-                    <Input placeholder="SKU-001-M-ROJO" {...field} />
+                    {skuPrefix ? (
+                      <InputGroup>
+                        <InputGroupAddon>{skuPrefix}</InputGroupAddon>
+                        <InputGroupInput placeholder="M-ROJO" {...field} />
+                      </InputGroup>
+                    ) : (
+                      <Input placeholder={isEditing ? "SKU-001-M-ROJO" : "Código completo del SKU"} {...field} />
+                    )}
                   </FormControl>
+                  {!isEditing && (
+                    <p className="text-xs text-muted-foreground">
+                      {skuPrefix
+                        ? `El SKU se guardará como ${skuPrefix}${field.value || "..."}`
+                        : "Este producto no tiene código base; ingresa el SKU completo."}
+                    </p>
+                  )}
                   <FormMessage />
                 </FormItem>
               )}
@@ -706,7 +724,13 @@ export default function ProductoVariantesPage() {
         </Tabs>
       </div>
 
-      <VarianteForm open={formOpen} onOpenChange={setFormOpen} productoId={productoId} variante={editing} />
+      <VarianteForm
+        open={formOpen}
+        onOpenChange={setFormOpen}
+        productoId={productoId}
+        productoCodigo={producto?.codigo}
+        variante={editing}
+      />
       <VarianteAtributosSheet
         open={!!atributosSheetTarget}
         onOpenChange={(open) => !open && setAtributosSheetTarget(undefined)}
