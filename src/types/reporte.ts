@@ -1,5 +1,6 @@
 export interface StockBajoItem {
   productoId: string
+  productoVarianteId: string
   codigo?: string
   nombre: string
   sucursalId: string

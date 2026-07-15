@@ -2,7 +2,7 @@ import { useEffect, useState } from "react"
 import { useNavigate } from "react-router-dom"
 import { toast } from "sonner"
 
-import { useSucursales } from "@/hooks/useSucursales"
+import { useSucursal } from "@/context/sucursal-provider"
 import { useProductos } from "@/hooks/useProductos"
 import { useCreateConteo } from "@/hooks/useConteos"
 import { ApiError } from "@/lib/api"
@@ -33,11 +33,13 @@ interface ConteoFormProps {
 
 export function ConteoForm({ open, onOpenChange }: ConteoFormProps) {
   const navigate = useNavigate()
-  const { data: sucursales } = useSucursales({ activo: "true" })
+  const { sucursales, sucursalActiva } = useSucursal()
   const { data: productos } = useProductos({ activo: "true" })
   const createConteo = useCreateConteo()
 
   const [sucursalId, setSucursalId] = useState("")
+  // Sin elección explícita se usa la sucursal activa del header como valor por defecto.
+  const sucursalSeleccionada = sucursalId || (sucursalActiva?.id ?? "")
   const [observacion, setObservacion] = useState("")
   const [productoIds, setProductoIds] = useState<string[]>([])
   const [error, setError] = useState("")
@@ -55,7 +57,7 @@ export function ConteoForm({ open, onOpenChange }: ConteoFormProps) {
   }
 
   function handleSubmit() {
-    if (!sucursalId) {
+    if (!sucursalSeleccionada) {
       setError("Selecciona una sucursal")
       return
     }
@@ -65,7 +67,7 @@ export function ConteoForm({ open, onOpenChange }: ConteoFormProps) {
     }
     setError("")
     createConteo.mutate(
-      { sucursalId, observacion: observacion || undefined, productoIds },
+      { sucursalId: sucursalSeleccionada, observacion: observacion || undefined, productoIds },
       {
         onSuccess: (conteo) => {
           toast.success("Conteo creado")
@@ -87,7 +89,7 @@ export function ConteoForm({ open, onOpenChange }: ConteoFormProps) {
         <div className="flex flex-col gap-4">
           <div className="flex flex-col gap-2">
             <Label>Sucursal</Label>
-            <Select value={sucursalId} onValueChange={setSucursalId}>
+            <Select value={sucursalSeleccionada} onValueChange={setSucursalId}>
               <SelectTrigger className="w-full">
                 <SelectValue placeholder="Seleccionar" />
               </SelectTrigger>

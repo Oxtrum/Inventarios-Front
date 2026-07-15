@@ -4,7 +4,7 @@ import { IconAdjustments, IconHistory } from "@tabler/icons-react"
 
 import { useStock } from "@/hooks/useInventario"
 import { useProductos } from "@/hooks/useProductos"
-import { useSucursales } from "@/hooks/useSucursales"
+import { useSucursal } from "@/context/sucursal-provider"
 import { PageHeader } from "@/components/shared/PageHeader"
 import { EmptyState } from "@/components/shared/EmptyState"
 import { Button } from "@/components/ui/button"
@@ -22,19 +22,20 @@ import {
 export default function InventarioPage() {
   const navigate = useNavigate()
   const [productoId, setProductoId] = useState("")
-  const [sucursalId, setSucursalId] = useState("")
+  const { sucursalId, sucursalActiva } = useSucursal()
 
   const { data: productos } = useProductos({ activo: "true" })
-  const { data: sucursales } = useSucursales({ activo: "true" })
 
-  const canQuery = !!productoId && !!sucursalId
-  const { data: stock, isLoading } = useStock(canQuery ? { productoId, sucursalId } : undefined)
+  const canQuery = !!productoId
+  const stockFilters: Record<string, string> = { productoId }
+  if (sucursalId) stockFilters.sucursalId = sucursalId
+  const { data: stock, isLoading } = useStock(canQuery ? stockFilters : undefined)
 
   return (
     <div className="flex flex-1 flex-col gap-4 py-4 md:py-6">
       <PageHeader
         title="Stock"
-        description="Consulta el stock actual, reservado y disponible de un producto en una sucursal."
+        description={`Consulta el stock actual, reservado y disponible de un producto en ${sucursalActiva ? sucursalActiva.nombre : "todas las sucursales"}.`}
         action={
           <div className="flex items-center gap-2">
             <Button variant="outline" onClick={() => navigate("/inventario/movimientos")}>
@@ -65,25 +66,10 @@ export default function InventarioPage() {
               </SelectContent>
             </Select>
           </div>
-          <div className="flex flex-col gap-2">
-            <Label>Sucursal</Label>
-            <Select value={sucursalId} onValueChange={setSucursalId}>
-              <SelectTrigger className="w-56">
-                <SelectValue placeholder="Seleccionar sucursal" />
-              </SelectTrigger>
-              <SelectContent>
-                {(sucursales ?? []).map((sucursal) => (
-                  <SelectItem key={sucursal.id} value={sucursal.id}>
-                    {sucursal.nombre}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
         </div>
 
         {!canQuery && (
-          <EmptyState title="Selecciona producto y sucursal" description="Elige un producto y una sucursal para consultar su stock." />
+          <EmptyState title="Selecciona un producto" description="Elige un producto para consultar su stock. La sucursal se controla desde el selector del encabezado." />
         )}
 
         {canQuery && isLoading && (

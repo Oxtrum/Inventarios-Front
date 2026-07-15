@@ -1,34 +1,23 @@
-import { useState } from "react"
 import { Link } from "react-router-dom"
 import { IconArrowLeft } from "@tabler/icons-react"
 
 import { useValoracion } from "@/hooks/useReportes"
-import { useSucursales } from "@/hooks/useSucursales"
+import { useSucursal } from "@/context/sucursal-provider"
 import { formatCurrency } from "@/lib/utils"
 import { PageHeader } from "@/components/shared/PageHeader"
-import { EmptyState } from "@/components/shared/EmptyState"
 import { Button } from "@/components/ui/button"
-import { Label } from "@/components/ui/label"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Skeleton } from "@/components/ui/skeleton"
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select"
 
 export default function ValoracionPage() {
-  const [sucursalId, setSucursalId] = useState("")
-  const { data: sucursales } = useSucursales({ activo: "true" })
+  const { sucursalId, sucursalActiva } = useSucursal()
   const { data: valoracion, isLoading } = useValoracion(sucursalId ? { sucursalId } : undefined)
 
   return (
     <div className="flex flex-1 flex-col gap-4 py-4 md:py-6">
       <PageHeader
         title="Valoración de Inventario"
-        description="Valor de costo del inventario disponible en una sucursal."
+        description={`Valor de costo del inventario disponible en ${sucursalActiva ? sucursalActiva.nombre : "todas las sucursales"}.`}
         action={
           <Button variant="outline" asChild>
             <Link to="/reportes">
@@ -39,27 +28,7 @@ export default function ValoracionPage() {
         }
       />
       <div className="flex flex-col gap-4 px-4 lg:px-6">
-        <div className="flex flex-col gap-2 sm:max-w-xs">
-          <Label>Sucursal</Label>
-          <Select value={sucursalId} onValueChange={setSucursalId}>
-            <SelectTrigger className="w-full">
-              <SelectValue placeholder="Seleccionar sucursal" />
-            </SelectTrigger>
-            <SelectContent>
-              {(sucursales ?? []).map((sucursal) => (
-                <SelectItem key={sucursal.id} value={sucursal.id}>
-                  {sucursal.nombre}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
-
-        {!sucursalId && (
-          <EmptyState title="Selecciona una sucursal" description="Elige una sucursal para ver su valoración de inventario." />
-        )}
-
-        {sucursalId && isLoading && (
+        {isLoading && (
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
             <Skeleton className="h-28 w-full" />
             <Skeleton className="h-28 w-full" />
@@ -67,7 +36,7 @@ export default function ValoracionPage() {
           </div>
         )}
 
-        {sucursalId && !isLoading && valoracion && (
+        {!isLoading && valoracion && (
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
             <Card>
               <CardHeader>

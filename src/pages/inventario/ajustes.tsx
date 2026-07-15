@@ -8,7 +8,8 @@ import { toast } from "sonner"
 
 import { useAjustarStock, useRegistrarMerma } from "@/hooks/useInventario"
 import { useProductos } from "@/hooks/useProductos"
-import { useSucursales } from "@/hooks/useSucursales"
+import { useSucursal } from "@/context/sucursal-provider"
+import { useSucursalDefault } from "@/hooks/useSucursalDefault"
 import { ApiError } from "@/lib/api"
 import { positiveNumberString } from "@/lib/validation"
 import { PageHeader } from "@/components/shared/PageHeader"
@@ -45,13 +46,14 @@ type AjusteValues = z.infer<typeof ajusteSchema>
 
 function AjusteForm() {
   const { data: productos } = useProductos({ activo: "true" })
-  const { data: sucursales } = useSucursales({ activo: "true" })
+  const { sucursales } = useSucursal()
   const ajustarStock = useAjustarStock()
 
   const form = useForm<AjusteValues>({
     resolver: zodResolver(ajusteSchema),
     defaultValues: { productoId: "", sucursalId: "", tipo: "entrada", cantidad: "1", motivo: "" },
   })
+  useSucursalDefault(form, "sucursalId")
 
   function onSubmit(values: AjusteValues) {
     ajustarStock.mutate(
@@ -192,13 +194,14 @@ type MermaValues = z.infer<typeof mermaSchema>
 
 function MermaForm() {
   const { data: productos } = useProductos({ activo: "true" })
-  const { data: sucursales } = useSucursales({ activo: "true" })
+  const { sucursales } = useSucursal()
   const registrarMerma = useRegistrarMerma()
 
   const form = useForm<MermaValues>({
     resolver: zodResolver(mermaSchema),
     defaultValues: { productoId: "", sucursalId: "", cantidad: "1", motivo: "" },
   })
+  useSucursalDefault(form, "sucursalId")
 
   function onSubmit(values: MermaValues) {
     registrarMerma.mutate(

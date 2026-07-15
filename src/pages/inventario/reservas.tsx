@@ -17,6 +17,8 @@ import {
 } from "@/hooks/useInventario"
 import { useProductos } from "@/hooks/useProductos"
 import { useSucursales } from "@/hooks/useSucursales"
+import { useSucursal } from "@/context/sucursal-provider"
+import { useSucursalDefault } from "@/hooks/useSucursalDefault"
 import { ApiError } from "@/lib/api"
 import { positiveNumberString } from "@/lib/validation"
 import type { ReservaStock } from "@/types/inventario"
@@ -67,7 +69,7 @@ const formSchema = z.object({
 type FormValues = z.infer<typeof formSchema>
 
 function NuevaReservaForm() {
-  const { data: sucursales } = useSucursales({ activo: "true" })
+  const { sucursales } = useSucursal()
   const { data: productos } = useProductos({ activo: "true" })
   const crearReserva = useCrearReserva()
 
@@ -80,6 +82,7 @@ function NuevaReservaForm() {
       items: [{ productoId: "", cantidad: "1" }],
     },
   })
+  useSucursalDefault(form, "sucursalId")
 
   const { fields, append, remove } = useFieldArray({ control: form.control, name: "items" })
 

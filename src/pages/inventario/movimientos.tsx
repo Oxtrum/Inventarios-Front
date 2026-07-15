@@ -5,7 +5,7 @@ import type { ColumnDef } from "@tanstack/react-table"
 
 import { useMovimientos } from "@/hooks/useInventario"
 import { useProductos } from "@/hooks/useProductos"
-import { useSucursales } from "@/hooks/useSucursales"
+import { useSucursal } from "@/context/sucursal-provider"
 import type { Movimiento } from "@/types/inventario"
 import type { MovementType } from "@/types/common"
 import { PageHeader } from "@/components/shared/PageHeader"
@@ -37,17 +37,16 @@ const TIPOS: MovementType[] = [
 
 export default function MovimientosPage() {
   const [productoId, setProductoId] = useState(TODOS)
-  const [sucursalId, setSucursalId] = useState(TODOS)
   const [tipo, setTipo] = useState(TODOS)
   const [fechaDesde, setFechaDesde] = useState("")
   const [fechaHasta, setFechaHasta] = useState("")
 
   const { data: productos } = useProductos({ activo: "true" })
-  const { data: sucursales } = useSucursales({ activo: "true" })
+  const { sucursalId, sucursales } = useSucursal()
 
   const filters: Record<string, string> = {}
   if (productoId !== TODOS) filters.productoId = productoId
-  if (sucursalId !== TODOS) filters.sucursalId = sucursalId
+  if (sucursalId) filters.sucursalId = sucursalId
   if (tipo !== TODOS) filters.tipo = tipo
   if (fechaDesde) filters.fechaDesde = fechaDesde
   if (fechaHasta) filters.fechaHasta = fechaHasta
@@ -106,19 +105,6 @@ export default function MovimientosPage() {
               {(productos ?? []).map((producto) => (
                 <SelectItem key={producto.id} value={producto.id}>
                   {producto.codigo ? `${producto.codigo} · ${producto.nombre}` : producto.nombre}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-          <Select value={sucursalId} onValueChange={setSucursalId}>
-            <SelectTrigger className="w-48">
-              <SelectValue placeholder="Sucursal" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value={TODOS}>Todas las sucursales</SelectItem>
-              {(sucursales ?? []).map((sucursal) => (
-                <SelectItem key={sucursal.id} value={sucursal.id}>
-                  {sucursal.nombre}
                 </SelectItem>
               ))}
             </SelectContent>

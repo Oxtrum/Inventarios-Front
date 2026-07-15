@@ -12,7 +12,7 @@ export function useStockBajo(filters?: Record<string, string>) {
   return useQuery({
     queryKey: reportesKeys.stockBajo(filters ?? {}),
     queryFn: () => reportesService.stockBajo(filters),
-    enabled: !!filters?.sucursalId,
+    // sin sucursalId => reporte agregado de todas las sucursales
   })
 }
 
@@ -20,7 +20,8 @@ export function useKardex(filters?: Record<string, string>) {
   return useQuery({
     queryKey: reportesKeys.kardex(filters ?? {}),
     queryFn: () => reportesService.kardex(filters),
-    enabled: !!filters?.sucursalId && !!filters?.productoId,
+    // sucursalId opcional; el producto sigue siendo obligatorio
+    enabled: !!filters?.productoId,
   })
 }
 
@@ -28,6 +29,6 @@ export function useValoracion(filters?: Record<string, string>) {
   return useQuery({
     queryKey: reportesKeys.valoracion(filters ?? {}),
     queryFn: () => reportesService.valoracion(filters),
-    enabled: !!filters?.sucursalId,
+    // sin sucursalId => valoracion agregada de todas las sucursales
   })
 }

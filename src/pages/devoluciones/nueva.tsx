@@ -7,7 +7,8 @@ import { IconPlus, IconTrash } from "@tabler/icons-react"
 import { Loader2 } from "lucide-react"
 import { toast } from "sonner"
 
-import { useSucursales } from "@/hooks/useSucursales"
+import { useSucursal } from "@/context/sucursal-provider"
+import { useSucursalDefault } from "@/hooks/useSucursalDefault"
 import { useProveedores } from "@/hooks/useProveedores"
 import { useProductos } from "@/hooks/useProductos"
 import { useCompras } from "@/hooks/useCompras"
@@ -58,7 +59,7 @@ type FormValues = z.infer<typeof formSchema>
 
 export default function DevolucionFormPage() {
   const navigate = useNavigate()
-  const { data: sucursales } = useSucursales({ activo: "true" })
+  const { sucursales } = useSucursal()
   const { data: proveedores } = useProveedores({ activo: "true" })
   const { data: productos } = useProductos({ activo: "true" })
   const { data: compras } = useCompras()
@@ -81,6 +82,7 @@ export default function DevolucionFormPage() {
       items: [{ productoId: "", cantidad: "1", costoUnitario: "0" }],
     },
   })
+  useSucursalDefault(form, "sucursalId")
 
   const { fields, append, remove } = useFieldArray({ control: form.control, name: "items" })
   const items = form.watch("items")

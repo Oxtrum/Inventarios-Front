@@ -6,7 +6,8 @@ import { IconPlus, IconTrash } from "@tabler/icons-react"
 import { Loader2 } from "lucide-react"
 import { toast } from "sonner"
 
-import { useSucursales } from "@/hooks/useSucursales"
+import { useSucursal } from "@/context/sucursal-provider"
+import { useSucursalDefault } from "@/hooks/useSucursalDefault"
 import { useProductos } from "@/hooks/useProductos"
 import { useCreateTransferencia } from "@/hooks/useTransferencias"
 import { ApiError } from "@/lib/api"
@@ -54,7 +55,7 @@ type FormValues = z.infer<typeof formSchema>
 
 export default function TransferenciaFormPage() {
   const navigate = useNavigate()
-  const { data: sucursales } = useSucursales({ activo: "true" })
+  const { sucursales } = useSucursal()
   const { data: productos } = useProductos({ activo: "true" })
   const createTransferencia = useCreateTransferencia()
 
@@ -68,6 +69,8 @@ export default function TransferenciaFormPage() {
       items: [{ productoId: "", cantidad: "1" }],
     },
   })
+  // La sucursal de origen se pre-rellena con la activa del header; el destino se elige.
+  useSucursalDefault(form, "sucursalOrigenId")
 
   const { fields, append, remove } = useFieldArray({ control: form.control, name: "items" })
 

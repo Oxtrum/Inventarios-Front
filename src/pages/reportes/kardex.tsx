@@ -4,7 +4,7 @@ import { IconArrowLeft } from "@tabler/icons-react"
 import type { ColumnDef } from "@tanstack/react-table"
 
 import { useKardex } from "@/hooks/useReportes"
-import { useSucursales } from "@/hooks/useSucursales"
+import { useSucursal } from "@/context/sucursal-provider"
 import { useProductos } from "@/hooks/useProductos"
 import type { KardexItem } from "@/types/reporte"
 import { PageHeader } from "@/components/shared/PageHeader"
@@ -24,12 +24,11 @@ import {
 type Row = KardexItem & { id: string }
 
 export default function KardexPage() {
-  const [sucursalId, setSucursalId] = useState("")
   const [productoId, setProductoId] = useState("")
   const [fechaDesde, setFechaDesde] = useState("")
   const [fechaHasta, setFechaHasta] = useState("")
 
-  const { data: sucursales } = useSucursales({ activo: "true" })
+  const { sucursalId, sucursalActiva } = useSucursal()
   const { data: productos } = useProductos({ activo: "true" })
 
   const filters: Record<string, string> = {}
@@ -38,7 +37,7 @@ export default function KardexPage() {
   if (fechaDesde) filters.fechaDesde = fechaDesde
   if (fechaHasta) filters.fechaHasta = fechaHasta
 
-  const canQuery = !!sucursalId && !!productoId
+  const canQuery = !!productoId
   const { data: items, isLoading } = useKardex(filters)
 
   const rows: Row[] = canQuery ? (items ?? []).map((item) => ({ ...item, id: item.movimientoId })) : []
@@ -60,7 +59,7 @@ export default function KardexPage() {
     <div className="flex flex-1 flex-col gap-4 py-4 md:py-6">
       <PageHeader
         title="Reporte de Kardex"
-        description="Historial de movimientos de un producto en una sucursal."
+        description={`Historial de movimientos de un producto en ${sucursalActiva ? sucursalActiva.nombre : "todas las sucursales"}.`}
         action={
           <Button variant="outline" asChild>
             <Link to="/reportes">
@@ -72,21 +71,6 @@ export default function KardexPage() {
       />
       <div className="flex flex-col gap-4 px-4 lg:px-6">
         <div className="flex flex-wrap gap-3">
-          <div className="flex flex-col gap-2">
-            <Label>Sucursal</Label>
-            <Select value={sucursalId} onValueChange={setSucursalId}>
-              <SelectTrigger className="w-56">
-                <SelectValue placeholder="Seleccionar sucursal" />
-              </SelectTrigger>
-              <SelectContent>
-                {(sucursales ?? []).map((sucursal) => (
-                  <SelectItem key={sucursal.id} value={sucursal.id}>
-                    {sucursal.nombre}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
           <div className="flex flex-col gap-2">
             <Label>Producto</Label>
             <Select value={productoId} onValueChange={setProductoId}>
@@ -115,7 +99,7 @@ export default function KardexPage() {
         {canQuery ? (
           <CrudTable columns={columns} data={rows} isLoading={isLoading} emptyMessage="Sin movimientos registrados." pageSize={20} />
         ) : (
-          <EmptyState title="Selecciona sucursal y producto" description="Elige una sucursal y un producto para ver su kardex." />
+          <EmptyState title="Selecciona un producto" description="Elige un producto para ver su kardex. La sucursal se controla desde el selector del encabezado." />
         )}
       </div>
     </div>

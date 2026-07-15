@@ -2,28 +2,18 @@ import { useState } from "react"
 import type { ColumnDef } from "@tanstack/react-table"
 
 import { useCatalogoProductos } from "@/hooks/useInventario"
-import { useSucursales } from "@/hooks/useSucursales"
+import { useSucursal } from "@/context/sucursal-provider"
 import { formatCurrency } from "@/lib/utils"
 import type { CatalogoProducto } from "@/types/inventario"
 import { PageHeader } from "@/components/shared/PageHeader"
 import { SearchInput } from "@/components/shared/SearchInput"
 import { CrudTable } from "@/components/shared/CrudTable"
-import { EmptyState } from "@/components/shared/EmptyState"
 import { Badge } from "@/components/ui/badge"
-import { Label } from "@/components/ui/label"
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select"
 
 export default function CatalogoPage() {
   const [nombre, setNombre] = useState("")
-  const [sucursalId, setSucursalId] = useState("")
+  const { sucursalId, sucursalActiva } = useSucursal()
 
-  const { data: sucursales } = useSucursales({ activo: "true" })
   const { data: catalogo, isLoading } = useCatalogoProductos({
     ...(nombre ? { nombre } : {}),
     ...(sucursalId ? { sucursalId } : {}),
@@ -58,38 +48,19 @@ export default function CatalogoPage() {
     <div className="flex flex-1 flex-col gap-4 py-4 md:py-6">
       <PageHeader
         title="Catálogo Público"
-        description="Vista de catálogo con stock disponible, la misma que consume la eshop vía GET /api/catalogo/productos."
+        description={`Vista de catálogo con stock disponible en ${sucursalActiva ? sucursalActiva.nombre : "todas las sucursales"}, la misma que consume la eshop vía GET /api/catalogo/productos.`}
       />
       <div className="flex flex-col gap-4 px-4 lg:px-6">
         <div className="flex flex-wrap items-end gap-3">
           <SearchInput value={nombre} onChange={setNombre} placeholder="Buscar por nombre..." className="max-w-xs" />
-          <div className="flex flex-col gap-2">
-            <Label>Sucursal</Label>
-            <Select value={sucursalId} onValueChange={setSucursalId}>
-              <SelectTrigger className="w-56">
-                <SelectValue placeholder="Seleccionar sucursal" />
-              </SelectTrigger>
-              <SelectContent>
-                {(sucursales ?? []).map((sucursal) => (
-                  <SelectItem key={sucursal.id} value={sucursal.id}>
-                    {sucursal.nombre}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
         </div>
 
-        {!sucursalId ? (
-          <EmptyState title="Selecciona una sucursal" description="Elige una sucursal para ver el catálogo público." />
-        ) : (
-          <CrudTable
-            columns={columns}
-            data={catalogo ?? []}
-            isLoading={isLoading}
-            emptyMessage="Sin productos con stock disponible."
-          />
-        )}
+        <CrudTable
+          columns={columns}
+          data={catalogo ?? []}
+          isLoading={isLoading}
+          emptyMessage="Sin productos con stock disponible."
+        />
       </div>
     </div>
   )

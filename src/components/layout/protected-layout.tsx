@@ -3,6 +3,7 @@ import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar"
 import { AppSidebar } from "@/components/layout/app-sidebar"
 import { SiteHeader } from "@/components/layout/site-header"
 import { LayoutProvider } from "@/context/layout-provider"
+import { SucursalProvider } from "@/context/sucursal-provider"
 import { useAuth } from "@/context/auth-provider"
 
 function ProtectedLayout() {
@@ -21,15 +22,17 @@ function ProtectedLayout() {
   }
 
   return (
-    <LayoutProvider>
-      <SidebarProvider>
-        <AppSidebar />
-        <SidebarInset>
-          <SiteHeader />
-          <Outlet />
-        </SidebarInset>
-      </SidebarProvider>
-    </LayoutProvider>
+    <SucursalProvider>
+      <LayoutProvider>
+        <SidebarProvider>
+          <AppSidebar />
+          <SidebarInset>
+            <SiteHeader />
+            <Outlet />
+          </SidebarInset>
+        </SidebarProvider>
+      </LayoutProvider>
+    </SucursalProvider>
   )
 }
 
