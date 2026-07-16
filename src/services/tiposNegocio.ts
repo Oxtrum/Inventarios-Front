@@ -1,9 +1,10 @@
 import { api } from "@/lib/api"
+import type { PaginatedData } from "@/types/common"
 import type { TipoNegocio, CreateTipoNegocioInput, UpdateTipoNegocioInput } from "@/types/tipoNegocio"
 
 export const tiposNegocioService = {
   list: (params?: Record<string, string>) =>
-    api.get<TipoNegocio[]>("/tipos-negocio", { params }),
+    api.get<PaginatedData<TipoNegocio>>("/tipos-negocio", { params }),
 
   getById: (id: string) =>
     api.get<TipoNegocio>(`/tipos-negocio/${id}`),

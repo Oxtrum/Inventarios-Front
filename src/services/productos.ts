@@ -1,9 +1,10 @@
 import { api } from "@/lib/api"
+import type { PaginatedData } from "@/types/common"
 import type { Producto, CreateProductoInput, UpdateProductoInput } from "@/types/producto"
 
 export const productosService = {
   list: (params?: Record<string, string>) =>
-    api.get<Producto[]>("/productos", { params }),
+    api.get<PaginatedData<Producto>>("/productos", { params }),
 
   getById: (id: string) =>
     api.get<Producto>(`/productos/${id}`),

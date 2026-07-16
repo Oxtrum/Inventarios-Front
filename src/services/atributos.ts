@@ -1,4 +1,5 @@
 import { api } from "@/lib/api"
+import type { PaginatedData } from "@/types/common"
 import type {
   Atributo,
   CreateAtributoInput,
@@ -10,7 +11,7 @@ import type {
 
 export const atributosService = {
   list: (params?: Record<string, string>) =>
-    api.get<Atributo[]>("/atributos", { params }),
+    api.get<PaginatedData<Atributo>>("/atributos", { params }),
 
   getById: (id: string) =>
     api.get<Atributo>(`/atributos/${id}`),

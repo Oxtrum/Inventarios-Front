@@ -1,5 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
 import { atributosService } from "@/services/atributos"
+import { selectPaginatedItems } from "@/lib/pagination"
 import type {
   CreateAtributoInput,
   UpdateAtributoInput,
@@ -20,6 +21,7 @@ export function useAtributos(filters?: Record<string, string>) {
   return useQuery({
     queryKey: atributosKeys.list(filters ?? {}),
     queryFn: () => atributosService.list(filters),
+    select: selectPaginatedItems,
   })
 }
 
