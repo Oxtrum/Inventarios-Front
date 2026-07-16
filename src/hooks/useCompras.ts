@@ -1,5 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
 import { comprasService } from "@/services/compras"
+import { selectPaginatedItems } from "@/lib/pagination"
 import type { CreateCompraInput } from "@/types/compra"
 
 export const comprasKeys = {
@@ -14,6 +15,7 @@ export function useCompras(filters?: Record<string, string>) {
   return useQuery({
     queryKey: comprasKeys.list(filters ?? {}),
     queryFn: () => comprasService.list(filters),
+    select: selectPaginatedItems,
   })
 }
 

@@ -1,9 +1,10 @@
 import { api } from "@/lib/api"
+import type { PaginatedData } from "@/types/common"
 import type { Compra, CreateCompraInput } from "@/types/compra"
 
 export const comprasService = {
   list: (params?: Record<string, string>) =>
-    api.get<Compra[]>("/compras", { params }),
+    api.get<PaginatedData<Compra>>("/compras", { params }),
 
   getById: (id: string) =>
     api.get<Compra>(`/compras/${id}`),
