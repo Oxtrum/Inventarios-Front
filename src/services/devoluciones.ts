@@ -1,9 +1,10 @@
 import { api } from "@/lib/api"
+import type { PaginatedData } from "@/types/common"
 import type { Devolucion, CreateDevolucionInput } from "@/types/devolucion"
 
 export const devolucionesService = {
   list: (params?: Record<string, string>) =>
-    api.get<Devolucion[]>("/devoluciones", { params }),
+    api.get<PaginatedData<Devolucion>>("/devoluciones", { params }),
 
   getById: (id: string) =>
     api.get<Devolucion>(`/devoluciones/${id}`),
