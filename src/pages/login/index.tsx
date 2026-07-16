@@ -81,7 +81,7 @@ export default function LoginPage() {
       <div className="absolute inset-0 bg-[linear-gradient(to_right,color-mix(in_oklch,var(--border)_46%,transparent)_1px,transparent_1px),linear-gradient(to_bottom,color-mix(in_oklch,var(--border)_46%,transparent)_1px,transparent_1px)] bg-[size:72px_72px] opacity-40" />
 
       {/* Soft glow */}
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_20%,color-mix(in_oklch,var(--primary)_10%,transparent),transparent_35%),radial-gradient(circle_at_80%_70%,color-mix(in_oklch,var(--chart-2)_12%,transparent),transparent_30%)]" />
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_20%,color-mix(in_oklch,var(--highlight)_14%,transparent),transparent_35%),radial-gradient(circle_at_80%_70%,color-mix(in_oklch,var(--chart-2)_10%,transparent),transparent_30%)]" />
 
       <div className="relative w-full max-w-[430px]">
         {/* BRAND */}
@@ -99,7 +99,7 @@ export default function LoginPage() {
           {/* top glow */}
           <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/70 to-transparent dark:via-white/20" />
           {/* soft glow */}
-          <div className="pointer-events-none absolute -top-24 right-0 size-48 rounded-full bg-primary/10 blur-3xl" />
+          <div className="pointer-events-none absolute -top-24 right-0 size-48 rounded-full bg-highlight/10 blur-3xl" />
 
           <div className="mb-6">
             <h2 className="text-2xl font-semibold sm:text-[1.6rem]">

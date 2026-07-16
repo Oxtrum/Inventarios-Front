@@ -92,7 +92,7 @@ export function SectionCards() {
   ]
 
   return (
-    <div className="grid grid-cols-1 gap-4 px-4 *:data-[slot=card]:bg-gradient-to-t *:data-[slot=card]:from-primary/5 *:data-[slot=card]:to-card *:data-[slot=card]:shadow-xs lg:px-6 @xl/main:grid-cols-2 @5xl/main:grid-cols-4 dark:*:data-[slot=card]:bg-card">
+    <div className="grid grid-cols-1 gap-4 px-4 *:data-[slot=card]:bg-gradient-to-t *:data-[slot=card]:from-highlight/5 *:data-[slot=card]:to-card *:data-[slot=card]:shadow-xs lg:px-6 @xl/main:grid-cols-2 @5xl/main:grid-cols-4 dark:*:data-[slot=card]:bg-card">
       {cards.map((card) => (
         <Card key={card.title} className="@container/card">
           <CardHeader>
@@ -107,7 +107,7 @@ export function SectionCards() {
           </CardHeader>
           <CardFooter className="flex-col items-start gap-1.5 text-sm">
             <div className="flex items-center gap-2 text-muted-foreground">
-              <card.icon className="size-4" />
+              <card.icon className="size-4 text-highlight" />
               {card.description}
             </div>
           </CardFooter>
