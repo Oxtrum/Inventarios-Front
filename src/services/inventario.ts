@@ -1,4 +1,5 @@
 import { api } from "@/lib/api"
+import type { PaginatedData } from "@/types/common"
 import type {
   Stock,
   Movimiento,
@@ -14,7 +15,7 @@ export const inventarioService = {
     api.get<Stock>("/inventario/stock", { params }),
 
   movimientos: (params?: Record<string, string>) =>
-    api.get<Movimiento[]>("/inventario/movimientos", { params }),
+    api.get<PaginatedData<Movimiento>>("/inventario/movimientos", { params }),
 
   ajustar: (data: AjusteRequest) =>
     api.post<Movimiento>("/inventario/ajustes", data),
@@ -23,7 +24,7 @@ export const inventarioService = {
     api.post<Movimiento>("/inventario/mermas", data),
 
   reservas: (params?: Record<string, string>) =>
-    api.get<ReservaStock[]>("/inventario/reservas", { params }),
+    api.get<PaginatedData<ReservaStock>>("/inventario/reservas", { params }),
 
   crearReserva: (data: CrearReservaRequest) =>
     api.post<ReservaStock>("/inventario/reservas", data),
@@ -40,5 +41,5 @@ export const inventarioService = {
 
 export const catalogoService = {
   productos: (params?: Record<string, string>) =>
-    api.get<CatalogoProducto[]>("/catalogo/productos", { params }),
+    api.get<PaginatedData<CatalogoProducto>>("/catalogo/productos", { params }),
 }

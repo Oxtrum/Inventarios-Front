@@ -1,5 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
 import { inventarioService, catalogoService } from "@/services/inventario"
+import { selectPaginatedItems } from "@/lib/pagination"
 import type { AjusteRequest, MermaRequest, CrearReservaRequest } from "@/types/inventario"
 
 export const inventarioKeys = {
@@ -27,6 +28,7 @@ export function useMovimientos(filters?: Record<string, string>) {
   return useQuery({
     queryKey: inventarioKeys.movimientos(filters ?? {}),
     queryFn: () => inventarioService.movimientos(filters),
+    select: selectPaginatedItems,
   })
 }
 
@@ -54,6 +56,7 @@ export function useReservas(filters?: Record<string, string>) {
   return useQuery({
     queryKey: inventarioKeys.reservas(filters ?? {}),
     queryFn: () => inventarioService.reservas(filters),
+    select: selectPaginatedItems,
   })
 }
 
@@ -101,5 +104,6 @@ export function useCatalogoProductos(filters?: Record<string, string>) {
   return useQuery({
     queryKey: catalogoKeys.productos(filters ?? {}),
     queryFn: () => catalogoService.productos(filters),
+    select: selectPaginatedItems,
   })
 }
