@@ -5,26 +5,22 @@ export interface ApiResponse<T> {
   mensaje: string
 }
 
-export interface ApiListResponse<T> {
-  data: T[]
-  codigo: number
-  error: boolean
-  mensaje: string
-}
-
 export interface PaginationParams {
-  page?: number
   limit?: number
-  sortBy?: string
-  sortOrder?: "asc" | "desc"
+  offset?: number
 }
 
-export interface PaginatedResponse<T> {
-  data: T[]
-  total: number
-  page: number
+export interface PaginationMetadata {
   limit: number
-  totalPages: number
+  offset: number
+  count: number
+  total: number
+  hasMore: boolean
+}
+
+export interface PaginatedData<T> {
+  items: T[]
+  pagination: PaginationMetadata
 }
 
 export type MovementType =
