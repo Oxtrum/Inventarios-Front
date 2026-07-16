@@ -1,5 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
 import { conteosService } from "@/services/conteos"
+import { selectPaginatedItems } from "@/lib/pagination"
 import type { CreateConteoInput, RegistrarConteoInput } from "@/types/conteo"
 
 export const conteosKeys = {
@@ -14,6 +15,7 @@ export function useConteos(filters?: Record<string, string>) {
   return useQuery({
     queryKey: conteosKeys.list(filters ?? {}),
     queryFn: () => conteosService.list(filters),
+    select: selectPaginatedItems,
   })
 }
 

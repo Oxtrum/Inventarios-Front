@@ -1,4 +1,5 @@
 import { api } from "@/lib/api"
+import type { PaginatedData } from "@/types/common"
 import type {
   Conteo,
   CreateConteoInput,
@@ -7,7 +8,7 @@ import type {
 
 export const conteosService = {
   list: (params?: Record<string, string>) =>
-    api.get<Conteo[]>("/conteos", { params }),
+    api.get<PaginatedData<Conteo>>("/conteos", { params }),
 
   getById: (id: string) =>
     api.get<Conteo>(`/conteos/${id}`),
