@@ -1,9 +1,10 @@
 import { api } from "@/lib/api"
+import type { PaginatedData } from "@/types/common"
 import type { Unidad, CreateUnidadInput, UpdateUnidadInput } from "@/types/unidad"
 
 export const unidadesService = {
   list: (params?: Record<string, string>) =>
-    api.get<Unidad[]>("/unidades", { params }),
+    api.get<PaginatedData<Unidad>>("/unidades", { params }),
 
   getById: (id: string) =>
     api.get<Unidad>(`/unidades/${id}`),

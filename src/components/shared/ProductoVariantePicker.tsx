@@ -33,7 +33,10 @@ export function VarianteSelect({
 }: VarianteSelectProps) {
   const { data: variantes, isLoading } = useProductoVariantes(productoId)
   const variantesActivas = useMemo(
-    () => (variantes ?? []).filter((variante) => variante.activo),
+    () =>
+      (Array.isArray(variantes) ? variantes : []).filter(
+        (variante) => variante.activo
+      ),
     [variantes],
   )
 
@@ -89,7 +92,10 @@ export function ProductoVariantePicker({
   allowDefaultVariant = true,
   autoSelectVariant = true,
 }: ProductoVariantePickerProps) {
-  const productoSeleccionado = productos.find((producto) => producto.id === productoId)
+  const safeProductos = Array.isArray(productos) ? productos : []
+  const productoSeleccionado = safeProductos.find(
+    (producto) => producto.id === productoId
+  )
   const puedeUsarPredeterminada = allowDefaultVariant && !productoSeleccionado?.esVarianteRequerida
 
   return (
@@ -107,7 +113,7 @@ export function ProductoVariantePicker({
             <SelectValue placeholder="Seleccionar producto" />
           </SelectTrigger>
           <SelectContent>
-            {productos.map((producto) => (
+            {safeProductos.map((producto) => (
               <SelectItem key={producto.id} value={producto.id}>
                 {producto.codigo ? `${producto.codigo} · ${producto.nombre}` : producto.nombre}
               </SelectItem>

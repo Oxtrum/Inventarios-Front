@@ -1,5 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
 import { rolesService, permisosService } from "@/services/roles"
+import { selectPaginatedItems } from "@/lib/pagination"
 import type { CreateRolInput, UpdateRolInput, CreatePermisoInput, AssignPermisoInput } from "@/types/rol"
 
 export const rolesKeys = {
@@ -17,6 +18,7 @@ export function useRoles() {
   return useQuery({
     queryKey: rolesKeys.lists(),
     queryFn: () => rolesService.list(),
+    select: selectPaginatedItems,
   })
 }
 
@@ -44,6 +46,7 @@ export function useRolPermisos(rolId: string) {
   return useQuery({
     queryKey: rolesKeys.permisos(rolId),
     queryFn: () => rolesService.getPermisos(rolId),
+    select: selectPaginatedItems,
     enabled: !!rolId,
   })
 }
@@ -72,6 +75,7 @@ export function usePermisos() {
   return useQuery({
     queryKey: permisosKeys.lists(),
     queryFn: () => permisosService.list(),
+    select: selectPaginatedItems,
   })
 }
 

@@ -1,9 +1,10 @@
 import { api } from "@/lib/api"
+import type { PaginatedData } from "@/types/common"
 import type { Sucursal, CreateSucursalInput, UpdateSucursalInput } from "@/types/sucursal"
 
 export const sucursalesService = {
   list: (params?: Record<string, string>) =>
-    api.get<Sucursal[]>("/sucursales", { params }),
+    api.get<PaginatedData<Sucursal>>("/sucursales", { params }),
 
   getById: (id: string) =>
     api.get<Sucursal>(`/sucursales/${id}`),

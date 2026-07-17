@@ -1,4 +1,5 @@
 import { api } from "@/lib/api"
+import type { PaginatedData } from "@/types/common"
 import type {
   Configuracion,
   CreateConfiguracionInput,
@@ -7,7 +8,7 @@ import type {
 
 export const configuracionesService = {
   list: (params?: Record<string, string>) =>
-    api.get<Configuracion[]>("/configuraciones", { params }),
+    api.get<PaginatedData<Configuracion>>("/configuraciones", { params }),
 
   getById: (id: string) =>
     api.get<Configuracion>(`/configuraciones/${id}`),

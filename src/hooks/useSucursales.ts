@@ -1,5 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
 import { sucursalesService } from "@/services/sucursales"
+import { selectPaginatedItems } from "@/lib/pagination"
 import type { CreateSucursalInput, UpdateSucursalInput } from "@/types/sucursal"
 
 export const sucursalesKeys = {
@@ -14,6 +15,7 @@ export function useSucursales(filters?: Record<string, string>) {
   return useQuery({
     queryKey: sucursalesKeys.list(filters ?? {}),
     queryFn: () => sucursalesService.list(filters),
+    select: selectPaginatedItems,
   })
 }
 

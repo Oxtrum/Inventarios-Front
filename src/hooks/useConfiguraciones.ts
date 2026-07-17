@@ -1,5 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
 import { configuracionesService } from "@/services/configuraciones"
+import { selectPaginatedItems } from "@/lib/pagination"
 import type { CreateConfiguracionInput, UpdateConfiguracionInput } from "@/types/configuracion"
 
 export const configuracionesKeys = {
@@ -14,6 +15,7 @@ export function useConfiguraciones(filters?: Record<string, string>) {
   return useQuery({
     queryKey: configuracionesKeys.list(filters ?? {}),
     queryFn: () => configuracionesService.list(filters),
+    select: selectPaginatedItems,
   })
 }
 

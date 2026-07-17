@@ -1,5 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
 import { productoVariantesService, productoAtributosService } from "@/services/productoVariantes"
+import { selectPaginatedItems } from "@/lib/pagination"
 import type {
   CreateProductoVarianteInput,
   UpdateProductoVarianteInput,
@@ -23,6 +24,7 @@ export function useProductoVariantes(productoId: string) {
   return useQuery({
     queryKey: productoVariantesKeys.list(productoId),
     queryFn: () => productoVariantesService.list(productoId),
+    select: selectPaginatedItems,
     enabled: !!productoId,
   })
 }
@@ -79,6 +81,7 @@ export function useProductoAtributos(productoId: string) {
   return useQuery({
     queryKey: productoAtributosKeys.list(productoId),
     queryFn: () => productoAtributosService.list(productoId),
+    select: selectPaginatedItems,
     enabled: !!productoId,
   })
 }
@@ -118,6 +121,7 @@ export function useVarianteAtributos(varianteId: string) {
   return useQuery({
     queryKey: productoVariantesKeys.varianteAtributos(varianteId),
     queryFn: () => productoVariantesService.varianteAtributos(varianteId),
+    select: selectPaginatedItems,
     enabled: !!varianteId,
   })
 }

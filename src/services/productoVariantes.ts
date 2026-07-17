@@ -1,4 +1,5 @@
 import { api } from "@/lib/api"
+import type { PaginatedData } from "@/types/common"
 import type {
   ProductoVariante,
   CreateProductoVarianteInput,
@@ -10,7 +11,7 @@ import type {
 
 export const productoVariantesService = {
   list: (productoId: string) =>
-    api.get<ProductoVariante[]>(`/productos/${productoId}/variantes`),
+    api.get<PaginatedData<ProductoVariante>>(`/productos/${productoId}/variantes`),
 
   create: (productoId: string, data: CreateProductoVarianteInput) =>
     api.post<ProductoVariante>(`/productos/${productoId}/variantes`, data),
@@ -28,7 +29,7 @@ export const productoVariantesService = {
     api.patch<ProductoVariante>(`/producto-variantes/${id}/restaurar`),
 
   varianteAtributos: (varianteId: string) =>
-    api.get<ProductoAtributoValor[]>(`/producto-variantes/${varianteId}/atributos`),
+    api.get<PaginatedData<ProductoAtributoValor>>(`/producto-variantes/${varianteId}/atributos`),
 
   setVarianteAtributo: (varianteId: string, data: SetAtributoValorInput) =>
     api.post<ProductoAtributoValor>(`/producto-variantes/${varianteId}/atributos`, data),
@@ -42,7 +43,7 @@ export const productoVariantesService = {
 
 export const productoAtributosService = {
   list: (productoId: string) =>
-    api.get<ProductoAtributoValor[]>(`/productos/${productoId}/atributos`),
+    api.get<PaginatedData<ProductoAtributoValor>>(`/productos/${productoId}/atributos`),
 
   set: (productoId: string, data: SetAtributoValorInput) =>
     api.post<ProductoAtributoValor>(`/productos/${productoId}/atributos`, data),

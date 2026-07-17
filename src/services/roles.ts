@@ -1,9 +1,10 @@
 import { api } from "@/lib/api"
+import type { PaginatedData } from "@/types/common"
 import type { Rol, Permiso, CreateRolInput, UpdateRolInput, CreatePermisoInput, AssignPermisoInput } from "@/types/rol"
 
 export const rolesService = {
   list: () =>
-    api.get<Rol[]>("/roles"),
+    api.get<PaginatedData<Rol>>("/roles"),
 
   create: (data: CreateRolInput) =>
     api.post<Rol>("/roles", data),
@@ -12,7 +13,7 @@ export const rolesService = {
     api.patch<Rol>(`/roles/${id}`, data),
 
   getPermisos: (id: string) =>
-    api.get<Permiso[]>(`/roles/${id}/permisos`),
+    api.get<PaginatedData<Permiso>>(`/roles/${id}/permisos`),
 
   assignPermiso: (id: string, data: AssignPermisoInput) =>
     api.post(`/roles/${id}/permisos`, data),
@@ -23,7 +24,7 @@ export const rolesService = {
 
 export const permisosService = {
   list: () =>
-    api.get<Permiso[]>("/permisos"),
+    api.get<PaginatedData<Permiso>>("/permisos"),
 
   create: (data: CreatePermisoInput) =>
     api.post<Permiso>("/permisos", data),

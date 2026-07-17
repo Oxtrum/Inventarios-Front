@@ -1,9 +1,10 @@
 import { api } from "@/lib/api"
+import type { PaginatedData } from "@/types/common"
 import type { Usuario, CreateUsuarioInput, UpdateUsuarioRolInput, ResetPasswordInput } from "@/types/usuario"
 
 export const usuariosService = {
   list: (params?: Record<string, string>) =>
-    api.get<Usuario[]>("/usuarios", { params }),
+    api.get<PaginatedData<Usuario>>("/usuarios", { params }),
 
   create: (data: CreateUsuarioInput) =>
     api.post<Usuario>("/usuarios", data),
