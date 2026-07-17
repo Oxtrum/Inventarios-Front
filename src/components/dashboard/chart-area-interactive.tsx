@@ -3,10 +3,9 @@
 import * as React from "react"
 import { Area, AreaChart, CartesianGrid, XAxis } from "recharts"
 
-import { useMovimientos } from "@/hooks/useInventario"
+import { useMovimientosResumen } from "@/hooks/useReportes"
+import { useSucursal } from "@/context/sucursal-provider"
 import { useIsMobile } from "@/hooks/use-mobile"
-import { toLocalDateInput } from "@/lib/utils"
-import type { MovementType } from "@/types/common"
 import {
   Card,
   CardAction,
@@ -36,19 +35,6 @@ import { Skeleton } from "@/components/ui/skeleton"
 
 export const description = "Movimientos de inventario: entradas vs salidas"
 
-const movementDirection: Record<MovementType, "entradas" | "salidas"> = {
-  STOCK_INICIAL: "entradas",
-  COMPRA: "entradas",
-  AJUSTE_ENTRADA: "entradas",
-  TRANSFERENCIA_ENTRA: "entradas",
-  DEVOLUCION_ENTRA: "entradas",
-  VENTA: "salidas",
-  AJUSTE_SALIDA: "salidas",
-  TRANSFERENCIA_SALE: "salidas",
-  DEVOLUCION_SALE: "salidas",
-  PERDIDA: "salidas",
-}
-
 const chartConfig = {
   entradas: {
     label: "Entradas",
@@ -66,33 +52,50 @@ function daysForRange(timeRange: string): number {
   return 90
 }
 
-function isoDateDaysAgo(days: number): string {
-  const date = new Date()
-  date.setDate(date.getDate() - days)
-  return toLocalDateInput(date)
+function reportDateRange(days: number) {
+  const fechaHasta = new Date()
+  fechaHasta.setDate(fechaHasta.getDate() + 1)
+  fechaHasta.setHours(0, 0, 0, 0)
+
+  const fechaDesde = new Date(fechaHasta)
+  fechaDesde.setDate(fechaDesde.getDate() - days)
+
+  return {
+    fechaDesde: fechaDesde.toISOString(),
+    fechaHasta: fechaHasta.toISOString(),
+  }
+}
+
+function formatPeriodDate(value: string): string {
+  const [year, month, day] = value.split("-").map(Number)
+  const date = new Date(year, month - 1, day)
+  return date.toLocaleDateString("es-ES", {
+    month: "short",
+    day: "numeric",
+  })
 }
 
 export function ChartAreaInteractive() {
   const isMobile = useIsMobile()
+  const { sucursalId } = useSucursal()
   const [timeRange, setTimeRange] = React.useState(() => isMobile ? "7d" : "90d")
 
-  const fechaDesde = isoDateDaysAgo(daysForRange(timeRange))
-  const { data: movimientos, isLoading } = useMovimientos({ fechaDesde })
+  const filters = React.useMemo(() => {
+    const range = reportDateRange(daysForRange(timeRange))
+    return {
+      ...range,
+      granularidad: "dia",
+      ...(sucursalId ? { sucursalId } : {}),
+    }
+  }, [sucursalId, timeRange])
+  const { data: movimientos, isLoading } = useMovimientosResumen(filters)
 
   const chartData = React.useMemo(() => {
-    const byDate = new Map<string, { entradas: number; salidas: number }>()
-
-    for (const movimiento of movimientos ?? []) {
-      const date = movimiento.fechaCreacion.slice(0, 10)
-      const direction = movementDirection[movimiento.tipo]
-      const entry = byDate.get(date) ?? { entradas: 0, salidas: 0 }
-      entry[direction] += movimiento.cantidad
-      byDate.set(date, entry)
-    }
-
-    return Array.from(byDate.entries())
-      .sort(([a], [b]) => a.localeCompare(b))
-      .map(([date, totals]) => ({ date, ...totals }))
+    return (movimientos?.series ?? []).map((item) => ({
+      date: item.periodo,
+      entradas: item.entradasCantidad,
+      salidas: item.salidasCantidad,
+    }))
   }, [movimientos])
 
   return (
@@ -109,7 +112,7 @@ export function ChartAreaInteractive() {
           <ToggleGroup
             type="single"
             value={timeRange}
-            onValueChange={setTimeRange}
+            onValueChange={(value) => value && setTimeRange(value)}
             variant="outline"
             className="hidden *:data-[slot=toggle-group-item]:px-4! @[767px]/card:flex"
           >
@@ -144,7 +147,7 @@ export function ChartAreaInteractive() {
           <Skeleton className="aspect-auto h-[250px] w-full" />
         ) : chartData.length === 0 ? (
           <div className="flex h-[250px] w-full items-center justify-center text-sm text-muted-foreground">
-            Sin movimientos en este período
+            Grafica no disponible
           </div>
         ) : (
           <ChartContainer
@@ -185,24 +188,13 @@ export function ChartAreaInteractive() {
                 axisLine={false}
                 tickMargin={8}
                 minTickGap={32}
-                tickFormatter={(value) => {
-                  const date = new Date(value)
-                  return date.toLocaleDateString("es-ES", {
-                    month: "short",
-                    day: "numeric",
-                  })
-                }}
+                tickFormatter={formatPeriodDate}
               />
               <ChartTooltip
                 cursor={false}
                 content={
                   <ChartTooltipContent
-                    labelFormatter={(value) => {
-                      return new Date(value).toLocaleDateString("es-ES", {
-                        month: "short",
-                        day: "numeric",
-                      })
-                    }}
+                    labelFormatter={(value) => formatPeriodDate(String(value))}
                     indicator="dot"
                   />
                 }

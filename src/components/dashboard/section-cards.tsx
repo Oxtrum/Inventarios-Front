@@ -4,13 +4,9 @@ import {
   IconCoins,
   IconPackage,
 } from "@tabler/icons-react"
-import { useQueries } from "@tanstack/react-query"
 
-import { useProductos } from "@/hooks/useProductos"
-import { useSucursales } from "@/hooks/useSucursales"
-import { reportesKeys } from "@/hooks/useReportes"
-import { reportesService } from "@/services/reportes"
-import { useMovimientos } from "@/hooks/useInventario"
+import { useResumenDashboard } from "@/hooks/useReportes"
+import { useSucursal } from "@/context/sucursal-provider"
 import {
   Card,
   CardDescription,
@@ -19,73 +15,36 @@ import {
   CardTitle,
 } from "@/components/ui/card"
 import { Skeleton } from "@/components/ui/skeleton"
-import { formatCurrency, toLocalDateInput } from "@/lib/utils"
+import { formatCurrency } from "@/lib/utils"
 
 export function SectionCards() {
-  const { data: productos, isLoading: isLoadingProductos } = useProductos({
-    activo: "true",
-  })
-  const { data: sucursales, isLoading: isLoadingSucursales } = useSucursales({
-    activo: "true",
-  })
-  const sucursalIds = (sucursales ?? []).map((sucursal) => sucursal.id)
-
-  const { data: stockBajo, isLoading: isLoadingStockBajo } = useQueries({
-    queries: sucursalIds.map((sucursalId) => ({
-      queryKey: reportesKeys.stockBajo({ sucursalId }),
-      queryFn: () => reportesService.stockBajo({ sucursalId }),
-    })),
-    combine: (results) => ({
-      data: results.flatMap((result) => result.data ?? []),
-      isLoading: results.some((result) => result.isLoading),
-    }),
-  })
-
-  const { data: valoracion, isLoading: isLoadingValoracion } = useQueries({
-    queries: sucursalIds.map((sucursalId) => ({
-      queryKey: reportesKeys.valoracion({ sucursalId }),
-      queryFn: () => reportesService.valoracion({ sucursalId }),
-    })),
-    combine: (results) => ({
-      data: results.flatMap((result) => result.data ?? []),
-      isLoading: results.some((result) => result.isLoading),
-    }),
-  })
-
-  const { data: movimientosHoy, isLoading: isLoadingMovimientos } =
-    useMovimientos({ fechaDesde: toLocalDateInput(new Date()) })
-
-  const valorInventario = valoracion.reduce(
-    (total, item) => total + item.valorCosto,
-    0
+  const { sucursalId } = useSucursal()
+  const { data: resumen, isLoading } = useResumenDashboard(
+    sucursalId ? { sucursalId } : undefined
   )
 
   const cards = [
     {
       title: "Productos Activos",
-      value: productos?.length,
-      isLoading: isLoadingProductos,
+      value: resumen?.productosActivos,
       icon: IconPackage,
       description: "Productos habilitados en el catálogo",
     },
     {
       title: "Stock Bajo",
-      value: stockBajo.length,
-      isLoading: isLoadingSucursales || isLoadingStockBajo,
+      value: resumen?.variantesStockBajo,
       icon: IconAlertTriangle,
-      description: "Productos por debajo del stock mínimo",
+      description: "Variantes por debajo del stock mínimo",
     },
     {
       title: "Valor del Inventario",
-      value: formatCurrency(valorInventario),
-      isLoading: isLoadingSucursales || isLoadingValoracion,
+      value: formatCurrency(resumen?.valorInventario ?? 0),
       icon: IconCoins,
       description: "Valor a costo del stock disponible",
     },
     {
       title: "Movimientos Hoy",
-      value: movimientosHoy?.length,
-      isLoading: isLoadingMovimientos,
+      value: resumen?.movimientosHoy,
       icon: IconArrowsExchange,
       description: "Entradas y salidas registradas hoy",
     },
@@ -97,7 +56,7 @@ export function SectionCards() {
         <Card key={card.title} className="@container/card">
           <CardHeader>
             <CardDescription>{card.title}</CardDescription>
-            {card.isLoading ? (
+            {isLoading ? (
               <Skeleton className="h-8 w-24" />
             ) : (
               <CardTitle className="text-2xl font-semibold tabular-nums @[250px]/card:text-3xl">

@@ -15,6 +15,7 @@ import {
   useLiberarReserva,
   useExpirarReserva,
 } from "@/hooks/useInventario"
+import { useReservasResumen } from "@/hooks/useReportes"
 import { useProductos } from "@/hooks/useProductos"
 import { useSucursales } from "@/hooks/useSucursales"
 import { useSucursal } from "@/context/sucursal-provider"
@@ -26,7 +27,9 @@ import { PageHeader } from "@/components/shared/PageHeader"
 import { ProductoVariantePicker } from "@/components/shared/ProductoVariantePicker"
 import { CrudTable } from "@/components/shared/CrudTable"
 import { ConfirmDialog } from "@/components/shared/ConfirmDialog"
+import { ChartErrorBoundary } from "@/components/shared/ChartErrorBoundary"
 import { EstadoBadge } from "@/components/shared/StatusBadge"
+import { ReservasResumenChart } from "@/components/reportes/reservas-resumen-chart"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -221,9 +224,25 @@ type ReservaAction = { reserva: ReservaStock; tipo: "confirmar" | "liberar" | "e
 export default function ReservasPage() {
   const [estado, setEstado] = useState(ALL)
   const [pendingAction, setPendingAction] = useState<ReservaAction | undefined>(undefined)
+  const { sucursalId } = useSucursal()
 
   const { data: sucursales } = useSucursales({ activo: "true" })
   const { data: reservas, isLoading } = useReservas(estado !== ALL ? { estado } : undefined)
+  const resumenFilters = useMemo(() => {
+    const fechaHasta = new Date()
+    fechaHasta.setDate(fechaHasta.getDate() + 1)
+    fechaHasta.setHours(0, 0, 0, 0)
+    const fechaDesde = new Date(fechaHasta)
+    fechaDesde.setDate(fechaDesde.getDate() - 30)
+
+    return {
+      fechaDesde: fechaDesde.toISOString(),
+      fechaHasta: fechaHasta.toISOString(),
+      ...(sucursalId ? { sucursalId } : {}),
+    }
+  }, [sucursalId])
+  const { data: reservasResumen, isLoading: isLoadingResumen } =
+    useReservasResumen(resumenFilters)
   const confirmarReserva = useConfirmarReserva()
   const liberarReserva = useLiberarReserva()
   const expirarReserva = useExpirarReserva()
@@ -349,6 +368,13 @@ export default function ReservasPage() {
         }
       />
       <div className="flex flex-col gap-4 px-4 lg:px-6">
+        <ChartErrorBoundary resetKey={sucursalId}>
+          <ReservasResumenChart
+            data={reservasResumen}
+            isLoading={isLoadingResumen}
+          />
+        </ChartErrorBoundary>
+
         <Card>
           <CardHeader>
             <CardTitle>Nueva Reserva</CardTitle>

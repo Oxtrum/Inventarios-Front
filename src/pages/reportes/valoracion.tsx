@@ -1,17 +1,34 @@
+import { useState } from "react"
 import { Link } from "react-router-dom"
 import { IconArrowLeft } from "@tabler/icons-react"
 
-import { useValoracion } from "@/hooks/useReportes"
+import {
+  useValoracion,
+  useValoracionDistribucion,
+} from "@/hooks/useReportes"
 import { useSucursal } from "@/context/sucursal-provider"
+import type { ValoracionAgrupacion } from "@/types/reporte"
 import { formatCurrency } from "@/lib/utils"
 import { PageHeader } from "@/components/shared/PageHeader"
+import { ChartErrorBoundary } from "@/components/shared/ChartErrorBoundary"
+import { ValoracionDistribucionChart } from "@/components/reportes/valoracion-distribucion-chart"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Skeleton } from "@/components/ui/skeleton"
 
 export default function ValoracionPage() {
   const { sucursalId, sucursalActiva } = useSucursal()
-  const { data: valoracion, isLoading } = useValoracion(sucursalId ? { sucursalId } : undefined)
+  const [agruparPor, setAgruparPor] =
+    useState<ValoracionAgrupacion>("categoria")
+  const scopeFilters = sucursalId ? { sucursalId } : undefined
+  const { data: valoracion, isLoading } = useValoracion(scopeFilters)
+  const {
+    data: distribucion,
+    isLoading: isLoadingDistribucion,
+  } = useValoracionDistribucion({
+    agruparPor,
+    ...(sucursalId ? { sucursalId } : {}),
+  })
 
   return (
     <div className="flex flex-1 flex-col gap-4 py-4 md:py-6">
@@ -40,30 +57,51 @@ export default function ValoracionPage() {
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
             <Card>
               <CardHeader>
-                <CardTitle className="text-sm font-medium text-muted-foreground">Total Productos</CardTitle>
+                <CardTitle className="text-sm font-medium text-muted-foreground">
+                  Total Productos
+                </CardTitle>
               </CardHeader>
               <CardContent>
-                <p className="text-2xl font-semibold">{valoracion.totalProductos}</p>
+                <p className="text-2xl font-semibold">
+                  {valoracion.totalProductos}
+                </p>
               </CardContent>
             </Card>
             <Card>
               <CardHeader>
-                <CardTitle className="text-sm font-medium text-muted-foreground">Stock Disponible</CardTitle>
+                <CardTitle className="text-sm font-medium text-muted-foreground">
+                  Stock Disponible
+                </CardTitle>
               </CardHeader>
               <CardContent>
-                <p className="text-2xl font-semibold">{valoracion.stockDisponible}</p>
+                <p className="text-2xl font-semibold">
+                  {valoracion.stockDisponible}
+                </p>
               </CardContent>
             </Card>
             <Card>
               <CardHeader>
-                <CardTitle className="text-sm font-medium text-muted-foreground">Valor de Costo</CardTitle>
+                <CardTitle className="text-sm font-medium text-muted-foreground">
+                  Valor de Costo
+                </CardTitle>
               </CardHeader>
               <CardContent>
-                <p className="text-2xl font-semibold">{formatCurrency(valoracion.valorCosto)}</p>
+                <p className="text-2xl font-semibold">
+                  {formatCurrency(valoracion.valorCosto)}
+                </p>
               </CardContent>
             </Card>
           </div>
         )}
+
+        <ChartErrorBoundary resetKey={`${sucursalId}-${agruparPor}`}>
+          <ValoracionDistribucionChart
+            data={distribucion}
+            isLoading={isLoadingDistribucion}
+            agruparPor={agruparPor}
+            onAgruparPorChange={setAgruparPor}
+          />
+        </ChartErrorBoundary>
       </div>
     </div>
   )

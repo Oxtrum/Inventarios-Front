@@ -66,6 +66,7 @@ export function useCrearReserva() {
     mutationFn: (data: CrearReservaRequest) => inventarioService.crearReserva(data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: inventarioKeys.all })
+      queryClient.invalidateQueries({ queryKey: ["reportes", "reservas-resumen"] })
     },
   })
 }
@@ -76,6 +77,7 @@ export function useConfirmarReserva() {
     mutationFn: (id: string) => inventarioService.confirmarReserva(id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: inventarioKeys.all })
+      queryClient.invalidateQueries({ queryKey: ["reportes", "reservas-resumen"] })
     },
   })
 }
@@ -86,6 +88,7 @@ export function useLiberarReserva() {
     mutationFn: (id: string) => inventarioService.liberarReserva(id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: inventarioKeys.all })
+      queryClient.invalidateQueries({ queryKey: ["reportes", "reservas-resumen"] })
     },
   })
 }
@@ -96,6 +99,7 @@ export function useExpirarReserva() {
     mutationFn: (id: string) => inventarioService.expirarReserva(id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: inventarioKeys.all })
+      queryClient.invalidateQueries({ queryKey: ["reportes", "reservas-resumen"] })
     },
   })
 }
