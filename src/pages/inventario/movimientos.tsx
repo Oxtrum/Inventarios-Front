@@ -4,6 +4,7 @@ import { IconArrowLeft } from "@tabler/icons-react"
 import type { ColumnDef } from "@tanstack/react-table"
 
 import { useMovimientos } from "@/hooks/useInventario"
+import { useServerPagination } from "@/hooks/useServerPagination"
 import { useProductos } from "@/hooks/useProductos"
 import { VarianteSelect } from "@/components/shared/ProductoVariantePicker"
 import { ProductoVarianteLabel } from "@/components/shared/ProductoVarianteLabel"
@@ -55,7 +56,8 @@ export default function MovimientosPage() {
   if (fechaDesde) filters.fechaDesde = fechaDesde
   if (fechaHasta) filters.fechaHasta = fechaHasta
 
-  const { data: movimientos, isLoading } = useMovimientos(filters)
+  const pagination = useServerPagination(20, JSON.stringify(filters))
+  const { data: movimientos, isLoading } = useMovimientos({ ...filters, ...pagination.params })
 
   const nombrePorId = useMemo(() => {
     const productoMap = new Map((productos ?? []).map((p) => [p.id, p.nombre]))
@@ -150,7 +152,7 @@ export default function MovimientosPage() {
             onChange={(e) => setFechaHasta(e.target.value)}
           />
         </div>
-        <CrudTable columns={columns} data={movimientos ?? []} isLoading={isLoading} emptyMessage="Sin movimientos registrados." pageSize={20} />
+        <CrudTable columns={columns} data={movimientos ?? []} isLoading={isLoading} emptyMessage="Sin movimientos registrados." pageSize={20} pagination={movimientos?.pagination} onPaginationChange={pagination.setOffset} />
       </div>
     </div>
   )

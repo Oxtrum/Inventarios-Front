@@ -5,6 +5,7 @@ import { toast } from "sonner"
 import type { ColumnDef } from "@tanstack/react-table"
 
 import { useAtributos, useDeleteAtributo, useRestoreAtributo } from "@/hooks/useAtributos"
+import { useServerPagination } from "@/hooks/useServerPagination"
 import { ApiError } from "@/lib/api"
 import type { Atributo } from "@/types/atributo"
 import { PageHeader } from "@/components/shared/PageHeader"
@@ -37,7 +38,11 @@ export default function AtributosPage() {
   const [editing, setEditing] = useState<Atributo | undefined>(undefined)
   const [deactivating, setDeactivating] = useState<Atributo | undefined>(undefined)
 
-  const { data: atributos, isLoading } = useAtributos(nombre ? { nombre } : undefined)
+  const pagination = useServerPagination(10, nombre)
+  const { data: atributos, isLoading } = useAtributos({
+    ...(nombre ? { nombre } : {}),
+    ...pagination.params,
+  })
   const deleteAtributo = useDeleteAtributo()
   const restoreAtributo = useRestoreAtributo()
 
@@ -120,7 +125,7 @@ export default function AtributosPage() {
       />
       <div className="flex flex-col gap-4 px-4 lg:px-6">
         <SearchInput value={nombre} onChange={setNombre} placeholder="Buscar por nombre..." className="max-w-xs" />
-        <CrudTable columns={columns} data={atributos ?? []} isLoading={isLoading} emptyMessage="Sin atributos registrados." />
+        <CrudTable columns={columns} data={atributos ?? []} isLoading={isLoading} emptyMessage="Sin atributos registrados." pagination={atributos?.pagination} onPaginationChange={pagination.setOffset} />
       </div>
 
       <AtributoForm open={formOpen} onOpenChange={setFormOpen} atributo={editing} />

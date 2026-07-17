@@ -5,6 +5,7 @@ import { toast } from "sonner"
 import type { ColumnDef } from "@tanstack/react-table"
 
 import { useProductos, useDeleteProducto, useRestoreProducto } from "@/hooks/useProductos"
+import { useServerPagination } from "@/hooks/useServerPagination"
 import { useCategorias } from "@/hooks/useCategorias"
 import { ApiError } from "@/lib/api"
 import { formatCurrency } from "@/lib/utils"
@@ -40,11 +41,13 @@ export default function ProductosPage() {
   const [formOpen, setFormOpen] = useState(false)
   const [editing, setEditing] = useState<Producto | undefined>(undefined)
   const [deactivating, setDeactivating] = useState<Producto | undefined>(undefined)
+  const pagination = useServerPagination(10, `${nombre}:${categoriaId}`)
 
   const { data: categorias } = useCategorias({})
   const { data: productos, isLoading } = useProductos({
     ...(nombre ? { nombre } : {}),
     ...(categoriaId !== ALL ? { categoriaId } : {}),
+    ...pagination.params,
   })
   const deleteProducto = useDeleteProducto()
   const restoreProducto = useRestoreProducto()
@@ -183,7 +186,7 @@ export default function ProductosPage() {
             </SelectContent>
           </Select>
         </div>
-        <CrudTable columns={columns} data={productos ?? []} isLoading={isLoading} emptyMessage="Sin productos registrados." />
+        <CrudTable columns={columns} data={productos ?? []} isLoading={isLoading} emptyMessage="Sin productos registrados." pagination={productos?.pagination} onPaginationChange={pagination.setOffset} />
       </div>
 
       <ProductoForm open={formOpen} onOpenChange={setFormOpen} producto={editing} />

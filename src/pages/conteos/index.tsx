@@ -4,6 +4,7 @@ import { IconDotsVertical, IconPlus } from "@tabler/icons-react"
 import type { ColumnDef } from "@tanstack/react-table"
 
 import { useConteos } from "@/hooks/useConteos"
+import { useServerPagination } from "@/hooks/useServerPagination"
 import { useSucursales } from "@/hooks/useSucursales"
 import type { Conteo } from "@/types/conteo"
 import { PageHeader } from "@/components/shared/PageHeader"
@@ -20,9 +21,10 @@ import { ConteoForm } from "./ConteoForm"
 
 export default function ConteosPage() {
   const navigate = useNavigate()
+  const pagination = useServerPagination()
   const [formOpen, setFormOpen] = useState(false)
   const { data: sucursales } = useSucursales()
-  const { data: conteos, isLoading } = useConteos()
+  const { data: conteos, isLoading } = useConteos(pagination.params)
 
   const sucursalPorId = useMemo(() => new Map((sucursales ?? []).map((s) => [s.id, s.nombre])), [sucursales])
 
@@ -76,7 +78,7 @@ export default function ConteosPage() {
         }
       />
       <div className="flex flex-col gap-4 px-4 lg:px-6">
-        <CrudTable columns={columns} data={conteos ?? []} isLoading={isLoading} emptyMessage="Sin conteos registrados." />
+        <CrudTable columns={columns} data={conteos ?? []} isLoading={isLoading} emptyMessage="Sin conteos registrados." pagination={conteos?.pagination} onPaginationChange={pagination.setOffset} />
       </div>
 
       <ConteoForm open={formOpen} onOpenChange={setFormOpen} />

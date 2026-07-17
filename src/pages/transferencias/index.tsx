@@ -5,6 +5,7 @@ import { toast } from "sonner"
 import type { ColumnDef } from "@tanstack/react-table"
 
 import { useTransferencias, useAnularTransferencia } from "@/hooks/useTransferencias"
+import { useServerPagination } from "@/hooks/useServerPagination"
 import { useSucursales } from "@/hooks/useSucursales"
 import { ApiError } from "@/lib/api"
 import type { Transferencia } from "@/types/transferencia"
@@ -55,8 +56,9 @@ function AnularAction({ transferencia }: { transferencia: Transferencia }) {
 
 export default function TransferenciasPage() {
   const navigate = useNavigate()
+  const pagination = useServerPagination()
   const { data: sucursales } = useSucursales()
-  const { data: transferencias, isLoading } = useTransferencias()
+  const { data: transferencias, isLoading } = useTransferencias(pagination.params)
 
   const sucursalPorId = useMemo(() => new Map((sucursales ?? []).map((s) => [s.id, s.nombre])), [sucursales])
 
@@ -115,7 +117,7 @@ export default function TransferenciasPage() {
         }
       />
       <div className="flex flex-col gap-4 px-4 lg:px-6">
-        <CrudTable columns={columns} data={transferencias ?? []} isLoading={isLoading} emptyMessage="Sin transferencias registradas." />
+        <CrudTable columns={columns} data={transferencias ?? []} isLoading={isLoading} emptyMessage="Sin transferencias registradas." pagination={transferencias?.pagination} onPaginationChange={pagination.setOffset} />
       </div>
     </div>
   )

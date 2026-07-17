@@ -5,6 +5,7 @@ import { toast } from "sonner"
 import type { ColumnDef } from "@tanstack/react-table"
 
 import { useTiposProducto, useDeleteTipoProducto, useRestoreTipoProducto } from "@/hooks/useTiposProducto"
+import { useServerPagination } from "@/hooks/useServerPagination"
 import { useTiposNegocio } from "@/hooks/useTiposNegocio"
 import { ApiError } from "@/lib/api"
 import type { TipoProducto } from "@/types/tipoProducto"
@@ -31,7 +32,11 @@ export default function TiposProductoPage() {
   const [deactivating, setDeactivating] = useState<TipoProducto | undefined>(undefined)
 
   const { data: tiposNegocio } = useTiposNegocio({ activo: "true" })
-  const { data: tiposProducto, isLoading } = useTiposProducto(nombre ? { nombre } : undefined)
+  const pagination = useServerPagination(10, nombre)
+  const { data: tiposProducto, isLoading } = useTiposProducto({
+    ...(nombre ? { nombre } : {}),
+    ...pagination.params,
+  })
   const deleteTipoProducto = useDeleteTipoProducto()
   const restoreTipoProducto = useRestoreTipoProducto()
 
@@ -119,7 +124,7 @@ export default function TiposProductoPage() {
       />
       <div className="flex flex-col gap-4 px-4 lg:px-6">
         <SearchInput value={nombre} onChange={setNombre} placeholder="Buscar por nombre..." className="max-w-xs" />
-        <CrudTable columns={columns} data={tiposProducto ?? []} isLoading={isLoading} emptyMessage="Sin tipos de producto registrados." />
+        <CrudTable columns={columns} data={tiposProducto ?? []} isLoading={isLoading} emptyMessage="Sin tipos de producto registrados." pagination={tiposProducto?.pagination} onPaginationChange={pagination.setOffset} />
       </div>
 
       <TipoProductoForm open={formOpen} onOpenChange={setFormOpen} tipoProducto={editing} />

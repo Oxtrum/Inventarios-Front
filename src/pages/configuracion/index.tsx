@@ -4,6 +4,7 @@ import { toast } from "sonner"
 import type { ColumnDef } from "@tanstack/react-table"
 
 import { useConfiguraciones, useDeleteConfiguracion, useRestoreConfiguracion } from "@/hooks/useConfiguraciones"
+import { useServerPagination } from "@/hooks/useServerPagination"
 import { useSucursales } from "@/hooks/useSucursales"
 import { ApiError } from "@/lib/api"
 import type { Configuracion } from "@/types/configuracion"
@@ -21,11 +22,12 @@ import {
 import { ConfiguracionForm } from "./ConfiguracionForm"
 
 export default function ConfiguracionPage() {
+  const pagination = useServerPagination()
   const [formOpen, setFormOpen] = useState(false)
   const [editing, setEditing] = useState<Configuracion | undefined>(undefined)
   const [deactivating, setDeactivating] = useState<Configuracion | undefined>(undefined)
 
-  const { data: configuraciones, isLoading } = useConfiguraciones()
+  const { data: configuraciones, isLoading } = useConfiguraciones(pagination.params)
   const { data: sucursales } = useSucursales()
   const deleteConfiguracion = useDeleteConfiguracion()
   const restoreConfiguracion = useRestoreConfiguracion()
@@ -110,7 +112,7 @@ export default function ConfiguracionPage() {
         }
       />
       <div className="flex flex-col gap-4 px-4 lg:px-6">
-        <CrudTable columns={columns} data={configuraciones ?? []} isLoading={isLoading} emptyMessage="Sin configuraciones registradas." />
+        <CrudTable columns={columns} data={configuraciones ?? []} isLoading={isLoading} emptyMessage="Sin configuraciones registradas." pagination={configuraciones?.pagination} onPaginationChange={pagination.setOffset} />
       </div>
 
       <ConfiguracionForm open={formOpen} onOpenChange={setFormOpen} configuracion={editing} />

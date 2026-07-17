@@ -5,6 +5,7 @@ import { toast } from "sonner"
 import type { ColumnDef } from "@tanstack/react-table"
 
 import { useCompras, useAnularCompra } from "@/hooks/useCompras"
+import { useServerPagination } from "@/hooks/useServerPagination"
 import { useSucursales } from "@/hooks/useSucursales"
 import { useProveedores } from "@/hooks/useProveedores"
 import { ApiError } from "@/lib/api"
@@ -57,9 +58,10 @@ function AnularAction({ compra }: { compra: Compra }) {
 
 export default function ComprasPage() {
   const navigate = useNavigate()
+  const pagination = useServerPagination()
   const { data: sucursales } = useSucursales()
   const { data: proveedores } = useProveedores()
-  const { data: compras, isLoading } = useCompras()
+  const { data: compras, isLoading } = useCompras(pagination.params)
 
   const nombrePorId = useMemo(() => {
     const sucursalMap = new Map((sucursales ?? []).map((s) => [s.id, s.nombre]))
@@ -125,7 +127,7 @@ export default function ComprasPage() {
         }
       />
       <div className="flex flex-col gap-4 px-4 lg:px-6">
-        <CrudTable columns={columns} data={compras ?? []} isLoading={isLoading} emptyMessage="Sin compras registradas." />
+        <CrudTable columns={columns} data={compras ?? []} isLoading={isLoading} emptyMessage="Sin compras registradas." pagination={compras?.pagination} onPaginationChange={pagination.setOffset} />
       </div>
     </div>
   )

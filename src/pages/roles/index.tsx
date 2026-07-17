@@ -4,6 +4,7 @@ import { IconDotsVertical, IconPlus } from "@tabler/icons-react"
 import type { ColumnDef } from "@tanstack/react-table"
 
 import { useRoles } from "@/hooks/useRoles"
+import { useServerPagination } from "@/hooks/useServerPagination"
 import type { Rol } from "@/types/rol"
 import { PageHeader } from "@/components/shared/PageHeader"
 import { CrudTable } from "@/components/shared/CrudTable"
@@ -18,10 +19,11 @@ import { RolForm } from "./RolForm"
 
 export default function RolesPage() {
   const navigate = useNavigate()
+  const pagination = useServerPagination()
   const [formOpen, setFormOpen] = useState(false)
   const [editing, setEditing] = useState<Rol | undefined>(undefined)
 
-  const { data: roles, isLoading } = useRoles()
+  const { data: roles, isLoading } = useRoles(pagination.params)
 
   const columns: ColumnDef<Rol>[] = [
     { accessorKey: "codigo", header: "Código" },
@@ -66,7 +68,7 @@ export default function RolesPage() {
         }
       />
       <div className="flex flex-col gap-4 px-4 lg:px-6">
-        <CrudTable columns={columns} data={roles ?? []} isLoading={isLoading} emptyMessage="Sin roles registrados." />
+        <CrudTable columns={columns} data={roles ?? []} isLoading={isLoading} emptyMessage="Sin roles registrados." pagination={roles?.pagination} onPaginationChange={pagination.setOffset} />
       </div>
 
       <RolForm open={formOpen} onOpenChange={setFormOpen} rol={editing} />

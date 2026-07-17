@@ -4,6 +4,7 @@ import { toast } from "sonner"
 import type { ColumnDef } from "@tanstack/react-table"
 
 import { useUnidades, useDeleteUnidad, useRestoreUnidad } from "@/hooks/useUnidades"
+import { useServerPagination } from "@/hooks/useServerPagination"
 import { ApiError } from "@/lib/api"
 import type { Unidad } from "@/types/unidad"
 import { PageHeader } from "@/components/shared/PageHeader"
@@ -26,7 +27,11 @@ export default function UnidadesPage() {
   const [editing, setEditing] = useState<Unidad | undefined>(undefined)
   const [deactivating, setDeactivating] = useState<Unidad | undefined>(undefined)
 
-  const { data: unidades, isLoading } = useUnidades(nombre ? { nombre } : undefined)
+  const pagination = useServerPagination(10, nombre)
+  const { data: unidades, isLoading } = useUnidades({
+    ...(nombre ? { nombre } : {}),
+    ...pagination.params,
+  })
   const deleteUnidad = useDeleteUnidad()
   const restoreUnidad = useRestoreUnidad()
 
@@ -97,7 +102,7 @@ export default function UnidadesPage() {
       />
       <div className="flex flex-col gap-4 px-4 lg:px-6">
         <SearchInput value={nombre} onChange={setNombre} placeholder="Buscar por nombre..." className="max-w-xs" />
-        <CrudTable columns={columns} data={unidades ?? []} isLoading={isLoading} emptyMessage="Sin unidades registradas." />
+        <CrudTable columns={columns} data={unidades ?? []} isLoading={isLoading} emptyMessage="Sin unidades registradas." pagination={unidades?.pagination} onPaginationChange={pagination.setOffset} />
       </div>
 
       <UnidadForm open={formOpen} onOpenChange={setFormOpen} unidad={editing} />

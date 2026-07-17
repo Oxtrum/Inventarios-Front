@@ -15,6 +15,7 @@ import {
   useRemoveAtributoValor,
   useRestoreAtributoValor,
 } from "@/hooks/useAtributos"
+import { useServerPagination } from "@/hooks/useServerPagination"
 import { ApiError } from "@/lib/api"
 import type { AtributoValor } from "@/types/atributo"
 import { PageHeader } from "@/components/shared/PageHeader"
@@ -57,9 +58,10 @@ export default function AtributoDetailPage() {
   const { id } = useParams<{ id: string }>()
   const atributoId = id ?? ""
   const [dialogOpen, setDialogOpen] = useState(false)
+  const pagination = useServerPagination()
 
   const { data: atributo } = useAtributo(atributoId)
-  const { data: valores, isLoading } = useAtributoValores(atributoId)
+  const { data: valores, isLoading } = useAtributoValores(atributoId, pagination.params)
   const addValor = useAddAtributoValor(atributoId)
   const removeValor = useRemoveAtributoValor(atributoId)
   const restoreValor = useRestoreAtributoValor(atributoId)
@@ -208,7 +210,7 @@ export default function AtributoDetailPage() {
         }
       />
       <div className="flex flex-col gap-4 px-4 lg:px-6">
-        <CrudTable columns={columns} data={valores ?? []} isLoading={isLoading} emptyMessage="Sin valores registrados." />
+        <CrudTable columns={columns} data={valores ?? []} isLoading={isLoading} emptyMessage="Sin valores registrados." pagination={valores?.pagination} onPaginationChange={pagination.setOffset} />
       </div>
     </div>
   )

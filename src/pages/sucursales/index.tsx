@@ -4,6 +4,7 @@ import { toast } from "sonner"
 import type { ColumnDef } from "@tanstack/react-table"
 
 import { useSucursales, useDeleteSucursal, useRestoreSucursal } from "@/hooks/useSucursales"
+import { useServerPagination } from "@/hooks/useServerPagination"
 import { ApiError } from "@/lib/api"
 import type { Sucursal } from "@/types/sucursal"
 import { PageHeader } from "@/components/shared/PageHeader"
@@ -26,7 +27,11 @@ export default function SucursalesPage() {
   const [editing, setEditing] = useState<Sucursal | undefined>(undefined)
   const [deactivating, setDeactivating] = useState<Sucursal | undefined>(undefined)
 
-  const { data: sucursales, isLoading } = useSucursales(nombre ? { nombre } : undefined)
+  const pagination = useServerPagination(10, nombre)
+  const { data: sucursales, isLoading } = useSucursales({
+    ...(nombre ? { nombre } : {}),
+    ...pagination.params,
+  })
   const deleteSucursal = useDeleteSucursal()
   const restoreSucursal = useRestoreSucursal()
 
@@ -98,7 +103,7 @@ export default function SucursalesPage() {
       />
       <div className="flex flex-col gap-4 px-4 lg:px-6">
         <SearchInput value={nombre} onChange={setNombre} placeholder="Buscar por nombre..." className="max-w-xs" />
-        <CrudTable columns={columns} data={sucursales ?? []} isLoading={isLoading} emptyMessage="Sin sucursales registradas." />
+        <CrudTable columns={columns} data={sucursales ?? []} isLoading={isLoading} emptyMessage="Sin sucursales registradas." pagination={sucursales?.pagination} onPaginationChange={pagination.setOffset} />
       </div>
 
       <SucursalForm open={formOpen} onOpenChange={setFormOpen} sucursal={editing} />

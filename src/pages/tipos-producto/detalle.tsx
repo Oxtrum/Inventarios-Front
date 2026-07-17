@@ -14,6 +14,7 @@ import {
   useAddTipoProductoAtributo,
   useRemoveTipoProductoAtributo,
 } from "@/hooks/useTiposProducto"
+import { useServerPagination } from "@/hooks/useServerPagination"
 import { useAtributos } from "@/hooks/useAtributos"
 import { ApiError } from "@/lib/api"
 import type { TipoProductoAtributo } from "@/types/tipoProducto"
@@ -65,10 +66,11 @@ export default function TipoProductoDetailPage() {
   const { id } = useParams<{ id: string }>()
   const tipoProductoId = id ?? ""
   const [dialogOpen, setDialogOpen] = useState(false)
+  const pagination = useServerPagination()
 
   const { data: tipoProducto } = useTipoProducto(tipoProductoId)
   const { data: atributos } = useAtributos({ activo: "true" })
-  const { data: asignados, isLoading } = useTipoProductoAtributos(tipoProductoId)
+  const { data: asignados, isLoading } = useTipoProductoAtributos(tipoProductoId, pagination.params)
   const addAtributo = useAddTipoProductoAtributo(tipoProductoId)
   const removeAtributo = useRemoveTipoProductoAtributo(tipoProductoId)
 
@@ -233,7 +235,7 @@ export default function TipoProductoDetailPage() {
         }
       />
       <div className="flex flex-col gap-4 px-4 lg:px-6">
-        <CrudTable columns={columns} data={asignados ?? []} isLoading={isLoading} emptyMessage="Sin atributos asignados." />
+        <CrudTable columns={columns} data={asignados ?? []} isLoading={isLoading} emptyMessage="Sin atributos asignados." pagination={asignados?.pagination} onPaginationChange={pagination.setOffset} />
       </div>
     </div>
   )

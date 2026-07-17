@@ -2,6 +2,7 @@ import { useState } from "react"
 import type { ColumnDef } from "@tanstack/react-table"
 
 import { useTiposNegocio } from "@/hooks/useTiposNegocio"
+import { useServerPagination } from "@/hooks/useServerPagination"
 import type { TipoNegocio } from "@/types/tipoNegocio"
 import { PageHeader } from "@/components/shared/PageHeader"
 import { SearchInput } from "@/components/shared/SearchInput"
@@ -10,7 +11,11 @@ import { StatusBadge } from "@/components/shared/StatusBadge"
 
 export default function TiposNegocioPage() {
   const [nombre, setNombre] = useState("")
-  const { data: tiposNegocio, isLoading } = useTiposNegocio(nombre ? { nombre } : undefined)
+  const pagination = useServerPagination(10, nombre)
+  const { data: tiposNegocio, isLoading } = useTiposNegocio({
+    ...(nombre ? { nombre } : {}),
+    ...pagination.params,
+  })
 
   const columns: ColumnDef<TipoNegocio>[] = [
     { accessorKey: "codigo", header: "Código" },
@@ -27,7 +32,7 @@ export default function TiposNegocioPage() {
       />
       <div className="flex flex-col gap-4 px-4 lg:px-6">
         <SearchInput value={nombre} onChange={setNombre} placeholder="Buscar por nombre..." className="max-w-xs" />
-        <CrudTable columns={columns} data={tiposNegocio ?? []} isLoading={isLoading} emptyMessage="Sin tipos de negocio registrados." />
+        <CrudTable columns={columns} data={tiposNegocio ?? []} isLoading={isLoading} emptyMessage="Sin tipos de negocio registrados." pagination={tiposNegocio?.pagination} onPaginationChange={pagination.setOffset} />
       </div>
     </div>
   )

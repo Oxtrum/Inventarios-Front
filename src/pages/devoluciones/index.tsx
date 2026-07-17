@@ -5,6 +5,7 @@ import { toast } from "sonner"
 import type { ColumnDef } from "@tanstack/react-table"
 
 import { useDevoluciones, useAnularDevolucion } from "@/hooks/useDevoluciones"
+import { useServerPagination } from "@/hooks/useServerPagination"
 import { useSucursales } from "@/hooks/useSucursales"
 import { useProveedores } from "@/hooks/useProveedores"
 import { ApiError } from "@/lib/api"
@@ -57,9 +58,10 @@ function AnularAction({ devolucion }: { devolucion: Devolucion }) {
 
 export default function DevolucionesPage() {
   const navigate = useNavigate()
+  const pagination = useServerPagination()
   const { data: sucursales } = useSucursales()
   const { data: proveedores } = useProveedores()
-  const { data: devoluciones, isLoading } = useDevoluciones()
+  const { data: devoluciones, isLoading } = useDevoluciones(pagination.params)
 
   const nombrePorId = useMemo(() => {
     const sucursalMap = new Map((sucursales ?? []).map((s) => [s.id, s.nombre]))
@@ -125,7 +127,7 @@ export default function DevolucionesPage() {
         }
       />
       <div className="flex flex-col gap-4 px-4 lg:px-6">
-        <CrudTable columns={columns} data={devoluciones ?? []} isLoading={isLoading} emptyMessage="Sin devoluciones registradas." />
+        <CrudTable columns={columns} data={devoluciones ?? []} isLoading={isLoading} emptyMessage="Sin devoluciones registradas." pagination={devoluciones?.pagination} onPaginationChange={pagination.setOffset} />
       </div>
     </div>
   )

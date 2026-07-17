@@ -4,6 +4,7 @@ import { toast } from "sonner"
 import type { ColumnDef } from "@tanstack/react-table"
 
 import { useUsuarios, useDeactivateUsuario, useRestoreUsuario } from "@/hooks/useUsuarios"
+import { useServerPagination } from "@/hooks/useServerPagination"
 import { ApiError } from "@/lib/api"
 import type { Usuario } from "@/types/usuario"
 import { PageHeader } from "@/components/shared/PageHeader"
@@ -30,7 +31,11 @@ export default function UsuariosPage() {
   const [changingPassword, setChangingPassword] = useState<Usuario | undefined>(undefined)
   const [deactivating, setDeactivating] = useState<Usuario | undefined>(undefined)
 
-  const { data: usuarios, isLoading } = useUsuarios(email ? { email } : undefined)
+  const pagination = useServerPagination(10, email)
+  const { data: usuarios, isLoading } = useUsuarios({
+    ...(email ? { email } : {}),
+    ...pagination.params,
+  })
   const deactivateUsuario = useDeactivateUsuario()
   const restoreUsuario = useRestoreUsuario()
 
@@ -110,7 +115,7 @@ export default function UsuariosPage() {
       />
       <div className="flex flex-col gap-4 px-4 lg:px-6">
         <SearchInput value={email} onChange={setEmail} placeholder="Buscar por email..." className="max-w-xs" />
-        <CrudTable columns={columns} data={usuarios ?? []} isLoading={isLoading} emptyMessage="Sin usuarios registrados." />
+        <CrudTable columns={columns} data={usuarios ?? []} isLoading={isLoading} emptyMessage="Sin usuarios registrados." pagination={usuarios?.pagination} onPaginationChange={pagination.setOffset} />
       </div>
 
       <UsuarioForm open={formOpen} onOpenChange={setFormOpen} />

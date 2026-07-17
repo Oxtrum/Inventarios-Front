@@ -3,6 +3,7 @@ import { IconArrowLeft } from "@tabler/icons-react"
 import type { ColumnDef } from "@tanstack/react-table"
 
 import { useStockBajo } from "@/hooks/useReportes"
+import { useServerPagination } from "@/hooks/useServerPagination"
 import { useSucursal } from "@/context/sucursal-provider"
 import type { StockBajoItem } from "@/types/reporte"
 import { PageHeader } from "@/components/shared/PageHeader"
@@ -16,7 +17,11 @@ type Row = StockBajoItem & { id: string }
 
 export default function StockBajoPage() {
   const { sucursalId, sucursalActiva } = useSucursal()
-  const { data: items, isLoading } = useStockBajo(sucursalId ? { sucursalId } : undefined)
+  const pagination = useServerPagination(20, sucursalId)
+  const { data: items, isLoading } = useStockBajo({
+    ...(sucursalId ? { sucursalId } : {}),
+    ...pagination.params,
+  })
   const safeItems = Array.isArray(items) ? items : []
 
   const rows: Row[] = safeItems.map((item) => ({ ...item, id: item.productoVarianteId || item.productoId }))
@@ -56,7 +61,7 @@ export default function StockBajoPage() {
         <ChartErrorBoundary resetKey={items}>
           <StockBajoChart items={safeItems} isLoading={isLoading} />
         </ChartErrorBoundary>
-        <CrudTable columns={columns} data={rows} isLoading={isLoading} emptyMessage="Sin productos con stock bajo." pageSize={20} />
+        <CrudTable columns={columns} data={rows} isLoading={isLoading} emptyMessage="Sin productos con stock bajo." pageSize={20} pagination={items?.pagination} onPaginationChange={pagination.setOffset} />
       </div>
     </div>
   )

@@ -2,6 +2,7 @@ import { useState } from "react"
 import type { ColumnDef } from "@tanstack/react-table"
 
 import { useCatalogoProductos } from "@/hooks/useInventario"
+import { useServerPagination } from "@/hooks/useServerPagination"
 import { useSucursal } from "@/context/sucursal-provider"
 import { formatCurrency } from "@/lib/utils"
 import type { CatalogoProducto } from "@/types/inventario"
@@ -13,11 +14,13 @@ import { Badge } from "@/components/ui/badge"
 export default function CatalogoPage() {
   const [nombre, setNombre] = useState("")
   const { sucursalId, sucursalActiva } = useSucursal()
+  const pagination = useServerPagination(10, `${nombre}:${sucursalId}`)
 
   const { data: catalogo, isLoading } = useCatalogoProductos({
     ...(nombre ? { nombre } : {}),
     ...(sucursalId ? { sucursalId } : {}),
     soloConStock: "true",
+    ...pagination.params,
   })
 
   const columns: ColumnDef<CatalogoProducto>[] = [
@@ -60,6 +63,8 @@ export default function CatalogoPage() {
           data={catalogo ?? []}
           isLoading={isLoading}
           emptyMessage="Sin productos con stock disponible."
+          pagination={catalogo?.pagination}
+          onPaginationChange={pagination.setOffset}
         />
       </div>
     </div>

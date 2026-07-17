@@ -4,6 +4,7 @@ import { toast } from "sonner"
 import type { ColumnDef } from "@tanstack/react-table"
 
 import { useProveedores, useDeleteProveedor, useRestoreProveedor } from "@/hooks/useProveedores"
+import { useServerPagination } from "@/hooks/useServerPagination"
 import { ApiError } from "@/lib/api"
 import type { Proveedor } from "@/types/proveedor"
 import { PageHeader } from "@/components/shared/PageHeader"
@@ -26,7 +27,11 @@ export default function ProveedoresPage() {
   const [editing, setEditing] = useState<Proveedor | undefined>(undefined)
   const [deactivating, setDeactivating] = useState<Proveedor | undefined>(undefined)
 
-  const { data: proveedores, isLoading } = useProveedores(nombre ? { nombre } : undefined)
+  const pagination = useServerPagination(10, nombre)
+  const { data: proveedores, isLoading } = useProveedores({
+    ...(nombre ? { nombre } : {}),
+    ...pagination.params,
+  })
   const deleteProveedor = useDeleteProveedor()
   const restoreProveedor = useRestoreProveedor()
 
@@ -98,7 +103,7 @@ export default function ProveedoresPage() {
       />
       <div className="flex flex-col gap-4 px-4 lg:px-6">
         <SearchInput value={nombre} onChange={setNombre} placeholder="Buscar por nombre..." className="max-w-xs" />
-        <CrudTable columns={columns} data={proveedores ?? []} isLoading={isLoading} emptyMessage="Sin proveedores registrados." />
+        <CrudTable columns={columns} data={proveedores ?? []} isLoading={isLoading} emptyMessage="Sin proveedores registrados." pagination={proveedores?.pagination} onPaginationChange={pagination.setOffset} />
       </div>
 
       <ProveedorForm open={formOpen} onOpenChange={setFormOpen} proveedor={editing} />

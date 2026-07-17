@@ -15,6 +15,7 @@ import {
   useLiberarReserva,
   useExpirarReserva,
 } from "@/hooks/useInventario"
+import { useServerPagination } from "@/hooks/useServerPagination"
 import { useReservasResumen } from "@/hooks/useReportes"
 import { useProductos } from "@/hooks/useProductos"
 import { useSucursales } from "@/hooks/useSucursales"
@@ -225,9 +226,13 @@ export default function ReservasPage() {
   const [estado, setEstado] = useState(ALL)
   const [pendingAction, setPendingAction] = useState<ReservaAction | undefined>(undefined)
   const { sucursalId } = useSucursal()
+  const pagination = useServerPagination(10, estado)
 
   const { data: sucursales } = useSucursales({ activo: "true" })
-  const { data: reservas, isLoading } = useReservas(estado !== ALL ? { estado } : undefined)
+  const { data: reservas, isLoading } = useReservas({
+    ...(estado !== ALL ? { estado } : {}),
+    ...pagination.params,
+  })
   const resumenFilters = useMemo(() => {
     const fechaHasta = new Date()
     fechaHasta.setDate(fechaHasta.getDate() + 1)
@@ -398,7 +403,7 @@ export default function ReservasPage() {
             </SelectContent>
           </Select>
         </div>
-        <CrudTable columns={columns} data={reservas ?? []} isLoading={isLoading} emptyMessage="Sin reservas registradas." />
+        <CrudTable columns={columns} data={reservas ?? []} isLoading={isLoading} emptyMessage="Sin reservas registradas." pagination={reservas?.pagination} onPaginationChange={pagination.setOffset} />
       </div>
 
       <ConfirmDialog

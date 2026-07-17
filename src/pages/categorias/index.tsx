@@ -4,6 +4,7 @@ import { toast } from "sonner"
 import type { ColumnDef } from "@tanstack/react-table"
 
 import { useCategorias, useDeleteCategoria, useRestoreCategoria } from "@/hooks/useCategorias"
+import { useServerPagination } from "@/hooks/useServerPagination"
 import { ApiError } from "@/lib/api"
 import type { Categoria } from "@/types/categoria"
 import { PageHeader } from "@/components/shared/PageHeader"
@@ -26,7 +27,11 @@ export default function CategoriasPage() {
   const [editing, setEditing] = useState<Categoria | undefined>(undefined)
   const [deactivating, setDeactivating] = useState<Categoria | undefined>(undefined)
 
-  const { data: categorias, isLoading } = useCategorias(nombre ? { nombre } : undefined)
+  const pagination = useServerPagination(10, nombre)
+  const { data: categorias, isLoading } = useCategorias({
+    ...(nombre ? { nombre } : {}),
+    ...pagination.params,
+  })
   const deleteCategoria = useDeleteCategoria()
   const restoreCategoria = useRestoreCategoria()
 
@@ -97,7 +102,7 @@ export default function CategoriasPage() {
       />
       <div className="flex flex-col gap-4 px-4 lg:px-6">
         <SearchInput value={nombre} onChange={setNombre} placeholder="Buscar por nombre..." className="max-w-xs" />
-        <CrudTable columns={columns} data={categorias ?? []} isLoading={isLoading} emptyMessage="Sin categorías registradas." />
+        <CrudTable columns={columns} data={categorias ?? []} isLoading={isLoading} emptyMessage="Sin categorías registradas." pagination={categorias?.pagination} onPaginationChange={pagination.setOffset} />
       </div>
 
       <CategoriaForm open={formOpen} onOpenChange={setFormOpen} categoria={editing} />

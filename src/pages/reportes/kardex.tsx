@@ -4,6 +4,7 @@ import { IconArrowLeft } from "@tabler/icons-react"
 import type { ColumnDef } from "@tanstack/react-table"
 
 import { useKardex } from "@/hooks/useReportes"
+import { useServerPagination } from "@/hooks/useServerPagination"
 import { useSucursal } from "@/context/sucursal-provider"
 import { useProductos } from "@/hooks/useProductos"
 import { ProductoVariantePicker } from "@/components/shared/ProductoVariantePicker"
@@ -36,7 +37,8 @@ export default function KardexPage() {
   if (fechaHasta) filters.fechaHasta = fechaHasta
 
   const canQuery = !!productoId
-  const { data: items, isLoading } = useKardex(filters)
+  const pagination = useServerPagination(20, JSON.stringify(filters))
+  const { data: items, isLoading } = useKardex({ ...filters, ...pagination.params })
   const safeItems = Array.isArray(items) ? items : []
 
   const rows: Row[] = canQuery ? safeItems.map((item) => ({ ...item, id: item.movimientoId })) : []
@@ -93,7 +95,7 @@ export default function KardexPage() {
             <ChartErrorBoundary resetKey={items}>
               <KardexChart items={safeItems} isLoading={isLoading} />
             </ChartErrorBoundary>
-            <CrudTable columns={columns} data={rows} isLoading={isLoading} emptyMessage="Sin movimientos registrados." pageSize={20} />
+            <CrudTable columns={columns} data={rows} isLoading={isLoading} emptyMessage="Sin movimientos registrados." pageSize={20} pagination={items?.pagination} onPaginationChange={pagination.setOffset} />
           </>
         ) : (
           <EmptyState title="Selecciona un producto" description="Elige un producto para ver su kardex. La sucursal se controla desde el selector del encabezado." />
