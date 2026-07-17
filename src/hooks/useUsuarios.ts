@@ -1,6 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
 import { usuariosService } from "@/services/usuarios"
-import { selectPaginatedItems } from "@/lib/pagination"
+import { fetchPaginatedItems, selectPaginatedItems, withDefaultPagination } from "@/lib/pagination"
 import type { CreateUsuarioInput, UpdateUsuarioRolInput, ResetPasswordInput } from "@/types/usuario"
 
 export const usuariosKeys = {
@@ -10,9 +10,10 @@ export const usuariosKeys = {
 }
 
 export function useUsuarios(filters?: Record<string, string>) {
+  const params = withDefaultPagination(filters)
   return useQuery({
-    queryKey: usuariosKeys.list(filters ?? {}),
-    queryFn: () => usuariosService.list(filters),
+    queryKey: usuariosKeys.list(params),
+    queryFn: () => fetchPaginatedItems(usuariosService.list, filters),
     select: selectPaginatedItems,
   })
 }

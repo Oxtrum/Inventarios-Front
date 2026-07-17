@@ -1,6 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
 import { proveedoresService } from "@/services/proveedores"
-import { selectPaginatedItems } from "@/lib/pagination"
+import { fetchPaginatedItems, selectPaginatedItems, withDefaultPagination } from "@/lib/pagination"
 import type { CreateProveedorInput, UpdateProveedorInput } from "@/types/proveedor"
 
 export const proveedoresKeys = {
@@ -12,9 +12,10 @@ export const proveedoresKeys = {
 }
 
 export function useProveedores(filters?: Record<string, string>) {
+  const params = withDefaultPagination(filters)
   return useQuery({
-    queryKey: proveedoresKeys.list(filters ?? {}),
-    queryFn: () => proveedoresService.list(filters),
+    queryKey: proveedoresKeys.list(params),
+    queryFn: () => fetchPaginatedItems(proveedoresService.list, filters),
     select: selectPaginatedItems,
   })
 }

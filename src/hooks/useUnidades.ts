@@ -1,6 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
 import { unidadesService } from "@/services/unidades"
-import { selectPaginatedItems } from "@/lib/pagination"
+import { fetchPaginatedItems, selectPaginatedItems, withDefaultPagination } from "@/lib/pagination"
 import type { CreateUnidadInput, UpdateUnidadInput } from "@/types/unidad"
 
 export const unidadesKeys = {
@@ -12,9 +12,10 @@ export const unidadesKeys = {
 }
 
 export function useUnidades(filters?: Record<string, string>) {
+  const params = withDefaultPagination(filters)
   return useQuery({
-    queryKey: unidadesKeys.list(filters ?? {}),
-    queryFn: () => unidadesService.list(filters),
+    queryKey: unidadesKeys.list(params),
+    queryFn: () => fetchPaginatedItems(unidadesService.list, filters),
     select: selectPaginatedItems,
   })
 }

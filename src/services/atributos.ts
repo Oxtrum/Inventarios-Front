@@ -28,8 +28,8 @@ export const atributosService = {
   restore: (id: string) =>
     api.patch<Atributo>(`/atributos/${id}/restaurar`),
 
-  valores: (id: string) =>
-    api.get<AtributoValor[]>(`/atributos/${id}/valores`),
+  valores: (id: string, params?: Record<string, string>) =>
+    api.get<PaginatedData<AtributoValor>>(`/atributos/${id}/valores`, { params }),
 
   addValor: (id: string, data: CreateAtributoValorInput) =>
     api.post<AtributoValor>(`/atributos/${id}/valores`, data),

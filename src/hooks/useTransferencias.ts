@@ -1,6 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
 import { transferenciasService } from "@/services/transferencias"
-import { selectPaginatedItems } from "@/lib/pagination"
+import { fetchPaginatedItems, selectPaginatedItems, withDefaultPagination } from "@/lib/pagination"
 import type { CreateTransferenciaInput } from "@/types/transferencia"
 
 export const transferenciasKeys = {
@@ -12,9 +12,10 @@ export const transferenciasKeys = {
 }
 
 export function useTransferencias(filters?: Record<string, string>) {
+  const params = withDefaultPagination(filters)
   return useQuery({
-    queryKey: transferenciasKeys.list(filters ?? {}),
-    queryFn: () => transferenciasService.list(filters),
+    queryKey: transferenciasKeys.list(params),
+    queryFn: () => fetchPaginatedItems(transferenciasService.list, filters),
     select: selectPaginatedItems,
   })
 }

@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query"
 import { reportesService } from "@/services/reportes"
-import { selectPaginatedItems } from "@/lib/pagination"
+import { fetchPaginatedItems, selectPaginatedItems, withDefaultPagination } from "@/lib/pagination"
 
 export const reportesKeys = {
   all: ["reportes"] as const,
@@ -14,21 +14,23 @@ export const reportesKeys = {
 }
 
 export function useStockBajo(filters?: Record<string, string>) {
+  const params = withDefaultPagination(filters)
   return useQuery({
-    queryKey: reportesKeys.stockBajo(filters ?? {}),
-    queryFn: () => reportesService.stockBajo(filters),
+    queryKey: reportesKeys.stockBajo(params),
+    queryFn: () => fetchPaginatedItems(reportesService.stockBajo, filters),
     select: selectPaginatedItems,
     // sin sucursalId => reporte agregado de todas las sucursales
   })
 }
 
 export function useKardex(filters?: Record<string, string>) {
+  const params = withDefaultPagination(filters)
   return useQuery({
-    queryKey: reportesKeys.kardex(filters ?? {}),
-    queryFn: () => reportesService.kardex(filters),
+    queryKey: reportesKeys.kardex(params),
+    queryFn: () => fetchPaginatedItems(reportesService.kardex, filters),
     select: selectPaginatedItems,
     // sucursalId opcional; el producto sigue siendo obligatorio
-    enabled: !!filters?.productoId,
+    enabled: !!params.productoId,
   })
 }
 

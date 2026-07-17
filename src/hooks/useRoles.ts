@@ -1,6 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
 import { rolesService, permisosService } from "@/services/roles"
-import { selectPaginatedItems } from "@/lib/pagination"
+import { fetchPaginatedItems, selectPaginatedItems, withDefaultPagination } from "@/lib/pagination"
 import type { CreateRolInput, UpdateRolInput, CreatePermisoInput, AssignPermisoInput } from "@/types/rol"
 
 export const rolesKeys = {
@@ -14,10 +14,11 @@ export const permisosKeys = {
   lists: () => [...permisosKeys.all, "list"] as const,
 }
 
-export function useRoles() {
+export function useRoles(filters?: Record<string, string>) {
+  const params = withDefaultPagination(filters)
   return useQuery({
-    queryKey: rolesKeys.lists(),
-    queryFn: () => rolesService.list(),
+    queryKey: [...rolesKeys.lists(), params],
+    queryFn: () => fetchPaginatedItems(rolesService.list, filters),
     select: selectPaginatedItems,
   })
 }
@@ -42,10 +43,11 @@ export function useUpdateRol(id: string) {
   })
 }
 
-export function useRolPermisos(rolId: string) {
+export function useRolPermisos(rolId: string, filters?: Record<string, string>) {
+  const params = withDefaultPagination(filters)
   return useQuery({
-    queryKey: rolesKeys.permisos(rolId),
-    queryFn: () => rolesService.getPermisos(rolId),
+    queryKey: [...rolesKeys.permisos(rolId), params],
+    queryFn: () => fetchPaginatedItems((pageParams) => rolesService.getPermisos(rolId, pageParams), filters),
     select: selectPaginatedItems,
     enabled: !!rolId,
   })
@@ -71,10 +73,11 @@ export function useRemovePermiso(rolId: string) {
   })
 }
 
-export function usePermisos() {
+export function usePermisos(filters?: Record<string, string>) {
+  const params = withDefaultPagination(filters)
   return useQuery({
-    queryKey: permisosKeys.lists(),
-    queryFn: () => permisosService.list(),
+    queryKey: [...permisosKeys.lists(), params],
+    queryFn: () => fetchPaginatedItems(permisosService.list, filters),
     select: selectPaginatedItems,
   })
 }

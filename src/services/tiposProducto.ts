@@ -28,8 +28,8 @@ export const tiposProductoService = {
   restore: (id: string) =>
     api.patch<TipoProducto>(`/tipos-producto/${id}/restaurar`),
 
-  atributos: (id: string) =>
-    api.get<TipoProductoAtributo[]>(`/tipos-producto/${id}/atributos`),
+  atributos: (id: string, params?: Record<string, string>) =>
+    api.get<PaginatedData<TipoProductoAtributo>>(`/tipos-producto/${id}/atributos`, { params }),
 
   addAtributo: (id: string, data: CreateTipoProductoAtributoInput) =>
     api.post<TipoProductoAtributo>(`/tipos-producto/${id}/atributos`, data),

@@ -10,8 +10,8 @@ import type {
 } from "@/types/productoVariante"
 
 export const productoVariantesService = {
-  list: (productoId: string) =>
-    api.get<PaginatedData<ProductoVariante>>(`/productos/${productoId}/variantes`),
+  list: (productoId: string, params?: Record<string, string>) =>
+    api.get<PaginatedData<ProductoVariante>>(`/productos/${productoId}/variantes`, { params }),
 
   create: (productoId: string, data: CreateProductoVarianteInput) =>
     api.post<ProductoVariante>(`/productos/${productoId}/variantes`, data),
@@ -28,8 +28,8 @@ export const productoVariantesService = {
   restore: (id: string) =>
     api.patch<ProductoVariante>(`/producto-variantes/${id}/restaurar`),
 
-  varianteAtributos: (varianteId: string) =>
-    api.get<PaginatedData<ProductoAtributoValor>>(`/producto-variantes/${varianteId}/atributos`),
+  varianteAtributos: (varianteId: string, params?: Record<string, string>) =>
+    api.get<PaginatedData<ProductoAtributoValor>>(`/producto-variantes/${varianteId}/atributos`, { params }),
 
   setVarianteAtributo: (varianteId: string, data: SetAtributoValorInput) =>
     api.post<ProductoAtributoValor>(`/producto-variantes/${varianteId}/atributos`, data),
@@ -42,8 +42,8 @@ export const productoVariantesService = {
 }
 
 export const productoAtributosService = {
-  list: (productoId: string) =>
-    api.get<PaginatedData<ProductoAtributoValor>>(`/productos/${productoId}/atributos`),
+  list: (productoId: string, params?: Record<string, string>) =>
+    api.get<PaginatedData<ProductoAtributoValor>>(`/productos/${productoId}/atributos`, { params }),
 
   set: (productoId: string, data: SetAtributoValorInput) =>
     api.post<ProductoAtributoValor>(`/productos/${productoId}/atributos`, data),

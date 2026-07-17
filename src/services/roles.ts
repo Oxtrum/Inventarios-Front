@@ -3,8 +3,8 @@ import type { PaginatedData } from "@/types/common"
 import type { Rol, Permiso, CreateRolInput, UpdateRolInput, CreatePermisoInput, AssignPermisoInput } from "@/types/rol"
 
 export const rolesService = {
-  list: () =>
-    api.get<PaginatedData<Rol>>("/roles"),
+  list: (params?: Record<string, string>) =>
+    api.get<PaginatedData<Rol>>("/roles", { params }),
 
   create: (data: CreateRolInput) =>
     api.post<Rol>("/roles", data),
@@ -12,8 +12,8 @@ export const rolesService = {
   update: (id: string, data: UpdateRolInput) =>
     api.patch<Rol>(`/roles/${id}`, data),
 
-  getPermisos: (id: string) =>
-    api.get<PaginatedData<Permiso>>(`/roles/${id}/permisos`),
+  getPermisos: (id: string, params?: Record<string, string>) =>
+    api.get<PaginatedData<Permiso>>(`/roles/${id}/permisos`, { params }),
 
   assignPermiso: (id: string, data: AssignPermisoInput) =>
     api.post(`/roles/${id}/permisos`, data),
@@ -23,8 +23,8 @@ export const rolesService = {
 }
 
 export const permisosService = {
-  list: () =>
-    api.get<PaginatedData<Permiso>>("/permisos"),
+  list: (params?: Record<string, string>) =>
+    api.get<PaginatedData<Permiso>>("/permisos", { params }),
 
   create: (data: CreatePermisoInput) =>
     api.post<Permiso>("/permisos", data),

@@ -1,6 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
 import { productoVariantesService, productoAtributosService } from "@/services/productoVariantes"
-import { selectPaginatedItems } from "@/lib/pagination"
+import { fetchPaginatedItems, selectPaginatedItems, withDefaultPagination } from "@/lib/pagination"
 import type {
   CreateProductoVarianteInput,
   UpdateProductoVarianteInput,
@@ -20,10 +20,11 @@ export const productoAtributosKeys = {
   list: (productoId: string) => [...productoAtributosKeys.all, productoId] as const,
 }
 
-export function useProductoVariantes(productoId: string) {
+export function useProductoVariantes(productoId: string, filters?: Record<string, string>) {
+  const params = withDefaultPagination(filters)
   return useQuery({
-    queryKey: productoVariantesKeys.list(productoId),
-    queryFn: () => productoVariantesService.list(productoId),
+    queryKey: [...productoVariantesKeys.list(productoId), params],
+    queryFn: () => fetchPaginatedItems((pageParams) => productoVariantesService.list(productoId, pageParams), filters),
     select: selectPaginatedItems,
     enabled: !!productoId,
   })
@@ -77,10 +78,11 @@ export function useRestoreProductoVariante(productoId: string) {
   })
 }
 
-export function useProductoAtributos(productoId: string) {
+export function useProductoAtributos(productoId: string, filters?: Record<string, string>) {
+  const params = withDefaultPagination(filters)
   return useQuery({
-    queryKey: productoAtributosKeys.list(productoId),
-    queryFn: () => productoAtributosService.list(productoId),
+    queryKey: [...productoAtributosKeys.list(productoId), params],
+    queryFn: () => fetchPaginatedItems((pageParams) => productoAtributosService.list(productoId, pageParams), filters),
     select: selectPaginatedItems,
     enabled: !!productoId,
   })
@@ -117,10 +119,11 @@ export function useRemoveProductoAtributo(productoId: string) {
   })
 }
 
-export function useVarianteAtributos(varianteId: string) {
+export function useVarianteAtributos(varianteId: string, filters?: Record<string, string>) {
+  const params = withDefaultPagination(filters)
   return useQuery({
-    queryKey: productoVariantesKeys.varianteAtributos(varianteId),
-    queryFn: () => productoVariantesService.varianteAtributos(varianteId),
+    queryKey: [...productoVariantesKeys.varianteAtributos(varianteId), params],
+    queryFn: () => fetchPaginatedItems((pageParams) => productoVariantesService.varianteAtributos(varianteId, pageParams), filters),
     select: selectPaginatedItems,
     enabled: !!varianteId,
   })

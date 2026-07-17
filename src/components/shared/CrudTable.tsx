@@ -17,6 +17,7 @@ import {
   TableRow,
 } from "@/components/ui/table"
 import { Skeleton } from "@/components/ui/skeleton"
+import type { PaginationMetadata } from "@/types/common"
 
 interface CrudTableProps<T extends { id: string }> {
   columns: ColumnDef<T>[]
@@ -24,6 +25,8 @@ interface CrudTableProps<T extends { id: string }> {
   isLoading?: boolean
   emptyMessage?: string
   pageSize?: number
+  pagination?: PaginationMetadata
+  onPaginationChange?: (offset: number) => void
 }
 
 export function CrudTable<T extends { id: string }>({
@@ -32,16 +35,45 @@ export function CrudTable<T extends { id: string }>({
   isLoading = false,
   emptyMessage = "Sin resultados.",
   pageSize = 10,
+  pagination,
+  onPaginationChange,
 }: CrudTableProps<T>) {
+  const usesServerPagination = !!pagination && !!onPaginationChange
   // eslint-disable-next-line react-hooks/incompatible-library
   const table = useReactTable({
     data,
     columns,
     getRowId: (row) => row.id,
     getCoreRowModel: getCoreRowModel(),
-    getPaginationRowModel: getPaginationRowModel(),
+    ...(usesServerPagination ? {} : { getPaginationRowModel: getPaginationRowModel() }),
     initialState: { pagination: { pageSize } },
   })
+
+  const serverPage = pagination
+    ? Math.floor(pagination.offset / pagination.limit) + 1
+    : 1
+  const serverPageCount = pagination
+    ? Math.max(serverPage, Math.ceil(pagination.total / pagination.limit), 1)
+    : 1
+  const showPagination = usesServerPagination
+    ? !!pagination && (pagination.offset > 0 || pagination.hasMore)
+    : table.getPageCount() > 1
+
+  function previousPage() {
+    if (usesServerPagination && pagination && onPaginationChange) {
+      onPaginationChange(Math.max(0, pagination.offset - pagination.limit))
+      return
+    }
+    table.previousPage()
+  }
+
+  function nextPage() {
+    if (usesServerPagination && pagination && onPaginationChange) {
+      onPaginationChange(pagination.offset + pagination.limit)
+      return
+    }
+    table.nextPage()
+  }
 
   return (
     <div className="flex flex-col gap-4">
@@ -91,18 +123,19 @@ export function CrudTable<T extends { id: string }>({
           </TableBody>
         </Table>
       </div>
-      {table.getPageCount() > 1 && (
+      {showPagination && (
         <div className="flex items-center justify-between">
           <div className="text-sm text-muted-foreground">
-            Página {table.getState().pagination.pageIndex + 1} de {table.getPageCount()}
+            Página {usesServerPagination ? serverPage : table.getState().pagination.pageIndex + 1} de{" "}
+            {usesServerPagination ? serverPageCount : table.getPageCount()}
           </div>
           <div className="flex items-center gap-2">
             <Button
               variant="outline"
               className="size-8"
               size="icon"
-              onClick={() => table.previousPage()}
-              disabled={!table.getCanPreviousPage()}
+              onClick={previousPage}
+              disabled={usesServerPagination ? serverPage <= 1 : !table.getCanPreviousPage()}
             >
               <span className="sr-only">Página anterior</span>
               <IconChevronLeft />
@@ -111,8 +144,8 @@ export function CrudTable<T extends { id: string }>({
               variant="outline"
               className="size-8"
               size="icon"
-              onClick={() => table.nextPage()}
-              disabled={!table.getCanNextPage()}
+              onClick={nextPage}
+              disabled={usesServerPagination ? !pagination?.hasMore : !table.getCanNextPage()}
             >
               <span className="sr-only">Página siguiente</span>
               <IconChevronRight />

@@ -1,6 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
 import { devolucionesService } from "@/services/devoluciones"
-import { selectPaginatedItems } from "@/lib/pagination"
+import { fetchPaginatedItems, selectPaginatedItems, withDefaultPagination } from "@/lib/pagination"
 import type { CreateDevolucionInput } from "@/types/devolucion"
 
 export const devolucionesKeys = {
@@ -12,9 +12,10 @@ export const devolucionesKeys = {
 }
 
 export function useDevoluciones(filters?: Record<string, string>) {
+  const params = withDefaultPagination(filters)
   return useQuery({
-    queryKey: devolucionesKeys.list(filters ?? {}),
-    queryFn: () => devolucionesService.list(filters),
+    queryKey: devolucionesKeys.list(params),
+    queryFn: () => fetchPaginatedItems(devolucionesService.list, filters),
     select: selectPaginatedItems,
   })
 }

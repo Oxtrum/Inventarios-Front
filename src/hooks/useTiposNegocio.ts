@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query"
 import { tiposNegocioService } from "@/services/tiposNegocio"
-import { selectPaginatedItems } from "@/lib/pagination"
+import { fetchPaginatedItems, selectPaginatedItems, withDefaultPagination } from "@/lib/pagination"
 
 export const tiposNegocioKeys = {
   all: ["tiposNegocio"] as const,
@@ -9,9 +9,10 @@ export const tiposNegocioKeys = {
 }
 
 export function useTiposNegocio(filters?: Record<string, string>) {
+  const params = withDefaultPagination(filters)
   return useQuery({
-    queryKey: tiposNegocioKeys.list(filters ?? {}),
-    queryFn: () => tiposNegocioService.list(filters),
+    queryKey: tiposNegocioKeys.list(params),
+    queryFn: () => fetchPaginatedItems(tiposNegocioService.list, filters),
     select: selectPaginatedItems,
   })
 }

@@ -1,6 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
 import { inventarioService, catalogoService } from "@/services/inventario"
-import { selectPaginatedItems } from "@/lib/pagination"
+import { fetchPaginatedItems, selectPaginatedItems, withDefaultPagination } from "@/lib/pagination"
 import type { AjusteRequest, MermaRequest, CrearReservaRequest } from "@/types/inventario"
 
 export const inventarioKeys = {
@@ -25,9 +25,10 @@ export function useStock(filters?: Record<string, string>) {
 }
 
 export function useMovimientos(filters?: Record<string, string>) {
+  const params = withDefaultPagination(filters)
   return useQuery({
-    queryKey: inventarioKeys.movimientos(filters ?? {}),
-    queryFn: () => inventarioService.movimientos(filters),
+    queryKey: inventarioKeys.movimientos(params),
+    queryFn: () => fetchPaginatedItems(inventarioService.movimientos, filters),
     select: selectPaginatedItems,
   })
 }
@@ -53,9 +54,10 @@ export function useRegistrarMerma() {
 }
 
 export function useReservas(filters?: Record<string, string>) {
+  const params = withDefaultPagination(filters)
   return useQuery({
-    queryKey: inventarioKeys.reservas(filters ?? {}),
-    queryFn: () => inventarioService.reservas(filters),
+    queryKey: inventarioKeys.reservas(params),
+    queryFn: () => fetchPaginatedItems(inventarioService.reservas, filters),
     select: selectPaginatedItems,
   })
 }
@@ -105,9 +107,10 @@ export function useExpirarReserva() {
 }
 
 export function useCatalogoProductos(filters?: Record<string, string>) {
+  const params = withDefaultPagination(filters)
   return useQuery({
-    queryKey: catalogoKeys.productos(filters ?? {}),
-    queryFn: () => catalogoService.productos(filters),
+    queryKey: catalogoKeys.productos(params),
+    queryFn: () => fetchPaginatedItems(catalogoService.productos, filters),
     select: selectPaginatedItems,
   })
 }

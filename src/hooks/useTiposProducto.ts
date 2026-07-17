@@ -1,6 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
 import { tiposProductoService } from "@/services/tiposProducto"
-import { selectPaginatedItems } from "@/lib/pagination"
+import { fetchPaginatedItems, selectPaginatedItems, withDefaultPagination } from "@/lib/pagination"
 import type {
   CreateTipoProductoInput,
   UpdateTipoProductoInput,
@@ -18,9 +18,10 @@ export const tiposProductoKeys = {
 }
 
 export function useTiposProducto(filters?: Record<string, string>) {
+  const params = withDefaultPagination(filters)
   return useQuery({
-    queryKey: tiposProductoKeys.list(filters ?? {}),
-    queryFn: () => tiposProductoService.list(filters),
+    queryKey: tiposProductoKeys.list(params),
+    queryFn: () => fetchPaginatedItems(tiposProductoService.list, filters),
     select: selectPaginatedItems,
   })
 }
@@ -74,10 +75,12 @@ export function useRestoreTipoProducto() {
   })
 }
 
-export function useTipoProductoAtributos(tipoProductoId: string) {
+export function useTipoProductoAtributos(tipoProductoId: string, filters?: Record<string, string>) {
+  const params = withDefaultPagination(filters)
   return useQuery({
-    queryKey: tiposProductoKeys.atributos(tipoProductoId),
-    queryFn: () => tiposProductoService.atributos(tipoProductoId),
+    queryKey: [...tiposProductoKeys.atributos(tipoProductoId), params],
+    queryFn: () => fetchPaginatedItems((pageParams) => tiposProductoService.atributos(tipoProductoId, pageParams), filters),
+    select: selectPaginatedItems,
     enabled: !!tipoProductoId,
   })
 }

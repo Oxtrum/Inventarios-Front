@@ -1,6 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
 import { atributosService } from "@/services/atributos"
-import { selectPaginatedItems } from "@/lib/pagination"
+import { fetchPaginatedItems, selectPaginatedItems, withDefaultPagination } from "@/lib/pagination"
 import type {
   CreateAtributoInput,
   UpdateAtributoInput,
@@ -18,9 +18,10 @@ export const atributosKeys = {
 }
 
 export function useAtributos(filters?: Record<string, string>) {
+  const params = withDefaultPagination(filters)
   return useQuery({
-    queryKey: atributosKeys.list(filters ?? {}),
-    queryFn: () => atributosService.list(filters),
+    queryKey: atributosKeys.list(params),
+    queryFn: () => fetchPaginatedItems(atributosService.list, filters),
     select: selectPaginatedItems,
   })
 }
@@ -74,10 +75,12 @@ export function useRestoreAtributo() {
   })
 }
 
-export function useAtributoValores(atributoId: string) {
+export function useAtributoValores(atributoId: string, filters?: Record<string, string>) {
+  const params = withDefaultPagination(filters)
   return useQuery({
-    queryKey: atributosKeys.valores(atributoId),
-    queryFn: () => atributosService.valores(atributoId),
+    queryKey: [...atributosKeys.valores(atributoId), params],
+    queryFn: () => fetchPaginatedItems((pageParams) => atributosService.valores(atributoId, pageParams), filters),
+    select: selectPaginatedItems,
     enabled: !!atributoId,
   })
 }
