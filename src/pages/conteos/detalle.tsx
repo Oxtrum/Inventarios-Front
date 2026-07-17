@@ -21,6 +21,8 @@ import { PageHeader } from "@/components/shared/PageHeader"
 import { EstadoBadge } from "@/components/shared/StatusBadge"
 import { ConfirmDialog } from "@/components/shared/ConfirmDialog"
 import { ProductoVarianteLabel } from "@/components/shared/ProductoVarianteLabel"
+import { ChartErrorBoundary } from "@/components/shared/ChartErrorBoundary"
+import { DiferenciasConteoChart } from "@/components/conteos/diferencias-chart"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
@@ -75,8 +77,9 @@ export default function ConteoDetailPage() {
 
   useEffect(() => {
     if (!conteo) return
+    const conteoItems = Array.isArray(conteo.items) ? conteo.items : []
     form.reset({
-      items: conteo.items.map((item) => ({
+      items: conteoItems.map((item) => ({
         productoId: item.productoId,
         productoVarianteId: item.productoVarianteId,
         cantidadContada: item.cantidadContada != null ? String(item.cantidadContada) : "",
@@ -145,6 +148,7 @@ export default function ConteoDetailPage() {
   }
 
   const isAbierto = conteo.estado === "abierto"
+  const conteoItems = Array.isArray(conteo.items) ? conteo.items : []
 
   return (
     <div className="flex flex-1 flex-col gap-4 py-4 md:py-6">
@@ -192,6 +196,13 @@ export default function ConteoDetailPage() {
           </CardContent>
         </Card>
 
+        <ChartErrorBoundary resetKey={conteo.items}>
+          <DiferenciasConteoChart
+            items={conteoItems}
+            productoNombrePorId={nombrePorId.productoMap}
+          />
+        </ChartErrorBoundary>
+
         <Card>
           <CardHeader>
             <CardTitle>Productos</CardTitle>
@@ -211,7 +222,7 @@ export default function ConteoDetailPage() {
                     </TableHeader>
                     <TableBody>
                       {fields.map((fieldItem, index) => {
-                        const item = conteo.items[index]
+                        const item = conteoItems[index]
                         return (
                           <TableRow key={fieldItem.id}>
                             <TableCell>

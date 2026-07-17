@@ -8,6 +8,8 @@ import type { StockBajoItem } from "@/types/reporte"
 import { PageHeader } from "@/components/shared/PageHeader"
 import { CrudTable } from "@/components/shared/CrudTable"
 import { ProductoVarianteLabel } from "@/components/shared/ProductoVarianteLabel"
+import { ChartErrorBoundary } from "@/components/shared/ChartErrorBoundary"
+import { StockBajoChart } from "@/components/reportes/stock-bajo-chart"
 import { Button } from "@/components/ui/button"
 
 type Row = StockBajoItem & { id: string }
@@ -15,8 +17,9 @@ type Row = StockBajoItem & { id: string }
 export default function StockBajoPage() {
   const { sucursalId, sucursalActiva } = useSucursal()
   const { data: items, isLoading } = useStockBajo(sucursalId ? { sucursalId } : undefined)
+  const safeItems = Array.isArray(items) ? items : []
 
-  const rows: Row[] = (items ?? []).map((item) => ({ ...item, id: item.productoVarianteId || item.productoId }))
+  const rows: Row[] = safeItems.map((item) => ({ ...item, id: item.productoVarianteId || item.productoId }))
 
   const columns: ColumnDef<Row>[] = [
     { accessorKey: "codigo", header: "Código", cell: ({ row }) => row.original.codigo ?? "—" },
@@ -50,6 +53,9 @@ export default function StockBajoPage() {
         }
       />
       <div className="flex flex-col gap-4 px-4 lg:px-6">
+        <ChartErrorBoundary resetKey={items}>
+          <StockBajoChart items={safeItems} isLoading={isLoading} />
+        </ChartErrorBoundary>
         <CrudTable columns={columns} data={rows} isLoading={isLoading} emptyMessage="Sin productos con stock bajo." pageSize={20} />
       </div>
     </div>

@@ -11,6 +11,8 @@ import type { KardexItem } from "@/types/reporte"
 import { PageHeader } from "@/components/shared/PageHeader"
 import { CrudTable } from "@/components/shared/CrudTable"
 import { EmptyState } from "@/components/shared/EmptyState"
+import { ChartErrorBoundary } from "@/components/shared/ChartErrorBoundary"
+import { KardexChart } from "@/components/reportes/kardex-chart"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -35,8 +37,9 @@ export default function KardexPage() {
 
   const canQuery = !!productoId
   const { data: items, isLoading } = useKardex(filters)
+  const safeItems = Array.isArray(items) ? items : []
 
-  const rows: Row[] = canQuery ? (items ?? []).map((item) => ({ ...item, id: item.movimientoId })) : []
+  const rows: Row[] = canQuery ? safeItems.map((item) => ({ ...item, id: item.movimientoId })) : []
 
   const columns: ColumnDef<Row>[] = [
     {
@@ -86,7 +89,12 @@ export default function KardexPage() {
         </div>
 
         {canQuery ? (
-          <CrudTable columns={columns} data={rows} isLoading={isLoading} emptyMessage="Sin movimientos registrados." pageSize={20} />
+          <>
+            <ChartErrorBoundary resetKey={items}>
+              <KardexChart items={safeItems} isLoading={isLoading} />
+            </ChartErrorBoundary>
+            <CrudTable columns={columns} data={rows} isLoading={isLoading} emptyMessage="Sin movimientos registrados." pageSize={20} />
+          </>
         ) : (
           <EmptyState title="Selecciona un producto" description="Elige un producto para ver su kardex. La sucursal se controla desde el selector del encabezado." />
         )}

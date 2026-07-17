@@ -31,3 +31,62 @@ export interface ValoracionInventario {
   stockDisponible: number
   valorCosto: number
 }
+
+export interface ResumenDashboard {
+  productosActivos: number
+  variantesActivas: number
+  variantesStockBajo: number
+  stockDisponible: number
+  valorInventario: number
+  reservasActivas: number
+  unidadesReservadas: number
+  movimientosHoy: number
+  fechaCalculo: string
+}
+
+export interface MovimientoResumenItem {
+  periodo: string
+  entradasCantidad: number
+  salidasCantidad: number
+  entradasOperaciones: number
+  salidasOperaciones: number
+}
+
+export interface MovimientosResumen {
+  series: MovimientoResumenItem[]
+  totales: Omit<MovimientoResumenItem, "periodo"> & {
+    variacionNeta: number
+  }
+}
+
+export type ValoracionAgrupacion = "sucursal" | "categoria"
+
+export interface ValoracionDistribucionGrupo {
+  id: string | null
+  nombre: string
+  totalVariantes: number
+  stockDisponible: number
+  valorCosto: number
+  porcentajeValor: number
+}
+
+export interface ValoracionDistribucion {
+  agruparPor: ValoracionAgrupacion
+  totalValorCosto: number
+  grupos: ValoracionDistribucionGrupo[]
+}
+
+export type ReservaEstado = "activa" | "confirmada" | "liberada" | "expirada"
+
+export interface ReservasResumen {
+  porEstado: Array<{
+    estado: ReservaEstado
+    totalReservas: number
+    totalUnidades: number
+  }>
+  snapshot: {
+    activasAhora: number
+    unidadesReservadasAhora: number
+    expiranProximos30Minutos: number
+  }
+}
