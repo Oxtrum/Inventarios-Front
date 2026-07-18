@@ -1,5 +1,5 @@
 import { useState } from "react"
-import { IconDotsVertical, IconPlus } from "@tabler/icons-react"
+import { IconBuildingStore, IconDotsVertical, IconPlus } from "@tabler/icons-react"
 import { toast } from "sonner"
 import type { ColumnDef } from "@tanstack/react-table"
 
@@ -12,6 +12,7 @@ import { SearchInput } from "@/components/shared/SearchInput"
 import { CrudTable } from "@/components/shared/CrudTable"
 import { ConfirmDialog } from "@/components/shared/ConfirmDialog"
 import { StatusBadge } from "@/components/shared/StatusBadge"
+import { Can } from "@/components/shared/Can"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import {
@@ -23,12 +24,14 @@ import {
 import { UsuarioForm } from "./UsuarioForm"
 import { ChangeRolDialog } from "./ChangeRolDialog"
 import { ChangePasswordDialog } from "./ChangePasswordDialog"
+import { UsuarioAlcanceDialog } from "./UsuarioAlcanceDialog"
 
 export default function UsuariosPage() {
   const [email, setEmail] = useState("")
   const [formOpen, setFormOpen] = useState(false)
   const [changingRol, setChangingRol] = useState<Usuario | undefined>(undefined)
   const [changingPassword, setChangingPassword] = useState<Usuario | undefined>(undefined)
+  const [changingScope, setChangingScope] = useState<Usuario | undefined>(undefined)
   const [deactivating, setDeactivating] = useState<Usuario | undefined>(undefined)
 
   const pagination = useServerPagination(10, email)
@@ -67,6 +70,22 @@ export default function UsuariosPage() {
       cell: ({ row }) => row.original.rolCodigo ? <Badge variant="outline">{row.original.rolCodigo}</Badge> : "—",
     },
     {
+      accessorKey: "alcanceDatos",
+      header: "Alcance",
+      cell: ({ row }) => {
+        if (row.original.alcanceDatos === "organizacion") return <Badge>Organización</Badge>
+        if (row.original.alcanceDatos !== "sucursales") return "—"
+        const count = Number.isFinite(row.original.cantidadSucursales)
+          ? row.original.cantidadSucursales
+          : 0
+        return (
+          <Badge variant="outline">
+            {count} {count === 1 ? "sucursal" : "sucursales"}
+          </Badge>
+        )
+      },
+    },
+    {
       accessorKey: "ultimoLogin",
       header: "Último Login",
       cell: ({ row }) => row.original.ultimoLogin ? new Date(row.original.ultimoLogin).toLocaleString("es-ES") : "Nunca",
@@ -85,14 +104,26 @@ export default function UsuariosPage() {
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-48">
-              <DropdownMenuItem onClick={() => setChangingRol(usuario)}>Cambiar rol</DropdownMenuItem>
-              <DropdownMenuItem onClick={() => setChangingPassword(usuario)}>Cambiar contraseña</DropdownMenuItem>
-              {usuario.activo ? (
-                <DropdownMenuItem variant="destructive" onClick={() => setDeactivating(usuario)}>
-                  Desactivar
+              <Can permission="usuarios:actualizar">
+                <DropdownMenuItem onClick={() => setChangingRol(usuario)}>Cambiar rol</DropdownMenuItem>
+                <DropdownMenuItem onClick={() => setChangingPassword(usuario)}>Cambiar contraseña</DropdownMenuItem>
+              </Can>
+              <Can permission="usuarios_sucursales:administrar">
+                <DropdownMenuItem onClick={() => setChangingScope(usuario)}>
+                  <IconBuildingStore />
+                  Administrar alcance
                 </DropdownMenuItem>
+              </Can>
+              {usuario.activo ? (
+                <Can permission="usuarios:desactivar">
+                  <DropdownMenuItem variant="destructive" onClick={() => setDeactivating(usuario)}>
+                    Desactivar
+                  </DropdownMenuItem>
+                </Can>
               ) : (
-                <DropdownMenuItem onClick={() => handleRestore(usuario)}>Restaurar</DropdownMenuItem>
+                <Can permission="usuarios:restaurar">
+                  <DropdownMenuItem onClick={() => handleRestore(usuario)}>Restaurar</DropdownMenuItem>
+                </Can>
               )}
             </DropdownMenuContent>
           </DropdownMenu>
@@ -107,10 +138,12 @@ export default function UsuariosPage() {
         title="Usuarios"
         description="Usuarios con acceso a la organización."
         action={
-          <Button onClick={() => setFormOpen(true)}>
-            <IconPlus />
-            Crear Usuario
-          </Button>
+          <Can permission="usuarios:crear">
+            <Button onClick={() => setFormOpen(true)}>
+              <IconPlus />
+              Crear Usuario
+            </Button>
+          </Can>
         }
       />
       <div className="flex flex-col gap-4 px-4 lg:px-6">
@@ -121,6 +154,7 @@ export default function UsuariosPage() {
       <UsuarioForm open={formOpen} onOpenChange={setFormOpen} />
       <ChangeRolDialog usuario={changingRol} onOpenChange={(open) => !open && setChangingRol(undefined)} />
       <ChangePasswordDialog usuario={changingPassword} onOpenChange={(open) => !open && setChangingPassword(undefined)} />
+      <UsuarioAlcanceDialog usuario={changingScope} onOpenChange={(open) => !open && setChangingScope(undefined)} />
       <ConfirmDialog
         open={!!deactivating}
         onOpenChange={(open) => !open && setDeactivating(undefined)}

@@ -1,3 +1,5 @@
+import type { AlcanceDatos, SucursalPermitida } from "@/types/auth"
+
 export interface Usuario {
   id: string
   organizacionId: string
@@ -6,6 +8,9 @@ export interface Usuario {
   email: string
   nombres?: string
   apellidos?: string
+  alcanceDatos: AlcanceDatos
+  sucursalPrincipalId?: string | null
+  cantidadSucursales: number
   activo: boolean
   ultimoLogin?: string
   fechaCreacion: string
@@ -18,6 +23,22 @@ export interface CreateUsuarioInput {
   contrasena: string
   nombres?: string
   apellidos?: string
+  alcanceDatos: AlcanceDatos
+  sucursalPrincipalId?: string | null
+  sucursalIds: string[]
+}
+
+export interface UsuarioAlcance {
+  usuarioId: string
+  alcanceDatos: AlcanceDatos
+  sucursalPrincipalId?: string | null
+  sucursalesPermitidas: SucursalPermitida[]
+}
+
+export interface UpdateUsuarioAlcanceInput {
+  alcanceDatos: AlcanceDatos
+  sucursalPrincipalId?: string | null
+  sucursalIds: string[]
 }
 
 export interface UpdateUsuarioRolInput {
