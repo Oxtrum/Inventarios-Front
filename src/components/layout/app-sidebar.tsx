@@ -30,10 +30,12 @@ import {
   IconTemplate,
   IconWorld,
   IconSearch,
+  IconChartBar,
 } from "@tabler/icons-react"
 
 import { useLayout } from "@/context/layout-provider"
 import { useAuth } from "@/context/auth-provider"
+import { getDefaultAuthorizedPath } from "@/lib/access-control"
 import { NavMain } from "@/components/layout/nav-main"
 import { NavSecondary } from "@/components/layout/nav-secondary"
 import { NavUser } from "@/components/layout/nav-user"
@@ -52,15 +54,16 @@ import {
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const { collapsible, variant } = useLayout()
-  const { user, logout, hasPermission } = useAuth()
+  const { user, logout, hasPermission, permisos } = useAuth()
   const location = useLocation()
   const navigate = useNavigate()
 
   const isActive = (path: string) => location.pathname === path
 
-  const navMain = [
-    { title: "Panel", url: "/dashboard", icon: IconDashboard },
-  ]
+  const defaultPath = getDefaultAuthorizedPath(permisos)
+  const navMain = hasPermission("reportes:leer")
+    ? [{ title: "Panel", url: "/dashboard", icon: IconDashboard }]
+    : []
 
   return (
     <Sidebar collapsible={collapsible} variant={variant} {...props}>
@@ -70,7 +73,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
             <SidebarMenuButton
               asChild
               className="data-[slot=sidebar-menu-button]:p-1.5!"
-              onClick={() => navigate("/dashboard")}
+              onClick={() => navigate(defaultPath)}
             >
               <a>
                 <IconInnerShadowTop className="size-5!" />
@@ -247,7 +250,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                   </SidebarMenuButton>
                 </SidebarMenuItem>
               )}
-              {hasPermission("inventario:reservar") && (
+              {hasPermission("inventario:leer") && (
                 <SidebarMenuItem>
                   <SidebarMenuButton
                     tooltip="Reservas"
@@ -323,6 +326,18 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
           <SidebarGroupLabel>Reportes</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
+              {hasPermission("reportes:leer") && hasPermission("reportes_ejecutivos:leer") && (
+                <SidebarMenuItem>
+                  <SidebarMenuButton
+                    tooltip="Resumen Ejecutivo"
+                    isActive={isActive("/reportes/ejecutivo")}
+                    onClick={() => navigate("/reportes/ejecutivo")}
+                  >
+                    <IconChartBar />
+                    <span>Resumen Ejecutivo</span>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              )}
               {hasPermission("reportes:leer") && (
                 <SidebarMenuItem>
                   <SidebarMenuButton

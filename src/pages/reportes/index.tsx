@@ -1,27 +1,28 @@
 import { useNavigate } from "react-router-dom"
-import { IconAlertTriangle, IconHistory, IconReportMoney } from "@tabler/icons-react"
+import { IconAlertTriangle, IconChartBar, IconHistory, IconReportMoney } from "@tabler/icons-react"
 
 import { PageHeader } from "@/components/shared/PageHeader"
 import { Card, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
+import { Can } from "@/components/shared/Can"
 
 const REPORTES = [
   {
     path: "/reportes/stock-bajo",
     icon: IconAlertTriangle,
     title: "Stock Bajo",
-    description: "Productos por debajo de su stock mínimo en una sucursal.",
+    description: "Productos por debajo de su stock mínimo en el alcance seleccionado.",
   },
   {
     path: "/reportes/kardex",
     icon: IconHistory,
     title: "Kardex",
-    description: "Historial de movimientos de un producto en una sucursal.",
+    description: "Historial de movimientos de un producto en una o varias sucursales.",
   },
   {
     path: "/reportes/valoracion",
     icon: IconReportMoney,
     title: "Valoración de Inventario",
-    description: "Valor de costo del inventario disponible en una sucursal.",
+    description: "Valor de costo del inventario en el alcance seleccionado.",
   },
 ]
 
@@ -30,8 +31,20 @@ export default function ReportesPage() {
 
   return (
     <div className="flex flex-1 flex-col gap-4 py-4 md:py-6">
-      <PageHeader title="Reportes" description="Reportes de inventario por sucursal." />
+      <PageHeader title="Reportes" description="Reportes de inventario por sucursal o alcance consolidado." />
       <div className="grid grid-cols-1 gap-4 px-4 sm:grid-cols-2 lg:grid-cols-3 lg:px-6">
+        <Can permission="reportes_ejecutivos:leer">
+          <Card
+            className="cursor-pointer border-highlight/30 bg-highlight/5 transition-colors hover:bg-highlight/10"
+            onClick={() => navigate("/reportes/ejecutivo")}
+          >
+            <CardHeader>
+              <IconChartBar className="size-6 text-highlight" />
+              <CardTitle>Resumen Ejecutivo</CardTitle>
+              <CardDescription>Indicadores, comparaciones y alertas consolidadas entre sucursales.</CardDescription>
+            </CardHeader>
+          </Card>
+        </Can>
         {REPORTES.map((reporte) => (
           <Card
             key={reporte.path}

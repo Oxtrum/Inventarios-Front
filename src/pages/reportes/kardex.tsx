@@ -5,7 +5,7 @@ import type { ColumnDef } from "@tanstack/react-table"
 
 import { useKardex } from "@/hooks/useReportes"
 import { useServerPagination } from "@/hooks/useServerPagination"
-import { useSucursal } from "@/context/sucursal-provider"
+import { useReportFilters } from "@/hooks/useReportFilters"
 import { useProductos } from "@/hooks/useProductos"
 import { ProductoVariantePicker } from "@/components/shared/ProductoVariantePicker"
 import type { KardexItem } from "@/types/reporte"
@@ -14,27 +14,22 @@ import { CrudTable } from "@/components/shared/CrudTable"
 import { EmptyState } from "@/components/shared/EmptyState"
 import { ChartErrorBoundary } from "@/components/shared/ChartErrorBoundary"
 import { KardexChart } from "@/components/reportes/kardex-chart"
+import { ReportFilters } from "@/components/reportes/ReportFilters"
 import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
+import type { QueryParams } from "@/lib/api"
 
 type Row = KardexItem & { id: string }
 
 export default function KardexPage() {
   const [productoId, setProductoId] = useState("")
   const [productoVarianteId, setProductoVarianteId] = useState("")
-  const [fechaDesde, setFechaDesde] = useState("")
-  const [fechaHasta, setFechaHasta] = useState("")
 
-  const { sucursalId, sucursalActiva } = useSucursal()
+  const reportFilters = useReportFilters({ includePeriod: true, defaultDays: 30 })
   const { data: productos } = useProductos({ activo: "true" })
 
-  const filters: Record<string, string> = {}
-  if (sucursalId) filters.sucursalId = sucursalId
+  const filters: QueryParams = { ...reportFilters.apiParams }
   if (productoId) filters.productoId = productoId
   if (productoVarianteId) filters.productoVarianteId = productoVarianteId
-  if (fechaDesde) filters.fechaDesde = fechaDesde
-  if (fechaHasta) filters.fechaHasta = fechaHasta
 
   const canQuery = !!productoId
   const pagination = useServerPagination(20, JSON.stringify(filters))
@@ -60,7 +55,7 @@ export default function KardexPage() {
     <div className="flex flex-1 flex-col gap-4 py-4 md:py-6">
       <PageHeader
         title="Reporte de Kardex"
-        description={`Historial de movimientos de un producto en ${sucursalActiva ? sucursalActiva.nombre : "todas las sucursales"}.`}
+        description={`Historial de movimientos de un producto en ${reportFilters.scopeLabel}.`}
         action={
           <Button variant="outline" asChild>
             <Link to="/reportes">
@@ -71,6 +66,7 @@ export default function KardexPage() {
         }
       />
       <div className="flex flex-col gap-4 px-4 lg:px-6">
+        <ReportFilters filters={reportFilters} showPeriod />
         <div className="flex flex-wrap gap-3">
           <ProductoVariantePicker
             productos={productos ?? []}
@@ -80,14 +76,6 @@ export default function KardexPage() {
             onVarianteChange={setProductoVarianteId}
             className="grid grid-cols-1 gap-3 sm:grid-cols-2"
           />
-          <div className="flex flex-col gap-2">
-            <Label>Desde</Label>
-            <Input type="date" className="w-40" value={fechaDesde} onChange={(e) => setFechaDesde(e.target.value)} />
-          </div>
-          <div className="flex flex-col gap-2">
-            <Label>Hasta</Label>
-            <Input type="date" className="w-40" value={fechaHasta} onChange={(e) => setFechaHasta(e.target.value)} />
-          </div>
         </div>
 
         {canQuery ? (
@@ -98,7 +86,7 @@ export default function KardexPage() {
             <CrudTable columns={columns} data={rows} isLoading={isLoading} emptyMessage="Sin movimientos registrados." pageSize={20} pagination={items?.pagination} onPaginationChange={pagination.setOffset} />
           </>
         ) : (
-          <EmptyState title="Selecciona un producto" description="Elige un producto para ver su kardex. La sucursal se controla desde el selector del encabezado." />
+          <EmptyState title="Selecciona un producto" description="Elige un producto para consultar su kardex en el alcance y periodo seleccionados." />
         )}
       </div>
     </div>

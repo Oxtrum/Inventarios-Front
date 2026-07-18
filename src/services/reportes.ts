@@ -1,5 +1,6 @@
 import { api } from "@/lib/api"
 import type { PaginatedData } from "@/types/common"
+import type { QueryParams } from "@/lib/api"
 import type {
   StockBajoItem,
   KardexItem,
@@ -8,27 +9,31 @@ import type {
   MovimientosResumen,
   ValoracionDistribucion,
   ReservasResumen,
+  SucursalesComparacion,
 } from "@/types/reporte"
 
 export const reportesService = {
-  stockBajo: (params?: Record<string, string>) =>
+  stockBajo: (params?: QueryParams) =>
     api.get<PaginatedData<StockBajoItem>>("/reportes/stock-bajo", { params }),
 
-  kardex: (params?: Record<string, string>) =>
+  kardex: (params?: QueryParams) =>
     api.get<PaginatedData<KardexItem>>("/reportes/kardex", { params }),
 
-  valoracion: (params?: Record<string, string>) =>
+  valoracion: (params?: QueryParams) =>
     api.get<ValoracionInventario>("/reportes/valoracion", { params }),
 
-  resumen: (params?: Record<string, string>) =>
+  resumen: (params?: QueryParams) =>
     api.get<ResumenDashboard>("/reportes/resumen", { params }),
 
-  movimientosResumen: (params: Record<string, string>) =>
+  movimientosResumen: (params: QueryParams) =>
     api.get<MovimientosResumen>("/reportes/movimientos-resumen", { params }),
 
-  valoracionDistribucion: (params: Record<string, string>) =>
+  valoracionDistribucion: (params: QueryParams) =>
     api.get<ValoracionDistribucion>("/reportes/valoracion-distribucion", { params }),
 
-  reservasResumen: (params: Record<string, string>) =>
+  reservasResumen: (params: QueryParams) =>
     api.get<ReservasResumen>("/reportes/reservas-resumen", { params }),
+
+  sucursalesComparacion: (params: QueryParams) =>
+    api.get<SucursalesComparacion>("/reportes/sucursales-comparacion", { params }),
 }

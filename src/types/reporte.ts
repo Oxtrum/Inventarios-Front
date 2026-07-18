@@ -90,3 +90,28 @@ export interface ReservasResumen {
     expiranProximos30Minutos: number
   }
 }
+
+export interface SucursalComparacionItem {
+  sucursalId: string
+  sucursalNombre: string
+  valorInventario: number
+  stockDisponible: number
+  variantesStockBajo: number
+  entradasCantidad: number
+  salidasCantidad: number
+  movimientos: number
+  reservasActivas: number
+  unidadesReservadas: number
+}
+
+export type SucursalesComparacionTotales = Omit<
+  SucursalComparacionItem,
+  "sucursalId" | "sucursalNombre"
+>
+
+export interface SucursalesComparacion {
+  fechaDesde: string
+  fechaHasta: string
+  totales: SucursalesComparacionTotales
+  sucursales: SucursalComparacionItem[]
+}

@@ -34,6 +34,7 @@ import ReportesPage from "@/pages/reportes"
 import StockBajoPage from "@/pages/reportes/stock-bajo"
 import KardexPage from "@/pages/reportes/kardex"
 import ValoracionPage from "@/pages/reportes/valoracion"
+import ReporteEjecutivoPage from "@/pages/reportes/ejecutivo"
 import ConfiguracionPage from "@/pages/configuracion"
 import TiposNegocioPage from "@/pages/tipos-negocio"
 import AtributosPage from "@/pages/atributos"
@@ -43,7 +44,21 @@ import TipoProductoDetailPage from "@/pages/tipos-producto/detalle"
 import ProductoVariantesPage from "@/pages/productos/variantes"
 import PlantillasPage from "@/pages/plantillas"
 import CatalogoPage from "@/pages/catalogo"
-import { RequirePermission } from "@/components/shared/RequirePermission"
+import { useAuth } from "@/context/auth-provider"
+import { getDefaultAuthorizedPath } from "@/lib/access-control"
+
+function AuthorizedHome() {
+  const { permisos } = useAuth()
+  return <Navigate to={getDefaultAuthorizedPath(permisos)} replace />
+}
+
+function NoAccessPage() {
+  return (
+    <div className="flex min-h-[60vh] items-center justify-center px-4 text-center text-sm text-muted-foreground">
+      Tu usuario no tiene vistas habilitadas. Solicita permisos a un administrador.
+    </div>
+  )
+}
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -65,16 +80,17 @@ function App() {
               <Routes>
                 <Route path="/login" element={<LoginPage />} />
                 <Route element={<ProtectedLayout />}>
-                  <Route path="/" element={<Navigate to="/dashboard" replace />} />
+                  <Route path="/" element={<AuthorizedHome />} />
+                  <Route path="/sin-acceso" element={<NoAccessPage />} />
                   <Route path="/dashboard" element={<DashboardPage />} />
                   <Route path="/productos" element={<ProductosPage />} />
                   <Route path="/categorias" element={<CategoriasPage />} />
                   <Route path="/unidades" element={<UnidadesPage />} />
                   <Route path="/proveedores" element={<ProveedoresPage />} />
-                  <Route path="/sucursales" element={<RequirePermission permiso="sucursales:leer"><SucursalesPage /></RequirePermission>} />
-                  <Route path="/usuarios" element={<RequirePermission permiso="usuarios:leer"><UsuariosPage /></RequirePermission>} />
-                  <Route path="/roles" element={<RequirePermission permiso="roles:leer"><RolesPage /></RequirePermission>} />
-                  <Route path="/roles/:id" element={<RequirePermission permiso="roles:leer"><RolDetailPage /></RequirePermission>} />
+                  <Route path="/sucursales" element={<SucursalesPage />} />
+                  <Route path="/usuarios" element={<UsuariosPage />} />
+                  <Route path="/roles" element={<RolesPage />} />
+                  <Route path="/roles/:id" element={<RolDetailPage />} />
                   <Route path="/compras" element={<ComprasPage />} />
                   <Route path="/compras/nueva" element={<CompraFormPage />} />
                   <Route path="/compras/:id" element={<CompraDetailPage />} />
@@ -91,6 +107,7 @@ function App() {
                   <Route path="/inventario/ajustes" element={<AjustesPage />} />
                   <Route path="/inventario/reservas" element={<ReservasPage />} />
                   <Route path="/reportes" element={<ReportesPage />} />
+                  <Route path="/reportes/ejecutivo" element={<ReporteEjecutivoPage />} />
                   <Route path="/reportes/stock-bajo" element={<StockBajoPage />} />
                   <Route path="/reportes/kardex" element={<KardexPage />} />
                   <Route path="/reportes/valoracion" element={<ValoracionPage />} />
@@ -103,6 +120,7 @@ function App() {
                   <Route path="/productos/:id/variantes" element={<ProductoVariantesPage />} />
                   <Route path="/plantillas" element={<PlantillasPage />} />
                   <Route path="/catalogo" element={<CatalogoPage />} />
+                  <Route path="*" element={<AuthorizedHome />} />
                 </Route>
               </Routes>
             </BrowserRouter>

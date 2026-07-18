@@ -6,35 +6,35 @@ import {
   useValoracion,
   useValoracionDistribucion,
 } from "@/hooks/useReportes"
-import { useSucursal } from "@/context/sucursal-provider"
+import { useReportFilters } from "@/hooks/useReportFilters"
 import type { ValoracionAgrupacion } from "@/types/reporte"
 import { formatCurrency } from "@/lib/utils"
 import { PageHeader } from "@/components/shared/PageHeader"
 import { ChartErrorBoundary } from "@/components/shared/ChartErrorBoundary"
 import { ValoracionDistribucionChart } from "@/components/reportes/valoracion-distribucion-chart"
+import { ReportFilters } from "@/components/reportes/ReportFilters"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Skeleton } from "@/components/ui/skeleton"
 
 export default function ValoracionPage() {
-  const { sucursalId, sucursalActiva } = useSucursal()
+  const reportFilters = useReportFilters()
   const [agruparPor, setAgruparPor] =
     useState<ValoracionAgrupacion>("categoria")
-  const scopeFilters = sucursalId ? { sucursalId } : undefined
-  const { data: valoracion, isLoading } = useValoracion(scopeFilters)
+  const { data: valoracion, isLoading } = useValoracion(reportFilters.apiParams)
   const {
     data: distribucion,
     isLoading: isLoadingDistribucion,
   } = useValoracionDistribucion({
     agruparPor,
-    ...(sucursalId ? { sucursalId } : {}),
+    ...reportFilters.apiParams,
   })
 
   return (
     <div className="flex flex-1 flex-col gap-4 py-4 md:py-6">
       <PageHeader
         title="Valoración de Inventario"
-        description={`Valor de costo del inventario disponible en ${sucursalActiva ? sucursalActiva.nombre : "todas las sucursales"}.`}
+        description={`Valor de costo del inventario disponible en ${reportFilters.scopeLabel}.`}
         action={
           <Button variant="outline" asChild>
             <Link to="/reportes">
@@ -45,6 +45,7 @@ export default function ValoracionPage() {
         }
       />
       <div className="flex flex-col gap-4 px-4 lg:px-6">
+        <ReportFilters filters={reportFilters} />
         {isLoading && (
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
             <Skeleton className="h-28 w-full" />
@@ -94,7 +95,7 @@ export default function ValoracionPage() {
           </div>
         )}
 
-        <ChartErrorBoundary resetKey={`${sucursalId}-${agruparPor}`}>
+        <ChartErrorBoundary resetKey={`${reportFilters.sucursalIds.join(",")}-${agruparPor}`}>
           <ValoracionDistribucionChart
             data={distribucion}
             isLoading={isLoadingDistribucion}

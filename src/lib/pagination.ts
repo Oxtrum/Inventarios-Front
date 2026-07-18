@@ -1,4 +1,5 @@
 import type { PaginatedData, PaginationMetadata } from "@/types/common"
+import type { QueryParams } from "@/lib/api"
 
 export type PaginatedItems<T> = T[] & {
   pagination: PaginationMetadata
@@ -6,22 +7,22 @@ export type PaginatedItems<T> = T[] & {
 
 export const DEFAULT_LIST_LIMIT = 200
 
-export function withDefaultPagination(
-  filters?: Record<string, string>
-): Record<string, string> {
+export function withDefaultPagination<T extends QueryParams = Record<string, string>>(
+  filters?: T
+): T & { limit: string; offset: string } {
   return {
     limit: String(DEFAULT_LIST_LIMIT),
     offset: "0",
     ...(filters ?? {}),
-  }
+  } as T & { limit: string; offset: string }
 }
 
-export async function fetchPaginatedItems<T>(
-  fetchPage: (params: Record<string, string>) => Promise<PaginatedData<T>>,
-  filters?: Record<string, string>
+export async function fetchPaginatedItems<T, P extends QueryParams = Record<string, string>>(
+  fetchPage: (params: P) => Promise<PaginatedData<T>>,
+  filters?: P
 ): Promise<PaginatedData<T>> {
   if (filters?.limit !== undefined || filters?.offset !== undefined) {
-    return fetchPage(withDefaultPagination(filters))
+    return fetchPage(withDefaultPagination(filters) as unknown as P)
   }
 
   const items: T[] = []
@@ -33,7 +34,7 @@ export async function fetchPaginatedItems<T>(
       ...(filters ?? {}),
       limit: String(DEFAULT_LIST_LIMIT),
       offset: String(offset),
-    })
+    } as unknown as P)
     const pageItems = Array.isArray(page.items) ? page.items : []
     items.push(...pageItems)
     total = page.pagination?.total ?? items.length

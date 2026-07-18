@@ -36,9 +36,13 @@ class ApiError extends Error {
 }
 
 type RequestOptions = {
-  params?: Record<string, string | number | boolean | undefined>
+  params?: QueryParams
   signal?: AbortSignal
 }
+
+type QueryPrimitive = string | number | boolean
+type QueryValue = QueryPrimitive | readonly QueryPrimitive[] | null | undefined
+type QueryParams = Record<string, QueryValue>
 
 async function request<T>(
   method: string,
@@ -50,7 +54,9 @@ async function request<T>(
 
   if (options?.params) {
     Object.entries(options.params).forEach(([key, value]) => {
-      if (value !== undefined && value !== "") {
+      if (Array.isArray(value)) {
+        value.forEach((item) => url.searchParams.append(key, String(item)))
+      } else if (value !== undefined && value !== null && value !== "") {
         url.searchParams.set(key, String(value))
       }
     })
@@ -99,6 +105,9 @@ export const api = {
   post: <T>(path: string, body?: unknown, options?: RequestOptions) =>
     request<T>("POST", path, body, options),
 
+  put: <T>(path: string, body?: unknown, options?: RequestOptions) =>
+    request<T>("PUT", path, body, options),
+
   patch: <T>(path: string, body?: unknown, options?: RequestOptions) =>
     request<T>("PATCH", path, body, options),
 
@@ -107,4 +116,4 @@ export const api = {
 }
 
 export { getToken, setToken, clearToken, ApiError }
-export type { RequestOptions }
+export type { QueryParams, RequestOptions }

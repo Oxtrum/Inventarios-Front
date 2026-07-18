@@ -18,8 +18,8 @@ import {
 import { useServerPagination } from "@/hooks/useServerPagination"
 import { useReservasResumen } from "@/hooks/useReportes"
 import { useProductos } from "@/hooks/useProductos"
-import { useSucursales } from "@/hooks/useSucursales"
 import { useSucursal } from "@/context/sucursal-provider"
+import { useAuth } from "@/context/auth-provider"
 import { useSucursalDefault } from "@/hooks/useSucursalDefault"
 import { ApiError } from "@/lib/api"
 import { positiveNumberString } from "@/lib/validation"
@@ -31,6 +31,7 @@ import { ConfirmDialog } from "@/components/shared/ConfirmDialog"
 import { ChartErrorBoundary } from "@/components/shared/ChartErrorBoundary"
 import { EstadoBadge } from "@/components/shared/StatusBadge"
 import { ReservasResumenChart } from "@/components/reportes/reservas-resumen-chart"
+import { Can } from "@/components/shared/Can"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -225,10 +226,10 @@ type ReservaAction = { reserva: ReservaStock; tipo: "confirmar" | "liberar" | "e
 export default function ReservasPage() {
   const [estado, setEstado] = useState(ALL)
   const [pendingAction, setPendingAction] = useState<ReservaAction | undefined>(undefined)
-  const { sucursalId } = useSucursal()
+  const { hasPermission } = useAuth()
+  const { sucursalId, sucursales } = useSucursal()
   const pagination = useServerPagination(10, estado)
 
-  const { data: sucursales } = useSucursales({ activo: "true" })
   const { data: reservas, isLoading } = useReservas({
     ...(estado !== ALL ? { estado } : {}),
     ...pagination.params,
@@ -247,7 +248,7 @@ export default function ReservasPage() {
     }
   }, [sucursalId])
   const { data: reservasResumen, isLoading: isLoadingResumen } =
-    useReservasResumen(resumenFilters)
+    useReservasResumen(resumenFilters, { enabled: hasPermission("reportes:leer") })
   const confirmarReserva = useConfirmarReserva()
   const liberarReserva = useLiberarReserva()
   const expirarReserva = useExpirarReserva()
@@ -346,11 +347,15 @@ export default function ReservasPage() {
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-40">
-              <DropdownMenuItem onClick={() => setPendingAction({ reserva, tipo: "confirmar" })}>Confirmar</DropdownMenuItem>
-              <DropdownMenuItem onClick={() => setPendingAction({ reserva, tipo: "liberar" })}>Liberar</DropdownMenuItem>
-              <DropdownMenuItem variant="destructive" onClick={() => setPendingAction({ reserva, tipo: "expirar" })}>
-                Expirar
-              </DropdownMenuItem>
+              <Can permission="inventario:confirmar">
+                <DropdownMenuItem onClick={() => setPendingAction({ reserva, tipo: "confirmar" })}>Confirmar</DropdownMenuItem>
+              </Can>
+              <Can permission="inventario:liberar">
+                <DropdownMenuItem onClick={() => setPendingAction({ reserva, tipo: "liberar" })}>Liberar</DropdownMenuItem>
+                <DropdownMenuItem variant="destructive" onClick={() => setPendingAction({ reserva, tipo: "expirar" })}>
+                  Expirar
+                </DropdownMenuItem>
+              </Can>
             </DropdownMenuContent>
           </DropdownMenu>
         )
@@ -373,21 +378,25 @@ export default function ReservasPage() {
         }
       />
       <div className="flex flex-col gap-4 px-4 lg:px-6">
-        <ChartErrorBoundary resetKey={sucursalId}>
-          <ReservasResumenChart
-            data={reservasResumen}
-            isLoading={isLoadingResumen}
-          />
-        </ChartErrorBoundary>
+        <Can permission="reportes:leer">
+          <ChartErrorBoundary resetKey={sucursalId}>
+            <ReservasResumenChart
+              data={reservasResumen}
+              isLoading={isLoadingResumen}
+            />
+          </ChartErrorBoundary>
+        </Can>
 
-        <Card>
-          <CardHeader>
-            <CardTitle>Nueva Reserva</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <NuevaReservaForm />
-          </CardContent>
-        </Card>
+        <Can permission="inventario:reservar">
+          <Card>
+            <CardHeader>
+              <CardTitle>Nueva Reserva</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <NuevaReservaForm />
+            </CardContent>
+          </Card>
+        </Can>
 
         <div className="flex flex-wrap items-center gap-2">
           <Select value={estado} onValueChange={setEstado}>

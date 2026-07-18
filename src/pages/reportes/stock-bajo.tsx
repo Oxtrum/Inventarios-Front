@@ -4,22 +4,23 @@ import type { ColumnDef } from "@tanstack/react-table"
 
 import { useStockBajo } from "@/hooks/useReportes"
 import { useServerPagination } from "@/hooks/useServerPagination"
-import { useSucursal } from "@/context/sucursal-provider"
+import { useReportFilters } from "@/hooks/useReportFilters"
 import type { StockBajoItem } from "@/types/reporte"
 import { PageHeader } from "@/components/shared/PageHeader"
 import { CrudTable } from "@/components/shared/CrudTable"
 import { ProductoVarianteLabel } from "@/components/shared/ProductoVarianteLabel"
 import { ChartErrorBoundary } from "@/components/shared/ChartErrorBoundary"
 import { StockBajoChart } from "@/components/reportes/stock-bajo-chart"
+import { ReportFilters } from "@/components/reportes/ReportFilters"
 import { Button } from "@/components/ui/button"
 
 type Row = StockBajoItem & { id: string }
 
 export default function StockBajoPage() {
-  const { sucursalId, sucursalActiva } = useSucursal()
-  const pagination = useServerPagination(20, sucursalId)
+  const reportFilters = useReportFilters()
+  const pagination = useServerPagination(20, reportFilters.sucursalIds.join(","))
   const { data: items, isLoading } = useStockBajo({
-    ...(sucursalId ? { sucursalId } : {}),
+    ...reportFilters.apiParams,
     ...pagination.params,
   })
   const safeItems = Array.isArray(items) ? items : []
@@ -47,7 +48,7 @@ export default function StockBajoPage() {
     <div className="flex flex-1 flex-col gap-4 py-4 md:py-6">
       <PageHeader
         title="Reporte de Stock Bajo"
-        description={`Productos por debajo de su stock mínimo en ${sucursalActiva ? sucursalActiva.nombre : "todas las sucursales"}.`}
+        description={`Productos por debajo de su stock mínimo en ${reportFilters.scopeLabel}.`}
         action={
           <Button variant="outline" asChild>
             <Link to="/reportes">
@@ -58,6 +59,7 @@ export default function StockBajoPage() {
         }
       />
       <div className="flex flex-col gap-4 px-4 lg:px-6">
+        <ReportFilters filters={reportFilters} />
         <ChartErrorBoundary resetKey={items}>
           <StockBajoChart items={safeItems} isLoading={isLoading} />
         </ChartErrorBoundary>
