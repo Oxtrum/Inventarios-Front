@@ -12,6 +12,7 @@ import { SearchInput } from "@/components/shared/SearchInput"
 import { CrudTable } from "@/components/shared/CrudTable"
 import { ConfirmDialog } from "@/components/shared/ConfirmDialog"
 import { StatusBadge } from "@/components/shared/StatusBadge"
+import { Can } from "@/components/shared/Can"
 import { Button } from "@/components/ui/button"
 import {
   DropdownMenu,
@@ -72,15 +73,21 @@ export default function SucursalesPage() {
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-40">
-              <DropdownMenuItem onClick={() => { setEditing(sucursal); setFormOpen(true) }}>
-                Editar
-              </DropdownMenuItem>
-              {sucursal.activo ? (
-                <DropdownMenuItem variant="destructive" onClick={() => setDeactivating(sucursal)}>
-                  Desactivar
+              <Can permission="sucursales:actualizar">
+                <DropdownMenuItem onClick={() => { setEditing(sucursal); setFormOpen(true) }}>
+                  Editar
                 </DropdownMenuItem>
+              </Can>
+              {sucursal.activo ? (
+                <Can permission="sucursales:desactivar">
+                  <DropdownMenuItem variant="destructive" onClick={() => setDeactivating(sucursal)}>
+                    Desactivar
+                  </DropdownMenuItem>
+                </Can>
               ) : (
-                <DropdownMenuItem onClick={() => handleRestore(sucursal)}>Restaurar</DropdownMenuItem>
+                <Can permission="sucursales:restaurar">
+                  <DropdownMenuItem onClick={() => handleRestore(sucursal)}>Restaurar</DropdownMenuItem>
+                </Can>
               )}
             </DropdownMenuContent>
           </DropdownMenu>
@@ -95,10 +102,12 @@ export default function SucursalesPage() {
         title="Sucursales"
         description="Puntos de venta y almacenes de la organización."
         action={
-          <Button onClick={() => { setEditing(undefined); setFormOpen(true) }}>
-            <IconPlus />
-            Crear Sucursal
-          </Button>
+          <Can permission="sucursales:crear">
+            <Button onClick={() => { setEditing(undefined); setFormOpen(true) }}>
+              <IconPlus />
+              Crear Sucursal
+            </Button>
+          </Can>
         }
       />
       <div className="flex flex-col gap-4 px-4 lg:px-6">

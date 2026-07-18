@@ -15,6 +15,7 @@ import { SearchInput } from "@/components/shared/SearchInput"
 import { CrudTable } from "@/components/shared/CrudTable"
 import { ConfirmDialog } from "@/components/shared/ConfirmDialog"
 import { StatusBadge } from "@/components/shared/StatusBadge"
+import { Can } from "@/components/shared/Can"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import {
@@ -123,16 +124,18 @@ export default function ProductosPage() {
         const producto = row.original
         return (
           <div className="flex items-center justify-end gap-1">
-            <Button
-              variant="ghost"
-              size="icon"
-              className="size-8 text-muted-foreground"
-              title={`Ver variantes de ${producto.nombre}`}
-              onClick={() => navigate(`/productos/${producto.id}/variantes`)}
-            >
-              <IconSearch />
-              <span className="sr-only">Ver variantes de {producto.nombre}</span>
-            </Button>
+            <Can permission="producto_variantes:leer">
+              <Button
+                variant="ghost"
+                size="icon"
+                className="size-8 text-muted-foreground"
+                title={`Ver variantes de ${producto.nombre}`}
+                onClick={() => navigate(`/productos/${producto.id}/variantes`)}
+              >
+                <IconSearch />
+                <span className="sr-only">Ver variantes de {producto.nombre}</span>
+              </Button>
+            </Can>
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button variant="ghost" size="icon" className="size-8 text-muted-foreground">
@@ -141,13 +144,19 @@ export default function ProductosPage() {
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-40">
-                <DropdownMenuItem onClick={() => handleEdit(producto)}>Editar</DropdownMenuItem>
+                <Can permission="productos:actualizar">
+                  <DropdownMenuItem onClick={() => handleEdit(producto)}>Editar</DropdownMenuItem>
+                </Can>
                 {producto.activo ? (
-                  <DropdownMenuItem variant="destructive" onClick={() => setDeactivating(producto)}>
-                    Desactivar
-                  </DropdownMenuItem>
+                  <Can permission="productos:desactivar">
+                    <DropdownMenuItem variant="destructive" onClick={() => setDeactivating(producto)}>
+                      Desactivar
+                    </DropdownMenuItem>
+                  </Can>
                 ) : (
-                  <DropdownMenuItem onClick={() => handleRestore(producto)}>Restaurar</DropdownMenuItem>
+                  <Can permission="productos:restaurar">
+                    <DropdownMenuItem onClick={() => handleRestore(producto)}>Restaurar</DropdownMenuItem>
+                  </Can>
                 )}
               </DropdownMenuContent>
             </DropdownMenu>
@@ -163,10 +172,12 @@ export default function ProductosPage() {
         title="Productos"
         description="Catálogo de productos de la organización."
         action={
-          <Button onClick={handleCreate}>
-            <IconPlus />
-            Crear Producto
-          </Button>
+          <Can permission="productos:crear">
+            <Button onClick={handleCreate}>
+              <IconPlus />
+              Crear Producto
+            </Button>
+          </Can>
         }
       />
       <div className="flex flex-col gap-4 px-4 lg:px-6">

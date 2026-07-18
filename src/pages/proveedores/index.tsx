@@ -12,6 +12,7 @@ import { SearchInput } from "@/components/shared/SearchInput"
 import { CrudTable } from "@/components/shared/CrudTable"
 import { ConfirmDialog } from "@/components/shared/ConfirmDialog"
 import { StatusBadge } from "@/components/shared/StatusBadge"
+import { Can } from "@/components/shared/Can"
 import { Button } from "@/components/ui/button"
 import {
   DropdownMenu,
@@ -72,15 +73,21 @@ export default function ProveedoresPage() {
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-40">
-              <DropdownMenuItem onClick={() => { setEditing(proveedor); setFormOpen(true) }}>
-                Editar
-              </DropdownMenuItem>
-              {proveedor.activo ? (
-                <DropdownMenuItem variant="destructive" onClick={() => setDeactivating(proveedor)}>
-                  Desactivar
+              <Can permission="proveedores:actualizar">
+                <DropdownMenuItem onClick={() => { setEditing(proveedor); setFormOpen(true) }}>
+                  Editar
                 </DropdownMenuItem>
+              </Can>
+              {proveedor.activo ? (
+                <Can permission="proveedores:desactivar">
+                  <DropdownMenuItem variant="destructive" onClick={() => setDeactivating(proveedor)}>
+                    Desactivar
+                  </DropdownMenuItem>
+                </Can>
               ) : (
-                <DropdownMenuItem onClick={() => handleRestore(proveedor)}>Restaurar</DropdownMenuItem>
+                <Can permission="proveedores:restaurar">
+                  <DropdownMenuItem onClick={() => handleRestore(proveedor)}>Restaurar</DropdownMenuItem>
+                </Can>
               )}
             </DropdownMenuContent>
           </DropdownMenu>
@@ -95,10 +102,12 @@ export default function ProveedoresPage() {
         title="Proveedores"
         description="Proveedores registrados en la organización."
         action={
-          <Button onClick={() => { setEditing(undefined); setFormOpen(true) }}>
-            <IconPlus />
-            Crear Proveedor
-          </Button>
+          <Can permission="proveedores:crear">
+            <Button onClick={() => { setEditing(undefined); setFormOpen(true) }}>
+              <IconPlus />
+              Crear Proveedor
+            </Button>
+          </Can>
         }
       />
       <div className="flex flex-col gap-4 px-4 lg:px-6">

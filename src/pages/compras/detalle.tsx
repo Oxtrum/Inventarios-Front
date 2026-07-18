@@ -4,7 +4,7 @@ import { IconArrowLeft } from "@tabler/icons-react"
 import { toast } from "sonner"
 
 import { useCompra, useAnularCompra } from "@/hooks/useCompras"
-import { useSucursales } from "@/hooks/useSucursales"
+import { useSucursal } from "@/context/sucursal-provider"
 import { useProveedores } from "@/hooks/useProveedores"
 import { useProductos } from "@/hooks/useProductos"
 import { ApiError } from "@/lib/api"
@@ -13,6 +13,7 @@ import { PageHeader } from "@/components/shared/PageHeader"
 import { ProductoVarianteLabel } from "@/components/shared/ProductoVarianteLabel"
 import { EstadoBadge } from "@/components/shared/StatusBadge"
 import { ConfirmDialog } from "@/components/shared/ConfirmDialog"
+import { Can } from "@/components/shared/Can"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Skeleton } from "@/components/ui/skeleton"
@@ -31,7 +32,7 @@ export default function CompraDetailPage() {
   const [confirmingAnular, setConfirmingAnular] = useState(false)
 
   const { data: compra, isLoading } = useCompra(compraId)
-  const { data: sucursales } = useSucursales()
+  const { sucursales } = useSucursal()
   const { data: proveedores } = useProveedores()
   const { data: productos } = useProductos()
   const anularCompra = useAnularCompra(compraId)
@@ -84,9 +85,11 @@ export default function CompraDetailPage() {
               </Link>
             </Button>
             {compra.estado === "registrada" && (
-              <Button variant="destructive" onClick={() => setConfirmingAnular(true)}>
-                Anular
-              </Button>
+              <Can permission="compras:anular">
+                <Button variant="destructive" onClick={() => setConfirmingAnular(true)}>
+                  Anular
+                </Button>
+              </Can>
             )}
           </div>
         }

@@ -8,6 +8,7 @@ import { useServerPagination } from "@/hooks/useServerPagination"
 import type { Rol } from "@/types/rol"
 import { PageHeader } from "@/components/shared/PageHeader"
 import { CrudTable } from "@/components/shared/CrudTable"
+import { Can } from "@/components/shared/Can"
 import { Button } from "@/components/ui/button"
 import {
   DropdownMenu,
@@ -42,12 +43,16 @@ export default function RolesPage() {
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-48">
-              <DropdownMenuItem onClick={() => { setEditing(rol); setFormOpen(true) }}>
-                Editar
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => navigate(`/roles/${rol.id}`)}>
-                Ver permisos
-              </DropdownMenuItem>
+              <Can permission="roles:actualizar">
+                <DropdownMenuItem onClick={() => { setEditing(rol); setFormOpen(true) }}>
+                  Editar
+                </DropdownMenuItem>
+              </Can>
+              <Can allOf={["roles:permisos", "permisos:leer"]}>
+                <DropdownMenuItem onClick={() => navigate(`/roles/${rol.id}`)}>
+                  Ver permisos
+                </DropdownMenuItem>
+              </Can>
             </DropdownMenuContent>
           </DropdownMenu>
         )
@@ -61,10 +66,12 @@ export default function RolesPage() {
         title="Roles"
         description="Roles y permisos de la organización."
         action={
-          <Button onClick={() => { setEditing(undefined); setFormOpen(true) }}>
-            <IconPlus />
-            Crear Rol
-          </Button>
+          <Can permission="roles:crear">
+            <Button onClick={() => { setEditing(undefined); setFormOpen(true) }}>
+              <IconPlus />
+              Crear Rol
+            </Button>
+          </Can>
         }
       />
       <div className="flex flex-col gap-4 px-4 lg:px-6">

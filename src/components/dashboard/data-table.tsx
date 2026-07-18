@@ -29,6 +29,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { Skeleton } from "@/components/ui/skeleton"
+import { Can } from "@/components/shared/Can"
 import {
   Table,
   TableBody,
@@ -74,13 +75,19 @@ function ProductoActions({ producto }: { producto: Producto }) {
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-40">
-        <DropdownMenuItem disabled>Editar</DropdownMenuItem>
+        <Can permission="productos:actualizar">
+          <DropdownMenuItem disabled>Editar</DropdownMenuItem>
+        </Can>
         {producto.activo ? (
-          <DropdownMenuItem variant="destructive" onClick={handleDelete}>
-            Desactivar
-          </DropdownMenuItem>
+          <Can permission="productos:desactivar">
+            <DropdownMenuItem variant="destructive" onClick={handleDelete}>
+              Desactivar
+            </DropdownMenuItem>
+          </Can>
         ) : (
-          <DropdownMenuItem onClick={handleRestore}>Restaurar</DropdownMenuItem>
+          <Can permission="productos:restaurar">
+            <DropdownMenuItem onClick={handleRestore}>Restaurar</DropdownMenuItem>
+          </Can>
         )}
       </DropdownMenuContent>
     </DropdownMenu>

@@ -1,12 +1,15 @@
 import { createContext, useContext, useState, useEffect, useCallback } from "react"
 import { authService } from "@/services/auth"
 import { getToken, setToken, clearToken } from "@/lib/api"
-import type { UsuarioSesion } from "@/types/auth"
+import type { AlcanceDatos, SucursalPermitida, UsuarioSesion } from "@/types/auth"
 
 interface AuthContextType {
   user: UsuarioSesion | null
   token: string | null
   permisos: string[]
+  alcanceDatos: AlcanceDatos | null
+  sucursalPrincipalId: string | null
+  sucursalesPermitidas: SucursalPermitida[]
   isAuthenticated: boolean
   isLoading: boolean
   login: (codigoOrganizacion: string, usuario: string, contrasena: string) => Promise<void>
@@ -20,6 +23,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<UsuarioSesion | null>(null)
   const [token, setTokenState] = useState<string | null>(() => getToken())
   const [permisos, setPermisos] = useState<string[]>([])
+  const [alcanceDatos, setAlcanceDatos] = useState<AlcanceDatos | null>(null)
+  const [sucursalPrincipalId, setSucursalPrincipalId] = useState<string | null>(null)
+  const [sucursalesPermitidas, setSucursalesPermitidas] = useState<SucursalPermitida[]>([])
   const [isLoading, setIsLoading] = useState(() => !!getToken())
 
   useEffect(() => {
@@ -38,12 +44,18 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           fechaCreacion: "",
         })
         setPermisos(data.permisos)
+        setAlcanceDatos(data.alcanceDatos ?? null)
+        setSucursalPrincipalId(data.sucursalPrincipalId ?? null)
+        setSucursalesPermitidas(data.sucursalesPermitidas ?? [])
       })
       .catch(() => {
         clearToken()
         setTokenState(null)
         setUser(null)
         setPermisos([])
+        setAlcanceDatos(null)
+        setSucursalPrincipalId(null)
+        setSucursalesPermitidas([])
       })
       .finally(() => setIsLoading(false))
   }, [])
@@ -58,6 +70,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setTokenState(response.token)
     setUser(response.usuario)
     setPermisos(response.permisos)
+    setAlcanceDatos(response.alcanceDatos ?? response.usuario.alcanceDatos ?? null)
+    setSucursalPrincipalId(response.sucursalPrincipalId ?? response.usuario.sucursalPrincipalId ?? null)
+    setSucursalesPermitidas(response.sucursalesPermitidas ?? response.usuario.sucursalesPermitidas ?? [])
   }, [])
 
   const logout = useCallback(() => {
@@ -65,6 +80,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setTokenState(null)
     setUser(null)
     setPermisos([])
+    setAlcanceDatos(null)
+    setSucursalPrincipalId(null)
+    setSucursalesPermitidas([])
   }, [])
 
   const hasPermission = useCallback((permiso: string) => {
@@ -77,6 +95,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         user,
         token,
         permisos,
+        alcanceDatos,
+        sucursalPrincipalId,
+        sucursalesPermitidas,
         isAuthenticated: !!token && !!user,
         isLoading,
         login,

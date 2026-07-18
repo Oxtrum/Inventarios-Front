@@ -8,6 +8,17 @@ export interface LoginResponse {
   token: string
   usuario: UsuarioSesion
   permisos: string[]
+  alcanceDatos?: AlcanceDatos
+  sucursalPrincipalId?: string | null
+  sucursalesPermitidas?: SucursalPermitida[]
+}
+
+export type AlcanceDatos = "organizacion" | "sucursales"
+
+export interface SucursalPermitida {
+  id: string
+  codigo?: string
+  nombre: string
 }
 
 export interface UsuarioSesion {
@@ -19,6 +30,9 @@ export interface UsuarioSesion {
   rolId: string
   rolCodigo: string
   fechaCreacion: string
+  alcanceDatos?: AlcanceDatos
+  sucursalPrincipalId?: string | null
+  sucursalesPermitidas?: SucursalPermitida[]
 }
 
 export interface AuthContextData {
@@ -27,4 +41,7 @@ export interface AuthContextData {
   rolId: string
   rolCodigo: string
   permisos: string[]
+  alcanceDatos?: AlcanceDatos
+  sucursalPrincipalId?: string | null
+  sucursalesPermitidas?: SucursalPermitida[]
 }

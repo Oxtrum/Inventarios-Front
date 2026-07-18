@@ -5,6 +5,7 @@ import { SiteHeader } from "@/components/layout/site-header"
 import { LayoutProvider } from "@/context/layout-provider"
 import { SucursalProvider } from "@/context/sucursal-provider"
 import { useAuth } from "@/context/auth-provider"
+import { RoutePermissionBoundary } from "@/components/shared/RoutePermissionBoundary"
 
 function ProtectedLayout() {
   const { isAuthenticated, isLoading } = useAuth()
@@ -28,7 +29,9 @@ function ProtectedLayout() {
           <AppSidebar />
           <SidebarInset>
             <SiteHeader />
-            <Outlet />
+            <RoutePermissionBoundary>
+              <Outlet />
+            </RoutePermissionBoundary>
           </SidebarInset>
         </SidebarProvider>
       </LayoutProvider>

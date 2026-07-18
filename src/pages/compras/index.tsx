@@ -6,7 +6,7 @@ import type { ColumnDef } from "@tanstack/react-table"
 
 import { useCompras, useAnularCompra } from "@/hooks/useCompras"
 import { useServerPagination } from "@/hooks/useServerPagination"
-import { useSucursales } from "@/hooks/useSucursales"
+import { useSucursal } from "@/context/sucursal-provider"
 import { useProveedores } from "@/hooks/useProveedores"
 import { ApiError } from "@/lib/api"
 import { formatCurrency } from "@/lib/utils"
@@ -15,6 +15,7 @@ import { PageHeader } from "@/components/shared/PageHeader"
 import { CrudTable } from "@/components/shared/CrudTable"
 import { ConfirmDialog } from "@/components/shared/ConfirmDialog"
 import { EstadoBadge } from "@/components/shared/StatusBadge"
+import { Can } from "@/components/shared/Can"
 import { Button } from "@/components/ui/button"
 import {
   DropdownMenu,
@@ -59,7 +60,7 @@ function AnularAction({ compra }: { compra: Compra }) {
 export default function ComprasPage() {
   const navigate = useNavigate()
   const pagination = useServerPagination()
-  const { data: sucursales } = useSucursales()
+  const { sucursales } = useSucursal()
   const { data: proveedores } = useProveedores()
   const { data: compras, isLoading } = useCompras(pagination.params)
 
@@ -106,7 +107,9 @@ export default function ComprasPage() {
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-40">
               <DropdownMenuItem onClick={() => navigate(`/compras/${compra.id}`)}>Ver detalle</DropdownMenuItem>
-              {compra.estado === "registrada" && <AnularAction compra={compra} />}
+              {compra.estado === "registrada" && (
+                <Can permission="compras:anular"><AnularAction compra={compra} /></Can>
+              )}
             </DropdownMenuContent>
           </DropdownMenu>
         )
@@ -120,10 +123,12 @@ export default function ComprasPage() {
         title="Compras"
         description="Compras registradas a proveedores."
         action={
-          <Button onClick={() => navigate("/compras/nueva")}>
-            <IconPlus />
-            Nueva Compra
-          </Button>
+          <Can permission="compras:crear">
+            <Button onClick={() => navigate("/compras/nueva")}>
+              <IconPlus />
+              Nueva Compra
+            </Button>
+          </Can>
         }
       />
       <div className="flex flex-col gap-4 px-4 lg:px-6">

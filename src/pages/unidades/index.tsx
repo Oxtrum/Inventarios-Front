@@ -12,6 +12,7 @@ import { SearchInput } from "@/components/shared/SearchInput"
 import { CrudTable } from "@/components/shared/CrudTable"
 import { ConfirmDialog } from "@/components/shared/ConfirmDialog"
 import { StatusBadge } from "@/components/shared/StatusBadge"
+import { Can } from "@/components/shared/Can"
 import { Button } from "@/components/ui/button"
 import {
   DropdownMenu,
@@ -71,15 +72,21 @@ export default function UnidadesPage() {
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-40">
-              <DropdownMenuItem onClick={() => { setEditing(unidad); setFormOpen(true) }}>
-                Editar
-              </DropdownMenuItem>
-              {unidad.activo ? (
-                <DropdownMenuItem variant="destructive" onClick={() => setDeactivating(unidad)}>
-                  Desactivar
+              <Can permission="unidades:actualizar">
+                <DropdownMenuItem onClick={() => { setEditing(unidad); setFormOpen(true) }}>
+                  Editar
                 </DropdownMenuItem>
+              </Can>
+              {unidad.activo ? (
+                <Can permission="unidades:desactivar">
+                  <DropdownMenuItem variant="destructive" onClick={() => setDeactivating(unidad)}>
+                    Desactivar
+                  </DropdownMenuItem>
+                </Can>
               ) : (
-                <DropdownMenuItem onClick={() => handleRestore(unidad)}>Restaurar</DropdownMenuItem>
+                <Can permission="unidades:restaurar">
+                  <DropdownMenuItem onClick={() => handleRestore(unidad)}>Restaurar</DropdownMenuItem>
+                </Can>
               )}
             </DropdownMenuContent>
           </DropdownMenu>
@@ -94,10 +101,12 @@ export default function UnidadesPage() {
         title="Unidades"
         description="Unidades de medida para tus productos."
         action={
-          <Button onClick={() => { setEditing(undefined); setFormOpen(true) }}>
-            <IconPlus />
-            Crear Unidad
-          </Button>
+          <Can permission="unidades:crear">
+            <Button onClick={() => { setEditing(undefined); setFormOpen(true) }}>
+              <IconPlus />
+              Crear Unidad
+            </Button>
+          </Can>
         }
       />
       <div className="flex flex-col gap-4 px-4 lg:px-6">

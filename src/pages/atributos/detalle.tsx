@@ -21,6 +21,7 @@ import type { AtributoValor } from "@/types/atributo"
 import { PageHeader } from "@/components/shared/PageHeader"
 import { CrudTable } from "@/components/shared/CrudTable"
 import { StatusBadge } from "@/components/shared/StatusBadge"
+import { Can } from "@/components/shared/Can"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import {
@@ -118,11 +119,15 @@ export default function AtributoDetailPage() {
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-40">
               {valor.activo ? (
-                <DropdownMenuItem variant="destructive" onClick={() => handleRemove(valor.id)}>
-                  Desactivar
-                </DropdownMenuItem>
+                <Can permission="atributos:valores">
+                  <DropdownMenuItem variant="destructive" onClick={() => handleRemove(valor.id)}>
+                    Desactivar
+                  </DropdownMenuItem>
+                </Can>
               ) : (
-                <DropdownMenuItem onClick={() => handleRestore(valor.id)}>Restaurar</DropdownMenuItem>
+                <Can permission="atributos:valores">
+                  <DropdownMenuItem onClick={() => handleRestore(valor.id)}>Restaurar</DropdownMenuItem>
+                </Can>
               )}
             </DropdownMenuContent>
           </DropdownMenu>
@@ -144,7 +149,8 @@ export default function AtributoDetailPage() {
                 Volver
               </Link>
             </Button>
-            <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+            <Can permission="atributos:valores">
+              <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
               <DialogTrigger asChild>
                 <Button>
                   <IconPlus />
@@ -205,7 +211,8 @@ export default function AtributoDetailPage() {
                   </form>
                 </Form>
               </DialogContent>
-            </Dialog>
+              </Dialog>
+            </Can>
           </div>
         }
       />

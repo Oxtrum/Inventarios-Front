@@ -2,6 +2,7 @@ import { SectionCards } from "@/components/dashboard/section-cards"
 import { ChartAreaInteractive } from "@/components/dashboard/chart-area-interactive"
 import { DataTable } from "@/components/dashboard/data-table"
 import { ChartErrorBoundary } from "@/components/shared/ChartErrorBoundary"
+import { Can } from "@/components/shared/Can"
 
 export default function DashboardPage() {
   return (
@@ -14,7 +15,9 @@ export default function DashboardPage() {
               <ChartAreaInteractive />
             </ChartErrorBoundary>
           </div>
-          <DataTable />
+          <Can permission="productos:leer">
+            <DataTable />
+          </Can>
         </div>
       </div>
     </div>

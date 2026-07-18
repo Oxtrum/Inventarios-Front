@@ -13,6 +13,7 @@ import { SearchInput } from "@/components/shared/SearchInput"
 import { CrudTable } from "@/components/shared/CrudTable"
 import { ConfirmDialog } from "@/components/shared/ConfirmDialog"
 import { StatusBadge } from "@/components/shared/StatusBadge"
+import { Can } from "@/components/shared/Can"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import {
@@ -94,15 +95,21 @@ export default function AtributosPage() {
                   Valores
                 </DropdownMenuItem>
               )}
-              <DropdownMenuItem onClick={() => { setEditing(atributo); setFormOpen(true) }}>
-                Editar
-              </DropdownMenuItem>
-              {atributo.activo ? (
-                <DropdownMenuItem variant="destructive" onClick={() => setDeactivating(atributo)}>
-                  Desactivar
+              <Can permission="atributos:actualizar">
+                <DropdownMenuItem onClick={() => { setEditing(atributo); setFormOpen(true) }}>
+                  Editar
                 </DropdownMenuItem>
+              </Can>
+              {atributo.activo ? (
+                <Can permission="atributos:desactivar">
+                  <DropdownMenuItem variant="destructive" onClick={() => setDeactivating(atributo)}>
+                    Desactivar
+                  </DropdownMenuItem>
+                </Can>
               ) : (
-                <DropdownMenuItem onClick={() => handleRestore(atributo)}>Restaurar</DropdownMenuItem>
+                <Can permission="atributos:restaurar">
+                  <DropdownMenuItem onClick={() => handleRestore(atributo)}>Restaurar</DropdownMenuItem>
+                </Can>
               )}
             </DropdownMenuContent>
           </DropdownMenu>
@@ -117,10 +124,12 @@ export default function AtributosPage() {
         title="Atributos"
         description="Catálogo de atributos disponibles para productos y variantes."
         action={
-          <Button onClick={() => { setEditing(undefined); setFormOpen(true) }}>
-            <IconPlus />
-            Crear Atributo
-          </Button>
+          <Can permission="atributos:crear">
+            <Button onClick={() => { setEditing(undefined); setFormOpen(true) }}>
+              <IconPlus />
+              Crear Atributo
+            </Button>
+          </Can>
         }
       />
       <div className="flex flex-col gap-4 px-4 lg:px-6">

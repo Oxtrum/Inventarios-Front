@@ -6,13 +6,14 @@ import type { ColumnDef } from "@tanstack/react-table"
 
 import { useTransferencias, useAnularTransferencia } from "@/hooks/useTransferencias"
 import { useServerPagination } from "@/hooks/useServerPagination"
-import { useSucursales } from "@/hooks/useSucursales"
+import { useSucursal } from "@/context/sucursal-provider"
 import { ApiError } from "@/lib/api"
 import type { Transferencia } from "@/types/transferencia"
 import { PageHeader } from "@/components/shared/PageHeader"
 import { CrudTable } from "@/components/shared/CrudTable"
 import { ConfirmDialog } from "@/components/shared/ConfirmDialog"
 import { EstadoBadge } from "@/components/shared/StatusBadge"
+import { Can } from "@/components/shared/Can"
 import { Button } from "@/components/ui/button"
 import {
   DropdownMenu,
@@ -57,7 +58,7 @@ function AnularAction({ transferencia }: { transferencia: Transferencia }) {
 export default function TransferenciasPage() {
   const navigate = useNavigate()
   const pagination = useServerPagination()
-  const { data: sucursales } = useSucursales()
+  const { sucursales } = useSucursal()
   const { data: transferencias, isLoading } = useTransferencias(pagination.params)
 
   const sucursalPorId = useMemo(() => new Map((sucursales ?? []).map((s) => [s.id, s.nombre])), [sucursales])
@@ -96,7 +97,9 @@ export default function TransferenciasPage() {
               <DropdownMenuItem onClick={() => navigate(`/transferencias/${transferencia.id}`)}>
                 Ver detalle
               </DropdownMenuItem>
-              {transferencia.estado === "registrada" && <AnularAction transferencia={transferencia} />}
+              {transferencia.estado === "registrada" && (
+                <Can permission="transferencias:anular"><AnularAction transferencia={transferencia} /></Can>
+              )}
             </DropdownMenuContent>
           </DropdownMenu>
         )
@@ -110,10 +113,12 @@ export default function TransferenciasPage() {
         title="Transferencias"
         description="Traslados de stock entre sucursales."
         action={
-          <Button onClick={() => navigate("/transferencias/nueva")}>
-            <IconPlus />
-            Nueva Transferencia
-          </Button>
+          <Can permission="transferencias:crear">
+            <Button onClick={() => navigate("/transferencias/nueva")}>
+              <IconPlus />
+              Nueva Transferencia
+            </Button>
+          </Can>
         }
       />
       <div className="flex flex-col gap-4 px-4 lg:px-6">

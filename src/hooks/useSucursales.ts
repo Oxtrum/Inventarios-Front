@@ -11,12 +11,16 @@ export const sucursalesKeys = {
   detail: (id: string) => [...sucursalesKeys.details(), id] as const,
 }
 
-export function useSucursales(filters?: Record<string, string>) {
+export function useSucursales(
+  filters?: Record<string, string>,
+  options?: { enabled?: boolean }
+) {
   const params = withDefaultPagination(filters)
   return useQuery({
     queryKey: sucursalesKeys.list(params),
     queryFn: () => fetchPaginatedItems(sucursalesService.list, filters),
     select: selectPaginatedItems,
+    enabled: options?.enabled ?? true,
   })
 }
 

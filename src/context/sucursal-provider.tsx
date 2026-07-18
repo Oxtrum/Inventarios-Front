@@ -1,7 +1,8 @@
-import { createContext, useContext, useMemo, useState } from "react"
+import { createContext, useCallback, useContext, useMemo, useState } from "react"
 import { getCookie, setCookie } from "@/lib/cookies"
 import { useSucursales } from "@/hooks/useSucursales"
-import type { Sucursal } from "@/types/sucursal"
+import { useAuth } from "@/context/auth-provider"
+import type { SucursalPermitida } from "@/types/auth"
 
 const SUCURSAL_COOKIE_NAME = "sucursal_activa_id"
 const SUCURSAL_COOKIE_MAX_AGE = 60 * 60 * 24 * 30 // 30 dias
@@ -11,39 +12,58 @@ const TODAS = "todas"
 
 interface SucursalContextType {
   /** null => "Todas las sucursales" (sin filtro por sucursal). */
-  sucursalActiva: Sucursal | null
-  sucursales: Sucursal[]
-  setSucursalActiva: (sucursal: Sucursal | null) => void
+  sucursalActiva: SucursalPermitida | null
+  sucursales: SucursalPermitida[]
+  setSucursalActiva: (sucursal: SucursalPermitida | null) => void
   /** id de la sucursal activa, o "" cuando es "Todas". Listo para pasar como filtro. */
   sucursalId: string
   isLoading: boolean
+  puedeSeleccionarTodas: boolean
 }
 
 const SucursalContext = createContext<SucursalContextType | null>(null)
 
 export function SucursalProvider({ children }: { children: React.ReactNode }) {
-  const { data: sucursales, isLoading } = useSucursales({ activo: "true" })
+  const {
+    alcanceDatos,
+    sucursalPrincipalId,
+    sucursalesPermitidas,
+    hasPermission,
+  } = useAuth()
+  const usaAlcanceLocal = alcanceDatos === "sucursales"
+  const puedeListarSucursales = hasPermission("sucursales:leer")
+  const { data: sucursales, isLoading: isLoadingSucursales } = useSucursales(
+    { activo: "true" },
+    { enabled: !usaAlcanceLocal && puedeListarSucursales }
+  )
   // "" (sin cookie) => usar primera sucursal; TODAS => Todas; <id> => esa sucursal.
   const [seleccion, setSeleccion] = useState<string>(() => getCookie(SUCURSAL_COOKIE_NAME) ?? "")
 
-  const lista = useMemo(() => sucursales ?? [], [sucursales])
+  const lista = useMemo(
+    () => usaAlcanceLocal ? sucursalesPermitidas : (sucursales ?? []),
+    [usaAlcanceLocal, sucursalesPermitidas, sucursales]
+  )
+  const puedeSeleccionarTodas = !usaAlcanceLocal
+  const isLoading = !usaAlcanceLocal && puedeListarSucursales && isLoadingSucursales
 
   // Sucursal activa derivada de la lista:
   // - TODAS => null (todas las sucursales)
   // - id valido => esa sucursal
   // - sin eleccion previa (o id obsoleto) => por defecto la primera sucursal
-  const sucursalActiva = useMemo<Sucursal | null>(() => {
-    if (seleccion === TODAS) return null
+  const sucursalActiva = useMemo<SucursalPermitida | null>(() => {
+    if (seleccion === TODAS && puedeSeleccionarTodas) return null
     const encontrada = lista.find((s) => s.id === seleccion)
     if (encontrada) return encontrada
-    return lista[0] ?? null
-  }, [lista, seleccion])
+    return lista.find((s) => s.id === sucursalPrincipalId) ?? lista[0] ?? null
+  }, [lista, puedeSeleccionarTodas, seleccion, sucursalPrincipalId])
 
-  const setSucursalActiva = (sucursal: Sucursal | null) => {
-    const valor = sucursal ? sucursal.id : TODAS
+  const setSucursalActiva = useCallback((sucursal: SucursalPermitida | null) => {
+    const fallback = lista.find((item) => item.id === sucursalPrincipalId) ?? lista[0]
+    const seleccionValida = sucursal ?? (puedeSeleccionarTodas ? null : fallback)
+    const valor = seleccionValida ? seleccionValida.id : TODAS
     setSeleccion(valor)
     setCookie(SUCURSAL_COOKIE_NAME, valor, SUCURSAL_COOKIE_MAX_AGE)
-  }
+  }, [lista, puedeSeleccionarTodas, sucursalPrincipalId])
 
   const value = useMemo<SucursalContextType>(
     () => ({
@@ -52,8 +72,9 @@ export function SucursalProvider({ children }: { children: React.ReactNode }) {
       setSucursalActiva,
       sucursalId: sucursalActiva?.id ?? "",
       isLoading,
+      puedeSeleccionarTodas,
     }),
-    [sucursalActiva, lista, isLoading]
+    [sucursalActiva, lista, setSucursalActiva, isLoading, puedeSeleccionarTodas]
   )
 
   return <SucursalContext.Provider value={value}>{children}</SucursalContext.Provider>

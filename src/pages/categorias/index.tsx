@@ -12,6 +12,7 @@ import { SearchInput } from "@/components/shared/SearchInput"
 import { CrudTable } from "@/components/shared/CrudTable"
 import { ConfirmDialog } from "@/components/shared/ConfirmDialog"
 import { StatusBadge } from "@/components/shared/StatusBadge"
+import { Can } from "@/components/shared/Can"
 import { Button } from "@/components/ui/button"
 import {
   DropdownMenu,
@@ -71,15 +72,21 @@ export default function CategoriasPage() {
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-40">
-              <DropdownMenuItem onClick={() => { setEditing(categoria); setFormOpen(true) }}>
-                Editar
-              </DropdownMenuItem>
-              {categoria.activo ? (
-                <DropdownMenuItem variant="destructive" onClick={() => setDeactivating(categoria)}>
-                  Desactivar
+              <Can permission="categorias:actualizar">
+                <DropdownMenuItem onClick={() => { setEditing(categoria); setFormOpen(true) }}>
+                  Editar
                 </DropdownMenuItem>
+              </Can>
+              {categoria.activo ? (
+                <Can permission="categorias:desactivar">
+                  <DropdownMenuItem variant="destructive" onClick={() => setDeactivating(categoria)}>
+                    Desactivar
+                  </DropdownMenuItem>
+                </Can>
               ) : (
-                <DropdownMenuItem onClick={() => handleRestore(categoria)}>Restaurar</DropdownMenuItem>
+                <Can permission="categorias:restaurar">
+                  <DropdownMenuItem onClick={() => handleRestore(categoria)}>Restaurar</DropdownMenuItem>
+                </Can>
               )}
             </DropdownMenuContent>
           </DropdownMenu>
@@ -94,10 +101,12 @@ export default function CategoriasPage() {
         title="Categorías"
         description="Organiza tus productos por categoría."
         action={
-          <Button onClick={() => { setEditing(undefined); setFormOpen(true) }}>
-            <IconPlus />
-            Crear Categoría
-          </Button>
+          <Can permission="categorias:crear">
+            <Button onClick={() => { setEditing(undefined); setFormOpen(true) }}>
+              <IconPlus />
+              Crear Categoría
+            </Button>
+          </Can>
         }
       />
       <div className="flex flex-col gap-4 px-4 lg:px-6">

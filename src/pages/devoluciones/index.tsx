@@ -6,7 +6,7 @@ import type { ColumnDef } from "@tanstack/react-table"
 
 import { useDevoluciones, useAnularDevolucion } from "@/hooks/useDevoluciones"
 import { useServerPagination } from "@/hooks/useServerPagination"
-import { useSucursales } from "@/hooks/useSucursales"
+import { useSucursal } from "@/context/sucursal-provider"
 import { useProveedores } from "@/hooks/useProveedores"
 import { ApiError } from "@/lib/api"
 import { formatCurrency } from "@/lib/utils"
@@ -15,6 +15,7 @@ import { PageHeader } from "@/components/shared/PageHeader"
 import { CrudTable } from "@/components/shared/CrudTable"
 import { ConfirmDialog } from "@/components/shared/ConfirmDialog"
 import { EstadoBadge } from "@/components/shared/StatusBadge"
+import { Can } from "@/components/shared/Can"
 import { Button } from "@/components/ui/button"
 import {
   DropdownMenu,
@@ -59,7 +60,7 @@ function AnularAction({ devolucion }: { devolucion: Devolucion }) {
 export default function DevolucionesPage() {
   const navigate = useNavigate()
   const pagination = useServerPagination()
-  const { data: sucursales } = useSucursales()
+  const { sucursales } = useSucursal()
   const { data: proveedores } = useProveedores()
   const { data: devoluciones, isLoading } = useDevoluciones(pagination.params)
 
@@ -106,7 +107,9 @@ export default function DevolucionesPage() {
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-40">
               <DropdownMenuItem onClick={() => navigate(`/devoluciones/${devolucion.id}`)}>Ver detalle</DropdownMenuItem>
-              {devolucion.estado === "registrada" && <AnularAction devolucion={devolucion} />}
+              {devolucion.estado === "registrada" && (
+                <Can permission="devoluciones:anular"><AnularAction devolucion={devolucion} /></Can>
+              )}
             </DropdownMenuContent>
           </DropdownMenu>
         )
@@ -120,10 +123,12 @@ export default function DevolucionesPage() {
         title="Devoluciones"
         description="Devoluciones de mercadería a proveedores."
         action={
-          <Button onClick={() => navigate("/devoluciones/nueva")}>
-            <IconPlus />
-            Nueva Devolución
-          </Button>
+          <Can permission="devoluciones:crear">
+            <Button onClick={() => navigate("/devoluciones/nueva")}>
+              <IconPlus />
+              Nueva Devolución
+            </Button>
+          </Can>
         }
       />
       <div className="flex flex-col gap-4 px-4 lg:px-6">

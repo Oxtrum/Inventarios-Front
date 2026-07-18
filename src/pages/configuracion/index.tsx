@@ -12,6 +12,7 @@ import { PageHeader } from "@/components/shared/PageHeader"
 import { CrudTable } from "@/components/shared/CrudTable"
 import { ConfirmDialog } from "@/components/shared/ConfirmDialog"
 import { StatusBadge } from "@/components/shared/StatusBadge"
+import { Can } from "@/components/shared/Can"
 import { Button } from "@/components/ui/button"
 import {
   DropdownMenu,
@@ -82,15 +83,21 @@ export default function ConfiguracionPage() {
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-40">
-              <DropdownMenuItem onClick={() => { setEditing(configuracion); setFormOpen(true) }}>
-                Editar
-              </DropdownMenuItem>
-              {configuracion.activo ? (
-                <DropdownMenuItem variant="destructive" onClick={() => setDeactivating(configuracion)}>
-                  Desactivar
+              <Can permission="configuraciones:actualizar">
+                <DropdownMenuItem onClick={() => { setEditing(configuracion); setFormOpen(true) }}>
+                  Editar
                 </DropdownMenuItem>
+              </Can>
+              {configuracion.activo ? (
+                <Can permission="configuraciones:desactivar">
+                  <DropdownMenuItem variant="destructive" onClick={() => setDeactivating(configuracion)}>
+                    Desactivar
+                  </DropdownMenuItem>
+                </Can>
               ) : (
-                <DropdownMenuItem onClick={() => handleRestore(configuracion)}>Restaurar</DropdownMenuItem>
+                <Can permission="configuraciones:restaurar">
+                  <DropdownMenuItem onClick={() => handleRestore(configuracion)}>Restaurar</DropdownMenuItem>
+                </Can>
               )}
             </DropdownMenuContent>
           </DropdownMenu>
@@ -105,10 +112,12 @@ export default function ConfiguracionPage() {
         title="Configuración"
         description="Parámetros de configuración por clave, globales o por sucursal."
         action={
-          <Button onClick={() => { setEditing(undefined); setFormOpen(true) }}>
-            <IconPlus />
-            Crear Configuración
-          </Button>
+          <Can permission="configuraciones:crear">
+            <Button onClick={() => { setEditing(undefined); setFormOpen(true) }}>
+              <IconPlus />
+              Crear Configuración
+            </Button>
+          </Can>
         }
       />
       <div className="flex flex-col gap-4 px-4 lg:px-6">

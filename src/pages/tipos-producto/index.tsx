@@ -14,6 +14,7 @@ import { SearchInput } from "@/components/shared/SearchInput"
 import { CrudTable } from "@/components/shared/CrudTable"
 import { ConfirmDialog } from "@/components/shared/ConfirmDialog"
 import { StatusBadge } from "@/components/shared/StatusBadge"
+import { Can } from "@/components/shared/Can"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import {
@@ -89,19 +90,27 @@ export default function TiposProductoPage() {
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-48">
-              <DropdownMenuItem onClick={() => navigate(`/tipos-producto/${tipoProducto.id}`)}>
-                <IconAdjustments />
-                Atributos
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => { setEditing(tipoProducto); setFormOpen(true) }}>
-                Editar
-              </DropdownMenuItem>
-              {tipoProducto.activo ? (
-                <DropdownMenuItem variant="destructive" onClick={() => setDeactivating(tipoProducto)}>
-                  Desactivar
+              <Can allOf={["tipos_producto:atributos", "atributos:leer"]}>
+                <DropdownMenuItem onClick={() => navigate(`/tipos-producto/${tipoProducto.id}`)}>
+                  <IconAdjustments />
+                  Atributos
                 </DropdownMenuItem>
+              </Can>
+              <Can permission="tipos_producto:actualizar">
+                <DropdownMenuItem onClick={() => { setEditing(tipoProducto); setFormOpen(true) }}>
+                  Editar
+                </DropdownMenuItem>
+              </Can>
+              {tipoProducto.activo ? (
+                <Can permission="tipos_producto:desactivar">
+                  <DropdownMenuItem variant="destructive" onClick={() => setDeactivating(tipoProducto)}>
+                    Desactivar
+                  </DropdownMenuItem>
+                </Can>
               ) : (
-                <DropdownMenuItem onClick={() => handleRestore(tipoProducto)}>Restaurar</DropdownMenuItem>
+                <Can permission="tipos_producto:restaurar">
+                  <DropdownMenuItem onClick={() => handleRestore(tipoProducto)}>Restaurar</DropdownMenuItem>
+                </Can>
               )}
             </DropdownMenuContent>
           </DropdownMenu>
@@ -116,10 +125,12 @@ export default function TiposProductoPage() {
         title="Tipos de Producto"
         description="Clasifica tus productos y define qué atributos aplican a cada tipo."
         action={
-          <Button onClick={() => { setEditing(undefined); setFormOpen(true) }}>
-            <IconPlus />
-            Crear Tipo de Producto
-          </Button>
+          <Can permission="tipos_producto:crear">
+            <Button onClick={() => { setEditing(undefined); setFormOpen(true) }}>
+              <IconPlus />
+              Crear Tipo de Producto
+            </Button>
+          </Can>
         }
       />
       <div className="flex flex-col gap-4 px-4 lg:px-6">

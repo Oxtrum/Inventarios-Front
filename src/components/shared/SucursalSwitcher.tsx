@@ -2,7 +2,6 @@ import { useState } from "react"
 import { IconBuildingStore, IconCheck, IconSelector } from "@tabler/icons-react"
 
 import { cn } from "@/lib/utils"
-import { useAuth } from "@/context/auth-provider"
 import { useSucursal } from "@/context/sucursal-provider"
 import { Button } from "@/components/ui/button"
 import {
@@ -19,12 +18,9 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 const TODAS_LABEL = "Todas las sucursales"
 
 export function SucursalSwitcher() {
-  const { hasPermission } = useAuth()
-  const { sucursalActiva, sucursales, setSucursalActiva, isLoading } = useSucursal()
+  const { sucursalActiva, sucursales, setSucursalActiva, isLoading, puedeSeleccionarTodas } = useSucursal()
   const [open, setOpen] = useState(false)
 
-  // Solo tiene sentido para quien puede listar sucursales.
-  if (!hasPermission("sucursales:leer")) return null
   if (!isLoading && sucursales.length === 0) return null
 
   const label = sucursalActiva?.nombre ?? TODAS_LABEL
@@ -50,19 +46,23 @@ export function SucursalSwitcher() {
           <CommandInput placeholder="Buscar sucursal..." />
           <CommandList>
             <CommandEmpty>Sin resultados.</CommandEmpty>
-            <CommandGroup>
-              <CommandItem
-                value={TODAS_LABEL}
-                onSelect={() => {
-                  setSucursalActiva(null)
-                  setOpen(false)
-                }}
-              >
-                <IconCheck className={cn("size-4", sucursalActiva ? "opacity-0" : "opacity-100")} />
-                {TODAS_LABEL}
-              </CommandItem>
-            </CommandGroup>
-            <CommandSeparator />
+            {puedeSeleccionarTodas && (
+              <>
+                <CommandGroup>
+                  <CommandItem
+                    value={TODAS_LABEL}
+                    onSelect={() => {
+                      setSucursalActiva(null)
+                      setOpen(false)
+                    }}
+                  >
+                    <IconCheck className={cn("size-4", sucursalActiva ? "opacity-0" : "opacity-100")} />
+                    {TODAS_LABEL}
+                  </CommandItem>
+                </CommandGroup>
+                <CommandSeparator />
+              </>
+            )}
             <CommandGroup heading="Sucursales">
               {sucursales.map((sucursal) => (
                 <CommandItem

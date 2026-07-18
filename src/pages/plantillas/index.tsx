@@ -8,6 +8,7 @@ import { useDetallePlantilla, useAplicarPlantilla } from "@/hooks/usePlantillas"
 import { ApiError } from "@/lib/api"
 import { PageHeader } from "@/components/shared/PageHeader"
 import { EmptyState } from "@/components/shared/EmptyState"
+import { Can } from "@/components/shared/Can"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Skeleton } from "@/components/ui/skeleton"
@@ -69,14 +70,15 @@ export default function PlantillasPage() {
             </SelectContent>
           </Select>
 
-          <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-            <DialogTrigger asChild>
-              <Button disabled={!tipoNegocioId}>
-                <IconCheck />
-                Aplicar a mi organización
-              </Button>
-            </DialogTrigger>
-            <DialogContent>
+          <Can permission="plantillas:aplicar">
+            <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+              <DialogTrigger asChild>
+                <Button disabled={!tipoNegocioId}>
+                  <IconCheck />
+                  Aplicar a mi organización
+                </Button>
+              </DialogTrigger>
+              <DialogContent>
               <DialogHeader>
                 <DialogTitle>Aplicar plantilla</DialogTitle>
               </DialogHeader>
@@ -91,8 +93,9 @@ export default function PlantillasPage() {
                   Aplicar
                 </Button>
               </DialogFooter>
-            </DialogContent>
-          </Dialog>
+              </DialogContent>
+            </Dialog>
+          </Can>
         </div>
 
         {!tipoNegocioId && (

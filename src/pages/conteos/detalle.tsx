@@ -13,7 +13,7 @@ import {
   useCerrarConteo,
   useAnularConteo,
 } from "@/hooks/useConteos"
-import { useSucursales } from "@/hooks/useSucursales"
+import { useSucursal } from "@/context/sucursal-provider"
 import { useProductos } from "@/hooks/useProductos"
 import { ApiError } from "@/lib/api"
 import { numberString } from "@/lib/validation"
@@ -23,6 +23,7 @@ import { ConfirmDialog } from "@/components/shared/ConfirmDialog"
 import { ProductoVarianteLabel } from "@/components/shared/ProductoVarianteLabel"
 import { ChartErrorBoundary } from "@/components/shared/ChartErrorBoundary"
 import { DiferenciasConteoChart } from "@/components/conteos/diferencias-chart"
+import { Can } from "@/components/shared/Can"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
@@ -56,7 +57,7 @@ export default function ConteoDetailPage() {
   const [confirmingAnular, setConfirmingAnular] = useState(false)
 
   const { data: conteo, isLoading } = useConteo(conteoId)
-  const { data: sucursales } = useSucursales()
+  const { sucursales } = useSucursal()
   const { data: productos } = useProductos()
   const registrarItems = useRegistrarConteoItems(conteoId)
   const cerrarConteo = useCerrarConteo(conteoId)
@@ -165,12 +166,16 @@ export default function ConteoDetailPage() {
             </Button>
             {isAbierto && (
               <>
-                <Button variant="outline" onClick={() => setConfirmingCerrar(true)}>
-                  Cerrar conteo
-                </Button>
-                <Button variant="destructive" onClick={() => setConfirmingAnular(true)}>
-                  Anular
-                </Button>
+                <Can permission="conteos:cerrar">
+                  <Button variant="outline" onClick={() => setConfirmingCerrar(true)}>
+                    Cerrar conteo
+                  </Button>
+                </Can>
+                <Can permission="conteos:anular">
+                  <Button variant="destructive" onClick={() => setConfirmingAnular(true)}>
+                    Anular
+                  </Button>
+                </Can>
               </>
             )}
           </div>
@@ -259,10 +264,12 @@ export default function ConteoDetailPage() {
                 </div>
                 {isAbierto && (
                   <div className="flex justify-end">
-                    <Button type="submit" disabled={registrarItems.isPending}>
-                      {registrarItems.isPending && <Loader2 className="animate-spin" />}
-                      Guardar cantidades
-                    </Button>
+                    <Can permission="conteos:registrar">
+                      <Button type="submit" disabled={registrarItems.isPending}>
+                        {registrarItems.isPending && <Loader2 className="animate-spin" />}
+                        Guardar cantidades
+                      </Button>
+                    </Can>
                   </div>
                 )}
               </form>

@@ -34,6 +34,7 @@ import { CrudTable } from "@/components/shared/CrudTable"
 import { ConfirmDialog } from "@/components/shared/ConfirmDialog"
 import { StatusBadge } from "@/components/shared/StatusBadge"
 import { EmptyState } from "@/components/shared/EmptyState"
+import { Can } from "@/components/shared/Can"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { InputGroup, InputGroupAddon, InputGroupInput } from "@/components/ui/input-group"
@@ -502,9 +503,11 @@ function ProductoAtributosTab({ productoId }: { productoId: string }) {
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="w-40">
-            <DropdownMenuItem variant="destructive" onClick={() => handleRemove(row.original.atributoId)}>
-              Remover
-            </DropdownMenuItem>
+            <Can permission="productos:atributos">
+              <DropdownMenuItem variant="destructive" onClick={() => handleRemove(row.original.atributoId)}>
+                Remover
+              </DropdownMenuItem>
+            </Can>
           </DropdownMenuContent>
         </DropdownMenu>
       ),
@@ -514,7 +517,9 @@ function ProductoAtributosTab({ productoId }: { productoId: string }) {
   return (
     <div className="flex flex-col gap-4">
       <div className="flex justify-end">
-        <AsignarAtributoDialog atributosDisponibles={disponibles} onSubmit={handleAsignar} isSubmitting={setAtributo.isPending} />
+        <Can permission="productos:atributos">
+          <AsignarAtributoDialog atributosDisponibles={disponibles} onSubmit={handleAsignar} isSubmitting={setAtributo.isPending} />
+        </Can>
       </div>
       <CrudTable columns={columns} data={asignados ?? []} isLoading={isLoading} emptyMessage="Sin atributos asignados al producto." pagination={asignados?.pagination} onPaginationChange={pagination.setOffset} />
     </div>
@@ -573,9 +578,11 @@ function VarianteAtributosSheet({ open, onOpenChange, variante }: VarianteAtribu
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="w-40">
-            <DropdownMenuItem variant="destructive" onClick={() => handleRemove(row.original.atributoId)}>
-              Remover
-            </DropdownMenuItem>
+            <Can permission="producto_variantes:atributos">
+              <DropdownMenuItem variant="destructive" onClick={() => handleRemove(row.original.atributoId)}>
+                Remover
+              </DropdownMenuItem>
+            </Can>
           </DropdownMenuContent>
         </DropdownMenu>
       ),
@@ -591,7 +598,9 @@ function VarianteAtributosSheet({ open, onOpenChange, variante }: VarianteAtribu
         </SheetHeader>
         <div className="flex flex-col gap-4 overflow-y-auto px-4">
           <div className="flex justify-end">
-            <AsignarAtributoDialog atributosDisponibles={disponibles} onSubmit={handleAsignar} isSubmitting={setAtributo.isPending} />
+            <Can permission="producto_variantes:atributos">
+              <AsignarAtributoDialog atributosDisponibles={disponibles} onSubmit={handleAsignar} isSubmitting={setAtributo.isPending} />
+            </Can>
           </div>
           <CrudTable columns={columns} data={asignados ?? []} isLoading={isLoading} emptyMessage="Sin atributos asignados a esta variante." pagination={asignados?.pagination} onPaginationChange={pagination.setOffset} />
         </div>
@@ -664,23 +673,31 @@ export default function ProductoVariantesPage() {
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-40">
-              <DropdownMenuItem onClick={() => { setEditing(variante); setFormOpen(true) }}>
-                Editar
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => setAtributosSheetTarget(variante)}>
-                <IconAdjustments />
-                Atributos
-              </DropdownMenuItem>
-              {variante.activo ? (
-                <DropdownMenuItem
-                  variant="destructive"
-                  disabled={variante.esDefault}
-                  onClick={() => setDeactivating(variante)}
-                >
-                  Desactivar
+              <Can permission="producto_variantes:actualizar">
+                <DropdownMenuItem onClick={() => { setEditing(variante); setFormOpen(true) }}>
+                  Editar
                 </DropdownMenuItem>
+              </Can>
+              <Can permission="producto_variantes:atributos">
+                <DropdownMenuItem onClick={() => setAtributosSheetTarget(variante)}>
+                  <IconAdjustments />
+                  Atributos
+                </DropdownMenuItem>
+              </Can>
+              {variante.activo ? (
+                <Can permission="producto_variantes:desactivar">
+                  <DropdownMenuItem
+                    variant="destructive"
+                    disabled={variante.esDefault}
+                    onClick={() => setDeactivating(variante)}
+                  >
+                    Desactivar
+                  </DropdownMenuItem>
+                </Can>
               ) : (
-                <DropdownMenuItem onClick={() => handleRestore(variante)}>Restaurar</DropdownMenuItem>
+                <Can permission="producto_variantes:restaurar">
+                  <DropdownMenuItem onClick={() => handleRestore(variante)}>Restaurar</DropdownMenuItem>
+                </Can>
               )}
             </DropdownMenuContent>
           </DropdownMenu>
@@ -702,10 +719,12 @@ export default function ProductoVariantesPage() {
                 Volver
               </Link>
             </Button>
-            <Button onClick={() => { setEditing(undefined); setFormOpen(true) }}>
-              <IconPlus />
-              Crear Variante
-            </Button>
+            <Can permission="producto_variantes:crear">
+              <Button onClick={() => { setEditing(undefined); setFormOpen(true) }}>
+                <IconPlus />
+                Crear Variante
+              </Button>
+            </Can>
           </div>
         }
       />
@@ -713,7 +732,9 @@ export default function ProductoVariantesPage() {
         <Tabs defaultValue="variantes">
           <TabsList>
             <TabsTrigger value="variantes">Variantes</TabsTrigger>
-            <TabsTrigger value="atributos">Atributos</TabsTrigger>
+            <Can permission="productos:atributos">
+              <TabsTrigger value="atributos">Atributos</TabsTrigger>
+            </Can>
           </TabsList>
           <TabsContent value="variantes" className="pt-4">
             {(variantes ?? []).length === 0 && !isLoading ? (
@@ -722,9 +743,11 @@ export default function ProductoVariantesPage() {
               <CrudTable columns={columns} data={variantes ?? []} isLoading={isLoading} emptyMessage="Sin variantes registradas." pagination={variantes?.pagination} onPaginationChange={pagination.setOffset} />
             )}
           </TabsContent>
-          <TabsContent value="atributos" className="pt-4">
-            <ProductoAtributosTab productoId={productoId} />
-          </TabsContent>
+          <Can permission="productos:atributos">
+            <TabsContent value="atributos" className="pt-4">
+              <ProductoAtributosTab productoId={productoId} />
+            </TabsContent>
+          </Can>
         </Tabs>
       </div>
 

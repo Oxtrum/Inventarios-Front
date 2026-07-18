@@ -5,11 +5,12 @@ import type { ColumnDef } from "@tanstack/react-table"
 
 import { useConteos } from "@/hooks/useConteos"
 import { useServerPagination } from "@/hooks/useServerPagination"
-import { useSucursales } from "@/hooks/useSucursales"
+import { useSucursal } from "@/context/sucursal-provider"
 import type { Conteo } from "@/types/conteo"
 import { PageHeader } from "@/components/shared/PageHeader"
 import { CrudTable } from "@/components/shared/CrudTable"
 import { EstadoBadge } from "@/components/shared/StatusBadge"
+import { Can } from "@/components/shared/Can"
 import { Button } from "@/components/ui/button"
 import {
   DropdownMenu,
@@ -23,7 +24,7 @@ export default function ConteosPage() {
   const navigate = useNavigate()
   const pagination = useServerPagination()
   const [formOpen, setFormOpen] = useState(false)
-  const { data: sucursales } = useSucursales()
+  const { sucursales } = useSucursal()
   const { data: conteos, isLoading } = useConteos(pagination.params)
 
   const sucursalPorId = useMemo(() => new Map((sucursales ?? []).map((s) => [s.id, s.nombre])), [sucursales])
@@ -71,10 +72,12 @@ export default function ConteosPage() {
         title="Conteos"
         description="Conteos físicos de inventario por sucursal."
         action={
-          <Button onClick={() => setFormOpen(true)}>
-            <IconPlus />
-            Crear Conteo
-          </Button>
+          <Can permission="conteos:crear">
+            <Button onClick={() => setFormOpen(true)}>
+              <IconPlus />
+              Crear Conteo
+            </Button>
+          </Can>
         }
       />
       <div className="flex flex-col gap-4 px-4 lg:px-6">

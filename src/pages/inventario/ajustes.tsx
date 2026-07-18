@@ -14,6 +14,7 @@ import { ApiError } from "@/lib/api"
 import { positiveNumberString } from "@/lib/validation"
 import { PageHeader } from "@/components/shared/PageHeader"
 import { ProductoVariantePicker } from "@/components/shared/ProductoVariantePicker"
+import { Can } from "@/components/shared/Can"
 import { Button } from "@/components/ui/button"
 import { Textarea } from "@/components/ui/textarea"
 import {
@@ -304,14 +305,18 @@ export default function AjustesPage() {
             <Tabs defaultValue="ajuste">
               <TabsList>
                 <TabsTrigger value="ajuste">Ajuste</TabsTrigger>
-                <TabsTrigger value="merma">Merma</TabsTrigger>
+                <Can permission="inventario:mermar">
+                  <TabsTrigger value="merma">Merma</TabsTrigger>
+                </Can>
               </TabsList>
               <TabsContent value="ajuste" className="pt-4">
                 <AjusteForm />
               </TabsContent>
-              <TabsContent value="merma" className="pt-4">
-                <MermaForm />
-              </TabsContent>
+              <Can permission="inventario:mermar">
+                <TabsContent value="merma" className="pt-4">
+                  <MermaForm />
+                </TabsContent>
+              </Can>
             </Tabs>
           </CardContent>
         </Card>

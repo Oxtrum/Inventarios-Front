@@ -20,6 +20,7 @@ import { ApiError } from "@/lib/api"
 import type { TipoProductoAtributo } from "@/types/tipoProducto"
 import { PageHeader } from "@/components/shared/PageHeader"
 import { CrudTable } from "@/components/shared/CrudTable"
+import { Can } from "@/components/shared/Can"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Checkbox } from "@/components/ui/checkbox"
@@ -125,9 +126,11 @@ export default function TipoProductoDetailPage() {
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="w-40">
-            <DropdownMenuItem variant="destructive" onClick={() => handleRemove(row.original.atributoId)}>
-              Remover
-            </DropdownMenuItem>
+            <Can permission="tipos_producto:atributos">
+              <DropdownMenuItem variant="destructive" onClick={() => handleRemove(row.original.atributoId)}>
+                Remover
+              </DropdownMenuItem>
+            </Can>
           </DropdownMenuContent>
         </DropdownMenu>
       ),
@@ -147,7 +150,8 @@ export default function TipoProductoDetailPage() {
                 Volver
               </Link>
             </Button>
-            <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+            <Can permission="tipos_producto:atributos">
+              <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
               <DialogTrigger asChild>
                 <Button disabled={disponibles.length === 0}>
                   <IconPlus />
@@ -230,7 +234,8 @@ export default function TipoProductoDetailPage() {
                   </form>
                 </Form>
               </DialogContent>
-            </Dialog>
+              </Dialog>
+            </Can>
           </div>
         }
       />

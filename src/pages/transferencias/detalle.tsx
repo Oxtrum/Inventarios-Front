@@ -4,13 +4,14 @@ import { IconArrowLeft } from "@tabler/icons-react"
 import { toast } from "sonner"
 
 import { useTransferencia, useAnularTransferencia } from "@/hooks/useTransferencias"
-import { useSucursales } from "@/hooks/useSucursales"
+import { useSucursal } from "@/context/sucursal-provider"
 import { useProductos } from "@/hooks/useProductos"
 import { ApiError } from "@/lib/api"
 import { PageHeader } from "@/components/shared/PageHeader"
 import { ProductoVarianteLabel } from "@/components/shared/ProductoVarianteLabel"
 import { EstadoBadge } from "@/components/shared/StatusBadge"
 import { ConfirmDialog } from "@/components/shared/ConfirmDialog"
+import { Can } from "@/components/shared/Can"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Skeleton } from "@/components/ui/skeleton"
@@ -29,7 +30,7 @@ export default function TransferenciaDetailPage() {
   const [confirmingAnular, setConfirmingAnular] = useState(false)
 
   const { data: transferencia, isLoading } = useTransferencia(transferenciaId)
-  const { data: sucursales } = useSucursales()
+  const { sucursales } = useSucursal()
   const { data: productos } = useProductos()
   const anularTransferencia = useAnularTransferencia(transferenciaId)
 
@@ -80,9 +81,11 @@ export default function TransferenciaDetailPage() {
               </Link>
             </Button>
             {transferencia.estado === "registrada" && (
-              <Button variant="destructive" onClick={() => setConfirmingAnular(true)}>
-                Anular
-              </Button>
+              <Can permission="transferencias:anular">
+                <Button variant="destructive" onClick={() => setConfirmingAnular(true)}>
+                  Anular
+                </Button>
+              </Can>
             )}
           </div>
         }
