@@ -67,42 +67,42 @@ function App() {
                 <Route element={<ProtectedLayout />}>
                   <Route path="/" element={<Navigate to="/dashboard" replace />} />
                   <Route path="/dashboard" element={<DashboardPage />} />
-                  <Route path="/productos" element={<ProductosPage />} />
-                  <Route path="/categorias" element={<CategoriasPage />} />
-                  <Route path="/unidades" element={<UnidadesPage />} />
-                  <Route path="/proveedores" element={<ProveedoresPage />} />
+                  <Route path="/productos" element={<RequirePermission permiso="productos:leer"><ProductosPage /></RequirePermission>} />
+                  <Route path="/categorias" element={<RequirePermission permiso="categorias:leer"><CategoriasPage /></RequirePermission>} />
+                  <Route path="/unidades" element={<RequirePermission permiso="unidades:leer"><UnidadesPage /></RequirePermission>} />
+                  <Route path="/proveedores" element={<RequirePermission permiso="proveedores:leer"><ProveedoresPage /></RequirePermission>} />
                   <Route path="/sucursales" element={<RequirePermission permiso="sucursales:leer"><SucursalesPage /></RequirePermission>} />
                   <Route path="/usuarios" element={<RequirePermission permiso="usuarios:leer"><UsuariosPage /></RequirePermission>} />
                   <Route path="/roles" element={<RequirePermission permiso="roles:leer"><RolesPage /></RequirePermission>} />
                   <Route path="/roles/:id" element={<RequirePermission permiso="roles:leer"><RolDetailPage /></RequirePermission>} />
-                  <Route path="/compras" element={<ComprasPage />} />
-                  <Route path="/compras/nueva" element={<CompraFormPage />} />
-                  <Route path="/compras/:id" element={<CompraDetailPage />} />
-                  <Route path="/transferencias" element={<TransferenciasPage />} />
-                  <Route path="/transferencias/nueva" element={<TransferenciaFormPage />} />
-                  <Route path="/transferencias/:id" element={<TransferenciaDetailPage />} />
-                  <Route path="/devoluciones" element={<DevolucionesPage />} />
-                  <Route path="/devoluciones/nueva" element={<DevolucionFormPage />} />
-                  <Route path="/devoluciones/:id" element={<DevolucionDetailPage />} />
-                  <Route path="/conteos" element={<ConteosPage />} />
-                  <Route path="/conteos/:id" element={<ConteoDetailPage />} />
-                  <Route path="/inventario" element={<InventarioPage />} />
-                  <Route path="/inventario/movimientos" element={<MovimientosPage />} />
-                  <Route path="/inventario/ajustes" element={<AjustesPage />} />
-                  <Route path="/inventario/reservas" element={<ReservasPage />} />
-                  <Route path="/reportes" element={<ReportesPage />} />
-                  <Route path="/reportes/stock-bajo" element={<StockBajoPage />} />
-                  <Route path="/reportes/kardex" element={<KardexPage />} />
-                  <Route path="/reportes/valoracion" element={<ValoracionPage />} />
-                  <Route path="/configuracion" element={<ConfiguracionPage />} />
-                  <Route path="/tipos-negocio" element={<TiposNegocioPage />} />
-                  <Route path="/atributos" element={<AtributosPage />} />
-                  <Route path="/atributos/:id" element={<AtributoDetailPage />} />
-                  <Route path="/tipos-producto" element={<TiposProductoPage />} />
-                  <Route path="/tipos-producto/:id" element={<TipoProductoDetailPage />} />
-                  <Route path="/productos/:id/variantes" element={<ProductoVariantesPage />} />
-                  <Route path="/plantillas" element={<PlantillasPage />} />
-                  <Route path="/catalogo" element={<CatalogoPage />} />
+                  <Route path="/compras" element={<RequirePermission permiso="compras:leer"><ComprasPage /></RequirePermission>} />
+                  <Route path="/compras/nueva" element={<RequirePermission permiso="compras:crear"><CompraFormPage /></RequirePermission>} />
+                  <Route path="/compras/:id" element={<RequirePermission permiso="compras:leer"><CompraDetailPage /></RequirePermission>} />
+                  <Route path="/transferencias" element={<RequirePermission permiso="transferencias:leer"><TransferenciasPage /></RequirePermission>} />
+                  <Route path="/transferencias/nueva" element={<RequirePermission permiso="transferencias:crear"><TransferenciaFormPage /></RequirePermission>} />
+                  <Route path="/transferencias/:id" element={<RequirePermission permiso="transferencias:leer"><TransferenciaDetailPage /></RequirePermission>} />
+                  <Route path="/devoluciones" element={<RequirePermission permiso="devoluciones:leer"><DevolucionesPage /></RequirePermission>} />
+                  <Route path="/devoluciones/nueva" element={<RequirePermission permiso="devoluciones:crear"><DevolucionFormPage /></RequirePermission>} />
+                  <Route path="/devoluciones/:id" element={<RequirePermission permiso="devoluciones:leer"><DevolucionDetailPage /></RequirePermission>} />
+                  <Route path="/conteos" element={<RequirePermission permiso="conteos:leer"><ConteosPage /></RequirePermission>} />
+                  <Route path="/conteos/:id" element={<RequirePermission permiso="conteos:leer"><ConteoDetailPage /></RequirePermission>} />
+                  <Route path="/inventario" element={<RequirePermission permiso="inventario:leer"><InventarioPage /></RequirePermission>} />
+                  <Route path="/inventario/movimientos" element={<RequirePermission permiso="inventario:leer"><MovimientosPage /></RequirePermission>} />
+                  <Route path="/inventario/ajustes" element={<RequirePermission permiso="inventario:ajustar"><AjustesPage /></RequirePermission>} />
+                  <Route path="/inventario/reservas" element={<RequirePermission permiso="inventario:leer"><ReservasPage /></RequirePermission>} />
+                  <Route path="/reportes" element={<RequirePermission permiso="reportes:leer"><ReportesPage /></RequirePermission>} />
+                  <Route path="/reportes/stock-bajo" element={<RequirePermission permiso="reportes:leer"><StockBajoPage /></RequirePermission>} />
+                  <Route path="/reportes/kardex" element={<RequirePermission permiso="reportes:leer"><KardexPage /></RequirePermission>} />
+                  <Route path="/reportes/valoracion" element={<RequirePermission permiso="reportes:leer"><ValoracionPage /></RequirePermission>} />
+                  <Route path="/configuracion" element={<RequirePermission permiso="configuraciones:leer"><ConfiguracionPage /></RequirePermission>} />
+                  <Route path="/tipos-negocio" element={<RequirePermission permiso="tipos_negocio:leer"><TiposNegocioPage /></RequirePermission>} />
+                  <Route path="/atributos" element={<RequirePermission permiso="atributos:leer"><AtributosPage /></RequirePermission>} />
+                  <Route path="/atributos/:id" element={<RequirePermission permiso="atributos:leer"><AtributoDetailPage /></RequirePermission>} />
+                  <Route path="/tipos-producto" element={<RequirePermission permiso="tipos_producto:leer"><TiposProductoPage /></RequirePermission>} />
+                  <Route path="/tipos-producto/:id" element={<RequirePermission permiso="tipos_producto:leer"><TipoProductoDetailPage /></RequirePermission>} />
+                  <Route path="/productos/:id/variantes" element={<RequirePermission permiso="producto_variantes:leer"><ProductoVariantesPage /></RequirePermission>} />
+                  <Route path="/plantillas" element={<RequirePermission permiso="plantillas:leer"><PlantillasPage /></RequirePermission>} />
+                  <Route path="/catalogo" element={<RequirePermission permiso="catalogo:leer"><CatalogoPage /></RequirePermission>} />
                 </Route>
               </Routes>
             </BrowserRouter>
