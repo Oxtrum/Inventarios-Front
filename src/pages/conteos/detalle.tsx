@@ -23,6 +23,7 @@ import { ConfirmDialog } from "@/components/shared/ConfirmDialog"
 import { ProductoVarianteLabel } from "@/components/shared/ProductoVarianteLabel"
 import { ChartErrorBoundary } from "@/components/shared/ChartErrorBoundary"
 import { DiferenciasConteoChart } from "@/components/conteos/diferencias-chart"
+import { useAuth } from "@/context/auth-provider"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
@@ -54,6 +55,7 @@ export default function ConteoDetailPage() {
   const conteoId = id ?? ""
   const [confirmingCerrar, setConfirmingCerrar] = useState(false)
   const [confirmingAnular, setConfirmingAnular] = useState(false)
+  const { hasPermission } = useAuth()
 
   const { data: conteo, isLoading } = useConteo(conteoId)
   const { data: sucursales } = useSucursales()
@@ -165,12 +167,16 @@ export default function ConteoDetailPage() {
             </Button>
             {isAbierto && (
               <>
-                <Button variant="outline" onClick={() => setConfirmingCerrar(true)}>
-                  Cerrar conteo
-                </Button>
-                <Button variant="destructive" onClick={() => setConfirmingAnular(true)}>
-                  Anular
-                </Button>
+                {hasPermission("conteos:cerrar") && (
+                  <Button variant="outline" onClick={() => setConfirmingCerrar(true)}>
+                    Cerrar conteo
+                  </Button>
+                )}
+                {hasPermission("conteos:anular") && (
+                  <Button variant="destructive" onClick={() => setConfirmingAnular(true)}>
+                    Anular
+                  </Button>
+                )}
               </>
             )}
           </div>
@@ -257,7 +263,7 @@ export default function ConteoDetailPage() {
                     </TableBody>
                   </Table>
                 </div>
-                {isAbierto && (
+                {isAbierto && hasPermission("conteos:registrar") && (
                   <div className="flex justify-end">
                     <Button type="submit" disabled={registrarItems.isPending}>
                       {registrarItems.isPending && <Loader2 className="animate-spin" />}

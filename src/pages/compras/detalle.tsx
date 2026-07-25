@@ -9,6 +9,7 @@ import { useProveedores } from "@/hooks/useProveedores"
 import { useProductos } from "@/hooks/useProductos"
 import { ApiError } from "@/lib/api"
 import { formatCurrency } from "@/lib/utils"
+import { useAuth } from "@/context/auth-provider"
 import { PageHeader } from "@/components/shared/PageHeader"
 import { ProductoVarianteLabel } from "@/components/shared/ProductoVarianteLabel"
 import { EstadoBadge } from "@/components/shared/StatusBadge"
@@ -29,6 +30,7 @@ export default function CompraDetailPage() {
   const { id } = useParams<{ id: string }>()
   const compraId = id ?? ""
   const [confirmingAnular, setConfirmingAnular] = useState(false)
+  const { hasPermission } = useAuth()
 
   const { data: compra, isLoading } = useCompra(compraId)
   const { data: sucursales } = useSucursales()
@@ -83,7 +85,7 @@ export default function CompraDetailPage() {
                 Volver
               </Link>
             </Button>
-            {compra.estado === "registrada" && (
+            {compra.estado === "registrada" && hasPermission("compras:anular") && (
               <Button variant="destructive" onClick={() => setConfirmingAnular(true)}>
                 Anular
               </Button>

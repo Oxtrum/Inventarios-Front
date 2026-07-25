@@ -30,6 +30,7 @@ import { ConfirmDialog } from "@/components/shared/ConfirmDialog"
 import { ChartErrorBoundary } from "@/components/shared/ChartErrorBoundary"
 import { EstadoBadge } from "@/components/shared/StatusBadge"
 import { ReservasResumenChart } from "@/components/reportes/reservas-resumen-chart"
+import { useAuth } from "@/context/auth-provider"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -225,6 +226,7 @@ export default function ReservasPage() {
   const [estado, setEstado] = useState(ALL)
   const [pendingAction, setPendingAction] = useState<ReservaAction | undefined>(undefined)
   const { sucursalId } = useSucursal()
+  const { hasPermission } = useAuth()
 
   const { data: sucursales } = useSucursales({ activo: "true" })
   const { data: reservas, isLoading } = useReservas(estado !== ALL ? { estado } : undefined)
@@ -341,11 +343,17 @@ export default function ReservasPage() {
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-40">
-              <DropdownMenuItem onClick={() => setPendingAction({ reserva, tipo: "confirmar" })}>Confirmar</DropdownMenuItem>
-              <DropdownMenuItem onClick={() => setPendingAction({ reserva, tipo: "liberar" })}>Liberar</DropdownMenuItem>
-              <DropdownMenuItem variant="destructive" onClick={() => setPendingAction({ reserva, tipo: "expirar" })}>
-                Expirar
-              </DropdownMenuItem>
+              {hasPermission("inventario:confirmar") && (
+                <DropdownMenuItem onClick={() => setPendingAction({ reserva, tipo: "confirmar" })}>Confirmar</DropdownMenuItem>
+              )}
+              {hasPermission("inventario:liberar") && (
+                <DropdownMenuItem onClick={() => setPendingAction({ reserva, tipo: "liberar" })}>Liberar</DropdownMenuItem>
+              )}
+              {hasPermission("inventario:liberar") && (
+                <DropdownMenuItem variant="destructive" onClick={() => setPendingAction({ reserva, tipo: "expirar" })}>
+                  Expirar
+                </DropdownMenuItem>
+              )}
             </DropdownMenuContent>
           </DropdownMenu>
         )
@@ -375,14 +383,16 @@ export default function ReservasPage() {
           />
         </ChartErrorBoundary>
 
-        <Card>
-          <CardHeader>
-            <CardTitle>Nueva Reserva</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <NuevaReservaForm />
-          </CardContent>
-        </Card>
+        {hasPermission("inventario:reservar") && (
+          <Card>
+            <CardHeader>
+              <CardTitle>Nueva Reserva</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <NuevaReservaForm />
+            </CardContent>
+          </Card>
+        )}
 
         <div className="flex flex-wrap items-center gap-2">
           <Select value={estado} onValueChange={setEstado}>

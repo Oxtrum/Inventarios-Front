@@ -10,6 +10,7 @@ import { useProveedores } from "@/hooks/useProveedores"
 import { ApiError } from "@/lib/api"
 import { formatCurrency } from "@/lib/utils"
 import type { Compra } from "@/types/compra"
+import { useAuth } from "@/context/auth-provider"
 import { PageHeader } from "@/components/shared/PageHeader"
 import { CrudTable } from "@/components/shared/CrudTable"
 import { ConfirmDialog } from "@/components/shared/ConfirmDialog"
@@ -59,6 +60,7 @@ export default function ComprasPage() {
   const navigate = useNavigate()
   const { data: sucursales } = useSucursales()
   const { data: proveedores } = useProveedores()
+  const { hasPermission } = useAuth()
   const { data: compras, isLoading } = useCompras()
 
   const nombrePorId = useMemo(() => {
@@ -104,7 +106,7 @@ export default function ComprasPage() {
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-40">
               <DropdownMenuItem onClick={() => navigate(`/compras/${compra.id}`)}>Ver detalle</DropdownMenuItem>
-              {compra.estado === "registrada" && <AnularAction compra={compra} />}
+              {compra.estado === "registrada" && hasPermission("compras:anular") && <AnularAction compra={compra} />}
             </DropdownMenuContent>
           </DropdownMenu>
         )
