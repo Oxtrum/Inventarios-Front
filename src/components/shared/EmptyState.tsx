@@ -1,12 +1,18 @@
-import type { ComponentType } from "react"
+import type { ComponentType, ReactNode } from "react"
 
 interface EmptyStateProps {
   icon?: ComponentType<{ className?: string }>
   title: string
   description?: string
+  action?: ReactNode
 }
 
-export function EmptyState({ icon: IconComponent, title, description }: EmptyStateProps) {
+export function EmptyState({
+  icon: IconComponent,
+  title,
+  description,
+  action,
+}: EmptyStateProps) {
   return (
     <div className="flex flex-col items-center justify-center gap-2 py-12 text-center">
       {IconComponent && (
@@ -14,8 +20,9 @@ export function EmptyState({ icon: IconComponent, title, description }: EmptySta
       )}
       <p className="text-sm font-medium">{title}</p>
       {description && (
-        <p className="text-sm text-muted-foreground">{description}</p>
+        <p className="max-w-sm text-sm text-muted-foreground">{description}</p>
       )}
+      {action && <div className="mt-2">{action}</div>}
     </div>
   )
 }
