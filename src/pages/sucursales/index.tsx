@@ -12,6 +12,7 @@ import { CrudTable } from "@/components/shared/CrudTable"
 import { ConfirmDialog } from "@/components/shared/ConfirmDialog"
 import { StatusBadge } from "@/components/shared/StatusBadge"
 import { Button } from "@/components/ui/button"
+import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -22,11 +23,18 @@ import { SucursalForm } from "./SucursalForm"
 
 export default function SucursalesPage() {
   const [nombre, setNombre] = useState("")
+  const [activo, setActivo] = useState("true")
   const [formOpen, setFormOpen] = useState(false)
   const [editing, setEditing] = useState<Sucursal | undefined>(undefined)
   const [deactivating, setDeactivating] = useState<Sucursal | undefined>(undefined)
 
-  const { data: sucursales, isLoading } = useSucursales(nombre ? { nombre } : undefined)
+  const {
+    data: sucursales,
+    isLoading,
+    isError,
+    error,
+    refetch,
+  } = useSucursales({ activo, ...(nombre ? { nombre } : {}) })
   const deleteSucursal = useDeleteSucursal()
   const restoreSucursal = useRestoreSucursal()
 
@@ -63,7 +71,9 @@ export default function SucursalesPage() {
             <DropdownMenuTrigger asChild>
               <Button variant="ghost" size="icon" className="size-8 text-muted-foreground">
                 <IconDotsVertical />
-                <span className="sr-only">Abrir menú</span>
+                <span className="sr-only">
+                  Acciones para la sucursal {sucursal.nombre}
+                </span>
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-40">
@@ -97,8 +107,53 @@ export default function SucursalesPage() {
         }
       />
       <div className="flex flex-col gap-4 px-4 lg:px-6">
-        <SearchInput value={nombre} onChange={setNombre} placeholder="Buscar por nombre..." className="max-w-xs" />
-        <CrudTable columns={columns} data={sucursales ?? []} isLoading={isLoading} emptyMessage="Sin sucursales registradas." />
+        <div className="flex flex-wrap items-center gap-3">
+          <SearchInput value={nombre} onChange={setNombre} placeholder="Buscar por nombre..." className="max-w-xs" />
+          <ToggleGroup
+            type="single"
+            value={activo}
+            onValueChange={(value) => value && setActivo(value)}
+            variant="outline"
+            size="sm"
+          >
+            <ToggleGroupItem value="true">Activos</ToggleGroupItem>
+            <ToggleGroupItem value="false">Inactivos</ToggleGroupItem>
+          </ToggleGroup>
+        </div>
+        <CrudTable
+          columns={columns}
+          data={sucursales ?? []}
+          isLoading={isLoading}
+          isError={isError}
+          error={error}
+          onRetry={() => refetch()}
+          caption="Sucursales de la organización"
+          emptyMessage={
+            activo === "false"
+              ? "No hay sucursales desactivadas."
+              : nombre
+                ? `Ninguna sucursal coincide con "${nombre}".`
+                : "Sin sucursales registradas."
+          }
+          emptyAction={
+            nombre ? (
+              <Button variant="outline" size="sm" onClick={() => setNombre("")}>
+                Limpiar búsqueda
+              </Button>
+            ) : (
+              <Button
+                size="sm"
+                onClick={() => {
+                  setEditing(undefined)
+                  setFormOpen(true)
+                }}
+              >
+                <IconPlus />
+                Crear Sucursal
+              </Button>
+            )
+          }
+        />
       </div>
 
       <SucursalForm open={formOpen} onOpenChange={setFormOpen} sucursal={editing} />

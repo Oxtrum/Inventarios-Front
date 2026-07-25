@@ -16,6 +16,7 @@ import { ConfirmDialog } from "@/components/shared/ConfirmDialog"
 import { StatusBadge } from "@/components/shared/StatusBadge"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
+import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group"
 import {
   Select,
   SelectContent,
@@ -36,6 +37,7 @@ const ALL = "__all__"
 export default function ProductosPage() {
   const navigate = useNavigate()
   const [nombre, setNombre] = useState("")
+  const [activo, setActivo] = useState("true")
   const [categoriaId, setCategoriaId] = useState(ALL)
   const [formOpen, setFormOpen] = useState(false)
   const [editing, setEditing] = useState<Producto | undefined>(undefined)
@@ -43,6 +45,7 @@ export default function ProductosPage() {
 
   const { data: categorias } = useCategorias({})
   const { data: productos, isLoading } = useProductos({
+    activo,
     ...(nombre ? { nombre } : {}),
     ...(categoriaId !== ALL ? { categoriaId } : {}),
   })
@@ -169,6 +172,16 @@ export default function ProductosPage() {
       <div className="flex flex-col gap-4 px-4 lg:px-6">
         <div className="flex flex-wrap items-center gap-2">
           <SearchInput value={nombre} onChange={setNombre} placeholder="Buscar por nombre..." className="max-w-xs" />
+          <ToggleGroup
+            type="single"
+            value={activo}
+            onValueChange={(value) => value && setActivo(value)}
+            variant="outline"
+            size="sm"
+          >
+            <ToggleGroupItem value="true">Activos</ToggleGroupItem>
+            <ToggleGroupItem value="false">Inactivos</ToggleGroupItem>
+          </ToggleGroup>
           <Select value={categoriaId} onValueChange={setCategoriaId}>
             <SelectTrigger className="w-48">
               <SelectValue placeholder="Categoría" />
@@ -183,7 +196,7 @@ export default function ProductosPage() {
             </SelectContent>
           </Select>
         </div>
-        <CrudTable columns={columns} data={productos ?? []} isLoading={isLoading} emptyMessage="Sin productos registrados." />
+        <CrudTable columns={columns} data={productos ?? []} isLoading={isLoading} emptyMessage={activo === "false" ? "No hay productos desactivados." : "Sin productos registrados."} />
       </div>
 
       <ProductoForm open={formOpen} onOpenChange={setFormOpen} producto={editing} />
