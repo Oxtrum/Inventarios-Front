@@ -12,9 +12,9 @@ import { useSucursal } from "@/context/sucursal-provider"
 import { useSucursalDefault } from "@/hooks/useSucursalDefault"
 import { ApiError } from "@/lib/api"
 import { positiveNumberString } from "@/lib/validation"
+import { useAuth } from "@/context/auth-provider"
 import { PageHeader } from "@/components/shared/PageHeader"
 import { ProductoVariantePicker } from "@/components/shared/ProductoVariantePicker"
-import { Can } from "@/components/shared/Can"
 import { Button } from "@/components/ui/button"
 import { Textarea } from "@/components/ui/textarea"
 import {
@@ -282,6 +282,7 @@ function MermaForm() {
 }
 
 export default function AjustesPage() {
+  const { hasPermission } = useAuth()
   return (
     <div className="flex flex-1 flex-col gap-4 py-4 md:py-6">
       <PageHeader
@@ -302,21 +303,21 @@ export default function AjustesPage() {
             <CardTitle>Nuevo Movimiento</CardTitle>
           </CardHeader>
           <CardContent>
-            <Tabs defaultValue="ajuste">
+            <Tabs defaultValue={hasPermission("inventario:ajustar") ? "ajuste" : "merma"}>
               <TabsList>
-                <TabsTrigger value="ajuste">Ajuste</TabsTrigger>
-                <Can permission="inventario:mermar">
-                  <TabsTrigger value="merma">Merma</TabsTrigger>
-                </Can>
+                {hasPermission("inventario:ajustar") && <TabsTrigger value="ajuste">Ajuste</TabsTrigger>}
+                {hasPermission("inventario:mermar") && <TabsTrigger value="merma">Merma</TabsTrigger>}
               </TabsList>
-              <TabsContent value="ajuste" className="pt-4">
-                <AjusteForm />
-              </TabsContent>
-              <Can permission="inventario:mermar">
+              {hasPermission("inventario:ajustar") && (
+                <TabsContent value="ajuste" className="pt-4">
+                  <AjusteForm />
+                </TabsContent>
+              )}
+              {hasPermission("inventario:mermar") && (
                 <TabsContent value="merma" className="pt-4">
                   <MermaForm />
                 </TabsContent>
-              </Can>
+              )}
             </Tabs>
           </CardContent>
         </Card>

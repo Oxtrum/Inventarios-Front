@@ -14,6 +14,7 @@ import { ConfirmDialog } from "@/components/shared/ConfirmDialog"
 import { StatusBadge } from "@/components/shared/StatusBadge"
 import { Can } from "@/components/shared/Can"
 import { Button } from "@/components/ui/button"
+import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -24,12 +25,14 @@ import { UnidadForm } from "./UnidadForm"
 
 export default function UnidadesPage() {
   const [nombre, setNombre] = useState("")
+  const [activo, setActivo] = useState("true")
   const [formOpen, setFormOpen] = useState(false)
   const [editing, setEditing] = useState<Unidad | undefined>(undefined)
   const [deactivating, setDeactivating] = useState<Unidad | undefined>(undefined)
 
-  const pagination = useServerPagination(10, nombre)
+  const pagination = useServerPagination(10, `${activo}:${nombre}`)
   const { data: unidades, isLoading } = useUnidades({
+    activo,
     ...(nombre ? { nombre } : {}),
     ...pagination.params,
   })
@@ -110,8 +113,20 @@ export default function UnidadesPage() {
         }
       />
       <div className="flex flex-col gap-4 px-4 lg:px-6">
-        <SearchInput value={nombre} onChange={setNombre} placeholder="Buscar por nombre..." className="max-w-xs" />
-        <CrudTable columns={columns} data={unidades ?? []} isLoading={isLoading} emptyMessage="Sin unidades registradas." pagination={unidades?.pagination} onPaginationChange={pagination.setOffset} />
+        <div className="flex flex-wrap items-center gap-3">
+          <SearchInput value={nombre} onChange={setNombre} placeholder="Buscar por nombre..." className="max-w-xs" />
+          <ToggleGroup
+            type="single"
+            value={activo}
+            onValueChange={(value) => value && setActivo(value)}
+            variant="outline"
+            size="sm"
+          >
+            <ToggleGroupItem value="true">Activos</ToggleGroupItem>
+            <ToggleGroupItem value="false">Inactivos</ToggleGroupItem>
+          </ToggleGroup>
+        </div>
+        <CrudTable columns={columns} data={unidades ?? []} isLoading={isLoading} emptyMessage={activo === "false" ? "No hay unidades desactivadas." : "Sin unidades registradas."} pagination={unidades?.pagination} onPaginationChange={pagination.setOffset} />
       </div>
 
       <UnidadForm open={formOpen} onOpenChange={setFormOpen} unidad={editing} />

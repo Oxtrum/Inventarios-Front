@@ -1,5 +1,6 @@
 import { Navigate } from "react-router-dom"
 import { useAuth } from "@/context/auth-provider"
+import { getDefaultAuthorizedPath } from "@/lib/access-control"
 import { toast } from "sonner"
 import { useEffect } from "react"
 
@@ -9,7 +10,8 @@ interface RequirePermissionProps {
 }
 
 export function RequirePermission({ permiso, children }: RequirePermissionProps) {
-  const { hasPermission } = useAuth()
+  const { hasPermission, permisos } = useAuth()
+  const fallbackPath = getDefaultAuthorizedPath(permisos)
 
   useEffect(() => {
     if (!hasPermission(permiso)) {
@@ -18,7 +20,7 @@ export function RequirePermission({ permiso, children }: RequirePermissionProps)
   }, [hasPermission, permiso])
 
   if (!hasPermission(permiso)) {
-    return <Navigate to="/dashboard" replace />
+    return <Navigate to={fallbackPath} replace />
   }
 
   return <>{children}</>

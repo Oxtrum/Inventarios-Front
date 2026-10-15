@@ -61,6 +61,9 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const isActive = (path: string) => location.pathname === path
 
   const defaultPath = getDefaultAuthorizedPath(permisos)
+  // Un grupo sin ningun item visible no debe mostrar su titulo suelto.
+  const hasAny = (...permisos: string[]) => permisos.some(hasPermission)
+
   const navMain = hasPermission("reportes:leer")
     ? [{ title: "Panel", url: "/dashboard", icon: IconDashboard }]
     : []
@@ -86,6 +89,15 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       <SidebarContent>
         <NavMain items={navMain} onItemClick={navigate} />
 
+        {hasAny(
+          "productos:leer",
+          "categorias:leer",
+          "unidades:leer",
+          "proveedores:leer",
+          "tipos_producto:leer",
+          "atributos:leer",
+          "catalogo:leer",
+        ) && (
         <SidebarGroup>
           <SidebarGroupLabel>Catálogo</SidebarGroupLabel>
           <SidebarGroupContent>
@@ -177,7 +189,9 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
+        )}
 
+        {hasAny("tipos_negocio:leer", "plantillas:leer") && (
         <SidebarGroup>
           <SidebarGroupLabel>Plantillas</SidebarGroupLabel>
           <SidebarGroupContent>
@@ -209,7 +223,9 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
+        )}
 
+        {hasAny("inventario:leer", "inventario:ajustar", "inventario:reservar", "conteos:leer") && (
         <SidebarGroup>
           <SidebarGroupLabel>Inventario</SidebarGroupLabel>
           <SidebarGroupContent>
@@ -277,7 +293,9 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
+        )}
 
+        {hasAny("compras:leer", "transferencias:leer", "devoluciones:leer") && (
         <SidebarGroup>
           <SidebarGroupLabel>Operaciones</SidebarGroupLabel>
           <SidebarGroupContent>
@@ -321,7 +339,9 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
+        )}
 
+        {hasPermission("reportes:leer") && (
         <SidebarGroup>
           <SidebarGroupLabel>Reportes</SidebarGroupLabel>
           <SidebarGroupContent>
@@ -377,7 +397,9 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
+        )}
 
+        {hasAny("configuraciones:leer", "usuarios:leer", "roles:leer", "sucursales:leer") && (
         <SidebarGroup>
           <SidebarGroupLabel>Configuración</SidebarGroupLabel>
           <SidebarGroupContent>
@@ -433,6 +455,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
+        )}
 
         <NavSecondary
           items={[

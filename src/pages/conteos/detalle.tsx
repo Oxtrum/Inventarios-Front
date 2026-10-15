@@ -24,6 +24,7 @@ import { ProductoVarianteLabel } from "@/components/shared/ProductoVarianteLabel
 import { ChartErrorBoundary } from "@/components/shared/ChartErrorBoundary"
 import { DiferenciasConteoChart } from "@/components/conteos/diferencias-chart"
 import { Can } from "@/components/shared/Can"
+import { useAuth } from "@/context/auth-provider"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
@@ -55,6 +56,7 @@ export default function ConteoDetailPage() {
   const conteoId = id ?? ""
   const [confirmingCerrar, setConfirmingCerrar] = useState(false)
   const [confirmingAnular, setConfirmingAnular] = useState(false)
+  const { hasPermission } = useAuth()
 
   const { data: conteo, isLoading } = useConteo(conteoId)
   const { sucursales } = useSucursal()
@@ -262,7 +264,7 @@ export default function ConteoDetailPage() {
                     </TableBody>
                   </Table>
                 </div>
-                {isAbierto && (
+                {isAbierto && hasPermission("conteos:registrar") && (
                   <div className="flex justify-end">
                     <Can permission="conteos:registrar">
                       <Button type="submit" disabled={registrarItems.isPending}>

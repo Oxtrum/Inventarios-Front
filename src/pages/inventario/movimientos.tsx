@@ -13,8 +13,11 @@ import type { Movimiento } from "@/types/inventario"
 import type { MovementType } from "@/types/common"
 import { PageHeader } from "@/components/shared/PageHeader"
 import { CrudTable } from "@/components/shared/CrudTable"
+import { MovimientoTipoBadge } from "@/components/shared/MovimientoTipoBadge"
+import { esMovimientoEntrada } from "@/lib/movimientos"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
 import {
   Select,
   SelectContent,
@@ -57,7 +60,28 @@ export default function MovimientosPage() {
   if (fechaHasta) filters.fechaHasta = fechaHasta
 
   const pagination = useServerPagination(20, JSON.stringify(filters))
-  const { data: movimientos, isLoading } = useMovimientos({ ...filters, ...pagination.params })
+  const {
+    data: movimientos,
+    isLoading,
+    isError,
+    error,
+    refetch,
+  } = useMovimientos({ ...filters, ...pagination.params })
+
+  const hayFiltrosActivos =
+    productoId !== TODOS ||
+    !!productoVarianteId ||
+    tipo !== TODOS ||
+    !!fechaDesde ||
+    !!fechaHasta
+
+  function limpiarFiltros() {
+    setProductoId(TODOS)
+    setProductoVarianteId("")
+    setTipo(TODOS)
+    setFechaDesde("")
+    setFechaHasta("")
+  }
 
   const nombrePorId = useMemo(() => {
     const productoMap = new Map((productos ?? []).map((p) => [p.id, p.nombre]))
@@ -86,8 +110,30 @@ export default function MovimientosPage() {
       header: "Sucursal",
       cell: ({ row }) => nombrePorId.sucursalMap.get(row.original.sucursalId) ?? row.original.sucursalId,
     },
-    { accessorKey: "tipo", header: "Tipo" },
-    { accessorKey: "cantidad", header: "Cantidad" },
+    {
+      accessorKey: "tipo",
+      header: "Tipo",
+      cell: ({ row }) => <MovimientoTipoBadge tipo={row.original.tipo} />,
+    },
+    {
+      accessorKey: "cantidad",
+      header: () => <span className="block text-right">Cantidad</span>,
+      cell: ({ row }) => {
+        const esEntrada = esMovimientoEntrada(row.original.tipo)
+        return (
+          <span
+            className={
+              esEntrada
+                ? "block text-right font-mono font-medium tabular-nums text-emerald-700 dark:text-emerald-400"
+                : "block text-right font-mono font-medium tabular-nums text-orange-700 dark:text-orange-400"
+            }
+          >
+            {esEntrada ? "+" : "−"}
+            {Math.abs(row.original.cantidad)}
+          </span>
+        )
+      },
+    },
     { accessorKey: "motivo", header: "Motivo", cell: ({ row }) => row.original.motivo ?? "—" },
   ]
 
@@ -139,20 +185,60 @@ export default function MovimientosPage() {
               ))}
             </SelectContent>
           </Select>
-          <Input
-            type="date"
-            className="w-40"
-            value={fechaDesde}
-            onChange={(e) => setFechaDesde(e.target.value)}
-          />
-          <Input
-            type="date"
-            className="w-40"
-            value={fechaHasta}
-            onChange={(e) => setFechaHasta(e.target.value)}
-          />
+          <div className="flex flex-col gap-1">
+            <Label htmlFor="fecha-desde" className="text-xs text-muted-foreground">
+              Desde
+            </Label>
+            <Input
+              id="fecha-desde"
+              type="date"
+              className="w-40"
+              value={fechaDesde}
+              onChange={(e) => setFechaDesde(e.target.value)}
+            />
+          </div>
+          <div className="flex flex-col gap-1">
+            <Label htmlFor="fecha-hasta" className="text-xs text-muted-foreground">
+              Hasta
+            </Label>
+            <Input
+              id="fecha-hasta"
+              type="date"
+              className="w-40"
+              value={fechaHasta}
+              onChange={(e) => setFechaHasta(e.target.value)}
+            />
+          </div>
+          {hayFiltrosActivos && (
+            <Button variant="ghost" className="self-end" onClick={limpiarFiltros}>
+              Limpiar filtros
+            </Button>
+          )}
         </div>
-        <CrudTable columns={columns} data={movimientos ?? []} isLoading={isLoading} emptyMessage="Sin movimientos registrados." pageSize={20} pagination={movimientos?.pagination} onPaginationChange={pagination.setOffset} />
+        <CrudTable
+          columns={columns}
+          data={movimientos ?? []}
+          isLoading={isLoading}
+          isError={isError}
+          error={error}
+          onRetry={() => refetch()}
+          caption="Histórico de movimientos de inventario"
+          emptyMessage={
+            hayFiltrosActivos
+              ? "Ningún movimiento coincide con los filtros aplicados."
+              : "Sin movimientos registrados."
+          }
+          emptyAction={
+            hayFiltrosActivos ? (
+              <Button variant="outline" size="sm" onClick={limpiarFiltros}>
+                Limpiar filtros
+              </Button>
+            ) : undefined
+          }
+          pageSize={20}
+          pagination={movimientos?.pagination}
+          onPaginationChange={pagination.setOffset}
+        />
       </div>
     </div>
   )

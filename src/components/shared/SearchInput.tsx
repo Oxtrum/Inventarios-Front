@@ -23,10 +23,15 @@ export function SearchInput({
   debounceMs = 300,
 }: SearchInputProps) {
   const [draft, setDraft] = useState(value)
+  const [syncedValue, setSyncedValue] = useState(value)
 
-  useEffect(() => {
+  // Resincroniza el borrador cuando el valor controlado cambia desde fuera
+  // (limpiar filtros, navegación). Ajuste durante el render: no dispara
+  // un render en cascada como haría un efecto.
+  if (value !== syncedValue) {
+    setSyncedValue(value)
     setDraft(value)
-  }, [value])
+  }
 
   useEffect(() => {
     const timeout = setTimeout(() => {
@@ -42,6 +47,8 @@ export function SearchInput({
         <IconSearch className="size-4" />
       </InputGroupAddon>
       <InputGroupInput
+        type="search"
+        aria-label={placeholder}
         value={draft}
         onChange={(e) => setDraft(e.target.value)}
         placeholder={placeholder}
