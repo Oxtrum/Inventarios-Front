@@ -35,7 +35,7 @@ import {
 
 import { useLayout } from "@/context/layout-provider"
 import { useAuth } from "@/context/auth-provider"
-import { getDefaultAuthorizedPath } from "@/lib/access-control"
+import { canAccessPath, getDefaultAuthorizedPath } from "@/lib/access-control"
 import { NavMain } from "@/components/layout/nav-main"
 import { NavSecondary } from "@/components/layout/nav-secondary"
 import { NavUser } from "@/components/layout/nav-user"
@@ -370,7 +370,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                   </SidebarMenuButton>
                 </SidebarMenuItem>
               )}
-              {hasPermission("reportes:leer") && (
+              {canAccessPath("/reportes/kardex", permisos) && (
                 <SidebarMenuItem>
                   <SidebarMenuButton
                     tooltip="Kardex"

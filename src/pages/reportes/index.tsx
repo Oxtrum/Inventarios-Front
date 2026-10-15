@@ -4,6 +4,8 @@ import { IconAlertTriangle, IconChartBar, IconHistory, IconReportMoney } from "@
 import { PageHeader } from "@/components/shared/PageHeader"
 import { Card, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { Can } from "@/components/shared/Can"
+import { useAuth } from "@/context/auth-provider"
+import { canAccessPath } from "@/lib/access-control"
 
 const REPORTES = [
   {
@@ -28,6 +30,7 @@ const REPORTES = [
 
 export default function ReportesPage() {
   const navigate = useNavigate()
+  const { permisos } = useAuth()
 
   return (
     <div className="flex flex-1 flex-col gap-4 py-4 md:py-6">
@@ -45,7 +48,7 @@ export default function ReportesPage() {
             </CardHeader>
           </Card>
         </Can>
-        {REPORTES.map((reporte) => (
+        {REPORTES.filter((reporte) => canAccessPath(reporte.path, permisos)).map((reporte) => (
           <Card
             key={reporte.path}
             className="cursor-pointer transition-colors hover:bg-muted/50"
