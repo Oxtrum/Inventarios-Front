@@ -19,13 +19,16 @@ type Row = StockBajoItem & { id: string }
 export default function StockBajoPage() {
   const reportFilters = useReportFilters()
   const pagination = useServerPagination(20, reportFilters.sucursalIds.join(","))
-  const { data: items, isLoading } = useStockBajo({
+  const { data: items, isLoading, isError, error, refetch } = useStockBajo({
     ...reportFilters.apiParams,
     ...pagination.params,
   })
   const safeItems = Array.isArray(items) ? items : []
 
-  const rows: Row[] = safeItems.map((item) => ({ ...item, id: item.productoVarianteId || item.productoId }))
+  const rows: Row[] = safeItems.map((item) => ({
+    ...item,
+    id: `${item.sucursalId}:${item.productoVarianteId || item.productoId}`,
+  }))
 
   const columns: ColumnDef<Row>[] = [
     { accessorKey: "codigo", header: "Código", cell: ({ row }) => row.original.codigo ?? "—" },
@@ -60,10 +63,12 @@ export default function StockBajoPage() {
       />
       <div className="flex flex-col gap-4 px-4 lg:px-6">
         <ReportFilters filters={reportFilters} />
-        <ChartErrorBoundary resetKey={items}>
-          <StockBajoChart items={safeItems} isLoading={isLoading} />
-        </ChartErrorBoundary>
-        <CrudTable columns={columns} data={rows} isLoading={isLoading} emptyMessage="Sin productos con stock bajo." pageSize={20} pagination={items?.pagination} onPaginationChange={pagination.setOffset} />
+        {!isError && (
+          <ChartErrorBoundary resetKey={items}>
+            <StockBajoChart items={safeItems} isLoading={isLoading} />
+          </ChartErrorBoundary>
+        )}
+        <CrudTable columns={columns} data={rows} isLoading={isLoading} isError={isError} error={error} onRetry={() => { void refetch() }} emptyMessage="Sin productos con stock bajo." pageSize={20} pagination={items?.pagination} onPaginationChange={pagination.setOffset} />
       </div>
     </div>
   )

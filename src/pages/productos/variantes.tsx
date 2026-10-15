@@ -460,7 +460,7 @@ function VarianteForm({ open, onOpenChange, productoId, productoCodigo, variante
 function ProductoAtributosTab({ productoId }: { productoId: string }) {
   const pagination = useServerPagination()
   const { data: atributos } = useAtributos({ activo: "true" })
-  const { data: asignados, isLoading } = useProductoAtributos(productoId, pagination.params)
+  const { data: asignados, isLoading, isError, error, refetch } = useProductoAtributos(productoId, pagination.params)
   const setAtributo = useSetProductoAtributo(productoId)
   const removeAtributo = useRemoveProductoAtributo(productoId)
 
@@ -521,7 +521,7 @@ function ProductoAtributosTab({ productoId }: { productoId: string }) {
           <AsignarAtributoDialog atributosDisponibles={disponibles} onSubmit={handleAsignar} isSubmitting={setAtributo.isPending} />
         </Can>
       </div>
-      <CrudTable columns={columns} data={asignados ?? []} isLoading={isLoading} emptyMessage="Sin atributos asignados al producto." pagination={asignados?.pagination} onPaginationChange={pagination.setOffset} />
+      <CrudTable columns={columns} data={asignados ?? []} isLoading={isLoading} isError={isError} error={error} onRetry={() => void refetch()} emptyMessage="Sin atributos asignados al producto." pagination={asignados?.pagination} onPaginationChange={pagination.setOffset} />
     </div>
   )
 }
@@ -536,7 +536,7 @@ function VarianteAtributosSheet({ open, onOpenChange, variante }: VarianteAtribu
   const varianteId = variante?.id ?? ""
   const pagination = useServerPagination()
   const { data: atributos } = useAtributos({ activo: "true" })
-  const { data: asignados, isLoading } = useVarianteAtributos(varianteId, pagination.params)
+  const { data: asignados, isLoading, isError, error, refetch } = useVarianteAtributos(varianteId, pagination.params)
   const setAtributo = useSetVarianteAtributo(varianteId)
   const removeAtributo = useRemoveVarianteAtributo(varianteId)
 
@@ -602,7 +602,7 @@ function VarianteAtributosSheet({ open, onOpenChange, variante }: VarianteAtribu
               <AsignarAtributoDialog atributosDisponibles={disponibles} onSubmit={handleAsignar} isSubmitting={setAtributo.isPending} />
             </Can>
           </div>
-          <CrudTable columns={columns} data={asignados ?? []} isLoading={isLoading} emptyMessage="Sin atributos asignados a esta variante." pagination={asignados?.pagination} onPaginationChange={pagination.setOffset} />
+          <CrudTable columns={columns} data={asignados ?? []} isLoading={isLoading} isError={isError} error={error} onRetry={() => void refetch()} emptyMessage="Sin atributos asignados a esta variante." pagination={asignados?.pagination} onPaginationChange={pagination.setOffset} />
         </div>
       </SheetContent>
     </Sheet>
@@ -619,7 +619,7 @@ export default function ProductoVariantesPage() {
   const [atributosSheetTarget, setAtributosSheetTarget] = useState<ProductoVariante | undefined>(undefined)
 
   const { data: producto } = useProducto(productoId)
-  const { data: variantes, isLoading } = useProductoVariantes(productoId, pagination.params)
+  const { data: variantes, isLoading, isError, error, refetch } = useProductoVariantes(productoId, pagination.params)
   const deleteVariante = useDeleteProductoVariante(productoId)
   const restoreVariante = useRestoreProductoVariante(productoId)
 
@@ -740,7 +740,7 @@ export default function ProductoVariantesPage() {
             {(variantes ?? []).length === 0 && !isLoading ? (
               <EmptyState title="Sin variantes" description="Este producto todavía no tiene variantes adicionales." />
             ) : (
-              <CrudTable columns={columns} data={variantes ?? []} isLoading={isLoading} emptyMessage="Sin variantes registradas." pagination={variantes?.pagination} onPaginationChange={pagination.setOffset} />
+              <CrudTable columns={columns} data={variantes ?? []} isLoading={isLoading} isError={isError} error={error} onRetry={() => void refetch()} emptyMessage="Sin variantes registradas." pagination={variantes?.pagination} onPaginationChange={pagination.setOffset} />
             )}
           </TabsContent>
           <Can permission="productos:atributos">

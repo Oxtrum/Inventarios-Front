@@ -6,14 +6,23 @@ import { LayoutProvider } from "@/context/layout-provider"
 import { SucursalProvider } from "@/context/sucursal-provider"
 import { useAuth } from "@/context/auth-provider"
 import { RoutePermissionBoundary } from "@/components/shared/RoutePermissionBoundary"
+import { ErrorState } from "@/components/shared/ErrorState"
 
 function ProtectedLayout() {
-  const { isAuthenticated, isLoading } = useAuth()
+  const { isAuthenticated, isLoading, authError, retryAuth } = useAuth()
 
   if (isLoading) {
     return (
       <div className="flex min-h-svh items-center justify-center bg-background text-sm text-muted-foreground">
         Cargando...
+      </div>
+    )
+  }
+
+  if (authError) {
+    return (
+      <div className="flex min-h-svh items-center justify-center px-4">
+        <ErrorState error={authError} title="No pudimos comprobar la sesión" onRetry={retryAuth} />
       </div>
     )
   }

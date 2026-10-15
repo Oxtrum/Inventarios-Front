@@ -47,7 +47,7 @@ export default function ProductosPage() {
   const pagination = useServerPagination(10, `${activo}:${nombre}:${categoriaId}`)
 
   const { data: categorias } = useCategorias({})
-  const { data: productos, isLoading } = useProductos({
+  const { data: productos, isLoading, isError, error, refetch } = useProductos({
     activo,
     ...(nombre ? { nombre } : {}),
     ...(categoriaId !== ALL ? { categoriaId } : {}),
@@ -210,7 +210,7 @@ export default function ProductosPage() {
             </SelectContent>
           </Select>
         </div>
-        <CrudTable columns={columns} data={productos ?? []} isLoading={isLoading} emptyMessage={activo === "false" ? "No hay productos desactivados." : "Sin productos registrados."} pagination={productos?.pagination} onPaginationChange={pagination.setOffset} />
+        <CrudTable columns={columns} data={productos ?? []} isLoading={isLoading} isError={isError} error={error} onRetry={() => void refetch()} emptyMessage={activo === "false" ? "No hay productos desactivados." : "Sin productos registrados."} pagination={productos?.pagination} onPaginationChange={pagination.setOffset} />
       </div>
 
       <ProductoForm open={formOpen} onOpenChange={setFormOpen} producto={editing} />

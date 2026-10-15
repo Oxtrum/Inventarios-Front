@@ -34,7 +34,7 @@ export default function TiposProductoPage() {
 
   const { data: tiposNegocio } = useTiposNegocio({ activo: "true" })
   const pagination = useServerPagination(10, nombre)
-  const { data: tiposProducto, isLoading } = useTiposProducto({
+  const { data: tiposProducto, isLoading, isError, error, refetch } = useTiposProducto({
     ...(nombre ? { nombre } : {}),
     ...pagination.params,
   })
@@ -135,7 +135,7 @@ export default function TiposProductoPage() {
       />
       <div className="flex flex-col gap-4 px-4 lg:px-6">
         <SearchInput value={nombre} onChange={setNombre} placeholder="Buscar por nombre..." className="max-w-xs" />
-        <CrudTable columns={columns} data={tiposProducto ?? []} isLoading={isLoading} emptyMessage="Sin tipos de producto registrados." pagination={tiposProducto?.pagination} onPaginationChange={pagination.setOffset} />
+        <CrudTable columns={columns} data={tiposProducto ?? []} isLoading={isLoading} isError={isError} error={error} onRetry={() => void refetch()} emptyMessage="Sin tipos de producto registrados." pagination={tiposProducto?.pagination} onPaginationChange={pagination.setOffset} />
       </div>
 
       <TipoProductoForm open={formOpen} onOpenChange={setFormOpen} tipoProducto={editing} />

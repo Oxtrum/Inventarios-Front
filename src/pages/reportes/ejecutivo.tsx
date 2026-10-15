@@ -25,6 +25,7 @@ import {
   SucursalesValorChart,
 } from "@/components/reportes/sucursales-comparacion-charts"
 import { ChartErrorBoundary } from "@/components/shared/ChartErrorBoundary"
+import { ErrorState } from "@/components/shared/ErrorState"
 import { PageHeader } from "@/components/shared/PageHeader"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -106,6 +107,18 @@ export default function ReporteEjecutivoPage() {
 
       <div className="flex flex-col gap-4 px-4 lg:px-6">
         <ReportFilters filters={filters} showPeriod showGranularity />
+        {comparison.isError && (
+          <ErrorState error={comparison.error} title="No pudimos cargar los indicadores" onRetry={() => { void comparison.refetch() }} />
+        )}
+        {movements.isError && (
+          <ErrorState error={movements.error} title="No pudimos cargar los movimientos" onRetry={() => { void movements.refetch() }} />
+        )}
+        {reservations.isError && (
+          <ErrorState error={reservations.error} title="No pudimos cargar las reservas" onRetry={() => { void reservations.refetch() }} />
+        )}
+        {stock.isError && (
+          <ErrorState error={stock.error} title="No pudimos cargar el stock bajo" onRetry={() => { void stock.refetch() }} />
+        )}
 
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-6">
           <KpiCard
@@ -154,19 +167,23 @@ export default function ReporteEjecutivoPage() {
           />
         </div>
 
-        <div className="grid grid-cols-1 gap-4 xl:grid-cols-2">
-          <ChartErrorBoundary resetKey={chartsResetKey}>
-            <SucursalesValorChart data={comparison.data?.sucursales} isLoading={comparison.isLoading} />
-          </ChartErrorBoundary>
-          <ChartErrorBoundary resetKey={chartsResetKey}>
-            <SucursalesActividadChart data={comparison.data?.sucursales} isLoading={comparison.isLoading} />
-          </ChartErrorBoundary>
-        </div>
+        {!comparison.isError && (
+          <div className="grid grid-cols-1 gap-4 xl:grid-cols-2">
+            <ChartErrorBoundary resetKey={chartsResetKey}>
+              <SucursalesValorChart data={comparison.data?.sucursales} isLoading={comparison.isLoading} />
+            </ChartErrorBoundary>
+            <ChartErrorBoundary resetKey={chartsResetKey}>
+              <SucursalesActividadChart data={comparison.data?.sucursales} isLoading={comparison.isLoading} />
+            </ChartErrorBoundary>
+          </div>
+        )}
 
-        <div className="grid grid-cols-1 gap-4 xl:grid-cols-[minmax(0,2fr)_minmax(320px,1fr)]">
-          <ChartErrorBoundary resetKey={chartsResetKey}>
-            <MovimientosResumenChart data={movements.data} isLoading={movements.isLoading} />
-          </ChartErrorBoundary>
+        <div className={movements.isError ? "" : "grid grid-cols-1 gap-4 xl:grid-cols-[minmax(0,2fr)_minmax(320px,1fr)]"}>
+          {!movements.isError && (
+            <ChartErrorBoundary resetKey={chartsResetKey}>
+              <MovimientosResumenChart data={movements.data} isLoading={movements.isLoading} />
+            </ChartErrorBoundary>
+          )}
 
           <Card>
             <CardHeader>

@@ -9,6 +9,7 @@ import { useProductos } from "@/hooks/useProductos"
 import { VarianteSelect } from "@/components/shared/ProductoVariantePicker"
 import { ProductoVarianteLabel } from "@/components/shared/ProductoVarianteLabel"
 import { useSucursal } from "@/context/sucursal-provider"
+import { endOfLocalDayISO, startOfLocalDayISO } from "@/lib/date-range"
 import type { Movimiento } from "@/types/inventario"
 import type { MovementType } from "@/types/common"
 import { PageHeader } from "@/components/shared/PageHeader"
@@ -56,8 +57,8 @@ export default function MovimientosPage() {
   if (productoVarianteId) filters.productoVarianteId = productoVarianteId
   if (sucursalId) filters.sucursalId = sucursalId
   if (tipo !== TODOS) filters.tipo = tipo
-  if (fechaDesde) filters.fechaDesde = fechaDesde
-  if (fechaHasta) filters.fechaHasta = fechaHasta
+  if (fechaDesde) filters.fechaDesde = startOfLocalDayISO(fechaDesde) ?? ""
+  if (fechaHasta) filters.fechaHasta = endOfLocalDayISO(fechaHasta) ?? ""
 
   const pagination = useServerPagination(20, JSON.stringify(filters))
   const {

@@ -16,7 +16,7 @@ export default function CatalogoPage() {
   const { sucursalId, sucursalActiva } = useSucursal()
   const pagination = useServerPagination(10, `${nombre}:${sucursalId}`)
 
-  const { data: catalogo, isLoading } = useCatalogoProductos({
+  const { data: catalogo, isLoading, isError, error, refetch } = useCatalogoProductos({
     ...(nombre ? { nombre } : {}),
     ...(sucursalId ? { sucursalId } : {}),
     soloConStock: "true",
@@ -62,6 +62,9 @@ export default function CatalogoPage() {
           columns={columns}
           data={catalogo ?? []}
           isLoading={isLoading}
+          isError={isError}
+          error={error}
+          onRetry={() => { void refetch() }}
           emptyMessage="Sin productos con stock disponible."
           pagination={catalogo?.pagination}
           onPaginationChange={pagination.setOffset}

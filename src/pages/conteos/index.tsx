@@ -25,7 +25,7 @@ export default function ConteosPage() {
   const pagination = useServerPagination()
   const [formOpen, setFormOpen] = useState(false)
   const { sucursales } = useSucursal()
-  const { data: conteos, isLoading } = useConteos(pagination.params)
+  const { data: conteos, isLoading, isError, error, refetch } = useConteos(pagination.params)
 
   const sucursalPorId = useMemo(() => new Map((sucursales ?? []).map((s) => [s.id, s.nombre])), [sucursales])
 
@@ -81,7 +81,7 @@ export default function ConteosPage() {
         }
       />
       <div className="flex flex-col gap-4 px-4 lg:px-6">
-        <CrudTable columns={columns} data={conteos ?? []} isLoading={isLoading} emptyMessage="Sin conteos registrados." pagination={conteos?.pagination} onPaginationChange={pagination.setOffset} />
+        <CrudTable columns={columns} data={conteos ?? []} isLoading={isLoading} isError={isError} error={error} onRetry={() => void refetch()} emptyMessage="Sin conteos registrados." pagination={conteos?.pagination} onPaginationChange={pagination.setOffset} />
       </div>
 
       <ConteoForm open={formOpen} onOpenChange={setFormOpen} />

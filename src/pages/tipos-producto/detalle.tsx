@@ -71,7 +71,7 @@ export default function TipoProductoDetailPage() {
 
   const { data: tipoProducto } = useTipoProducto(tipoProductoId)
   const { data: atributos } = useAtributos({ activo: "true" })
-  const { data: asignados, isLoading } = useTipoProductoAtributos(tipoProductoId, pagination.params)
+  const { data: asignados, isLoading, isError, error, refetch } = useTipoProductoAtributos(tipoProductoId, pagination.params)
   const addAtributo = useAddTipoProductoAtributo(tipoProductoId)
   const removeAtributo = useRemoveTipoProductoAtributo(tipoProductoId)
 
@@ -240,7 +240,7 @@ export default function TipoProductoDetailPage() {
         }
       />
       <div className="flex flex-col gap-4 px-4 lg:px-6">
-        <CrudTable columns={columns} data={asignados ?? []} isLoading={isLoading} emptyMessage="Sin atributos asignados." pagination={asignados?.pagination} onPaginationChange={pagination.setOffset} />
+        <CrudTable columns={columns} data={asignados ?? []} isLoading={isLoading} isError={isError} error={error} onRetry={() => void refetch()} emptyMessage="Sin atributos asignados." pagination={asignados?.pagination} onPaginationChange={pagination.setOffset} />
       </div>
     </div>
   )

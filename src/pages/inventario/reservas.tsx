@@ -230,7 +230,7 @@ export default function ReservasPage() {
   const { sucursalId, sucursales } = useSucursal()
   const pagination = useServerPagination(10, estado)
 
-  const { data: reservas, isLoading } = useReservas({
+  const { data: reservas, isLoading, isError, error, refetch } = useReservas({
     ...(estado !== ALL ? { estado } : {}),
     ...pagination.params,
   })
@@ -412,7 +412,7 @@ export default function ReservasPage() {
             </SelectContent>
           </Select>
         </div>
-        <CrudTable columns={columns} data={reservas ?? []} isLoading={isLoading} emptyMessage="Sin reservas registradas." pagination={reservas?.pagination} onPaginationChange={pagination.setOffset} />
+        <CrudTable columns={columns} data={reservas ?? []} isLoading={isLoading} isError={isError} error={error} onRetry={() => { void refetch() }} emptyMessage="Sin reservas registradas." pagination={reservas?.pagination} onPaginationChange={pagination.setOffset} />
       </div>
 
       <ConfirmDialog

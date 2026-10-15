@@ -31,7 +31,7 @@ export default function UnidadesPage() {
   const [deactivating, setDeactivating] = useState<Unidad | undefined>(undefined)
 
   const pagination = useServerPagination(10, `${activo}:${nombre}`)
-  const { data: unidades, isLoading } = useUnidades({
+  const { data: unidades, isLoading, isError, error, refetch } = useUnidades({
     activo,
     ...(nombre ? { nombre } : {}),
     ...pagination.params,
@@ -126,7 +126,7 @@ export default function UnidadesPage() {
             <ToggleGroupItem value="false">Inactivos</ToggleGroupItem>
           </ToggleGroup>
         </div>
-        <CrudTable columns={columns} data={unidades ?? []} isLoading={isLoading} emptyMessage={activo === "false" ? "No hay unidades desactivadas." : "Sin unidades registradas."} pagination={unidades?.pagination} onPaginationChange={pagination.setOffset} />
+        <CrudTable columns={columns} data={unidades ?? []} isLoading={isLoading} isError={isError} error={error} onRetry={() => void refetch()} emptyMessage={activo === "false" ? "No hay unidades desactivadas." : "Sin unidades registradas."} pagination={unidades?.pagination} onPaginationChange={pagination.setOffset} />
       </div>
 
       <UnidadForm open={formOpen} onOpenChange={setFormOpen} unidad={editing} />

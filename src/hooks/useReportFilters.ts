@@ -4,6 +4,7 @@ import { useSearchParams } from "react-router-dom"
 import { useAuth } from "@/context/auth-provider"
 import { useSucursal } from "@/context/sucursal-provider"
 import type { QueryParams } from "@/lib/api"
+import { startOfLocalDayISO, startOfNextLocalDayISO } from "@/lib/date-range"
 
 export type ReportGranularity = "dia" | "semana" | "mes"
 
@@ -25,18 +26,6 @@ function defaultPeriod(days: number) {
   const desde = new Date(hasta)
   desde.setDate(desde.getDate() - Math.max(days - 1, 0))
   return { desde: dateInputValue(desde), hasta: dateInputValue(hasta) }
-}
-
-function startOfDayISO(value: string) {
-  const date = new Date(`${value}T00:00:00.000Z`)
-  return Number.isNaN(date.getTime()) ? undefined : date.toISOString()
-}
-
-function exclusiveEndISO(value: string) {
-  const date = new Date(`${value}T00:00:00.000Z`)
-  if (Number.isNaN(date.getTime())) return undefined
-  date.setUTCDate(date.getUTCDate() + 1)
-  return date.toISOString()
 }
 
 export function useReportFilters(options: UseReportFiltersOptions = {}) {
@@ -143,8 +132,8 @@ export function useReportFilters(options: UseReportFiltersOptions = {}) {
   const apiParams = useMemo<QueryParams>(() => ({
     ...(sucursalIds.length > 0 ? { sucursalId: sucursalIds } : {}),
     ...(includePeriod ? {
-      fechaDesde: startOfDayISO(fechaDesde),
-      fechaHasta: exclusiveEndISO(fechaHasta),
+      fechaDesde: startOfLocalDayISO(fechaDesde),
+      fechaHasta: startOfNextLocalDayISO(fechaHasta),
     } : {}),
     ...(includeGranularity ? { granularidad } : {}),
   }), [fechaDesde, fechaHasta, granularidad, includeGranularity, includePeriod, sucursalIds])

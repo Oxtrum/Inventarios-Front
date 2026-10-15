@@ -59,7 +59,7 @@ export default function TransferenciasPage() {
   const navigate = useNavigate()
   const pagination = useServerPagination()
   const { sucursales } = useSucursal()
-  const { data: transferencias, isLoading } = useTransferencias(pagination.params)
+  const { data: transferencias, isLoading, isError, error, refetch } = useTransferencias(pagination.params)
 
   const sucursalPorId = useMemo(() => new Map((sucursales ?? []).map((s) => [s.id, s.nombre])), [sucursales])
 
@@ -122,7 +122,7 @@ export default function TransferenciasPage() {
         }
       />
       <div className="flex flex-col gap-4 px-4 lg:px-6">
-        <CrudTable columns={columns} data={transferencias ?? []} isLoading={isLoading} emptyMessage="Sin transferencias registradas." pagination={transferencias?.pagination} onPaginationChange={pagination.setOffset} />
+        <CrudTable columns={columns} data={transferencias ?? []} isLoading={isLoading} isError={isError} error={error} onRetry={() => void refetch()} emptyMessage="Sin transferencias registradas." pagination={transferencias?.pagination} onPaginationChange={pagination.setOffset} />
       </div>
     </div>
   )

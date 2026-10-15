@@ -62,7 +62,7 @@ export default function ComprasPage() {
   const pagination = useServerPagination()
   const { sucursales } = useSucursal()
   const { data: proveedores } = useProveedores()
-  const { data: compras, isLoading } = useCompras(pagination.params)
+  const { data: compras, isLoading, isError, error, refetch } = useCompras(pagination.params)
 
   const nombrePorId = useMemo(() => {
     const sucursalMap = new Map((sucursales ?? []).map((s) => [s.id, s.nombre]))
@@ -132,7 +132,7 @@ export default function ComprasPage() {
         }
       />
       <div className="flex flex-col gap-4 px-4 lg:px-6">
-        <CrudTable columns={columns} data={compras ?? []} isLoading={isLoading} emptyMessage="Sin compras registradas." pagination={compras?.pagination} onPaginationChange={pagination.setOffset} />
+        <CrudTable columns={columns} data={compras ?? []} isLoading={isLoading} isError={isError} error={error} onRetry={() => void refetch()} emptyMessage="Sin compras registradas." pagination={compras?.pagination} onPaginationChange={pagination.setOffset} />
       </div>
     </div>
   )

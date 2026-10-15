@@ -1,6 +1,6 @@
 import { createContext, useContext, useState, useEffect, useCallback } from "react"
 import { authService } from "@/services/auth"
-import { getToken, setToken, clearToken } from "@/lib/api"
+import { ApiError, getToken, setToken, clearToken } from "@/lib/api"
 import type { AlcanceDatos, SucursalPermitida, UsuarioSesion } from "@/types/auth"
 
 interface AuthContextType {
@@ -12,6 +12,8 @@ interface AuthContextType {
   sucursalesPermitidas: SucursalPermitida[]
   isAuthenticated: boolean
   isLoading: boolean
+  authError: unknown
+  retryAuth: () => void
   login: (codigoOrganizacion: string, usuario: string, contrasena: string) => Promise<void>
   logout: () => void
   hasPermission: (permiso: string) => boolean
@@ -27,14 +29,18 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [sucursalPrincipalId, setSucursalPrincipalId] = useState<string | null>(null)
   const [sucursalesPermitidas, setSucursalesPermitidas] = useState<SucursalPermitida[]>([])
   const [isLoading, setIsLoading] = useState(() => !!getToken())
+  const [authError, setAuthError] = useState<unknown>(null)
+  const [authRetry, setAuthRetry] = useState(0)
 
   useEffect(() => {
     const savedToken = getToken()
     if (!savedToken) {
       return
     }
+    let cancelled = false
     authService.me()
       .then((data) => {
+        if (cancelled) return
         setUser({
           id: data.usuarioId,
           organizacionId: data.organizacionId,
@@ -47,17 +53,32 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         setAlcanceDatos(data.alcanceDatos ?? null)
         setSucursalPrincipalId(data.sucursalPrincipalId ?? null)
         setSucursalesPermitidas(data.sucursalesPermitidas ?? [])
+        setAuthError(null)
       })
-      .catch(() => {
-        clearToken()
-        setTokenState(null)
-        setUser(null)
-        setPermisos([])
-        setAlcanceDatos(null)
-        setSucursalPrincipalId(null)
-        setSucursalesPermitidas([])
+      .catch((error: unknown) => {
+        if (cancelled) return
+        if (error instanceof ApiError && error.status === 401) {
+          clearToken()
+          setTokenState(null)
+          setUser(null)
+          setPermisos([])
+          setAlcanceDatos(null)
+          setSucursalPrincipalId(null)
+          setSucursalesPermitidas([])
+          return
+        }
+        setAuthError(error)
       })
-      .finally(() => setIsLoading(false))
+      .finally(() => {
+        if (!cancelled) setIsLoading(false)
+      })
+    return () => { cancelled = true }
+  }, [authRetry])
+
+  const retryAuth = useCallback(() => {
+    setAuthError(null)
+    setIsLoading(true)
+    setAuthRetry((current) => current + 1)
   }, [])
 
   const login = useCallback(async (codigoOrganizacion: string, usuario: string, contrasena: string) => {
@@ -73,6 +94,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setAlcanceDatos(response.alcanceDatos ?? response.usuario.alcanceDatos ?? null)
     setSucursalPrincipalId(response.sucursalPrincipalId ?? response.usuario.sucursalPrincipalId ?? null)
     setSucursalesPermitidas(response.sucursalesPermitidas ?? response.usuario.sucursalesPermitidas ?? [])
+    setAuthError(null)
   }, [])
 
   const logout = useCallback(() => {
@@ -83,6 +105,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setAlcanceDatos(null)
     setSucursalPrincipalId(null)
     setSucursalesPermitidas([])
+    setAuthError(null)
   }, [])
 
   const hasPermission = useCallback((permiso: string) => {
@@ -100,6 +123,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         sucursalesPermitidas,
         isAuthenticated: !!token && !!user,
         isLoading,
+        authError,
+        retryAuth,
         login,
         logout,
         hasPermission,

@@ -40,7 +40,7 @@ export default function AtributosPage() {
   const [deactivating, setDeactivating] = useState<Atributo | undefined>(undefined)
 
   const pagination = useServerPagination(10, nombre)
-  const { data: atributos, isLoading } = useAtributos({
+  const { data: atributos, isLoading, isError, error, refetch } = useAtributos({
     ...(nombre ? { nombre } : {}),
     ...pagination.params,
   })
@@ -134,7 +134,7 @@ export default function AtributosPage() {
       />
       <div className="flex flex-col gap-4 px-4 lg:px-6">
         <SearchInput value={nombre} onChange={setNombre} placeholder="Buscar por nombre..." className="max-w-xs" />
-        <CrudTable columns={columns} data={atributos ?? []} isLoading={isLoading} emptyMessage="Sin atributos registrados." pagination={atributos?.pagination} onPaginationChange={pagination.setOffset} />
+        <CrudTable columns={columns} data={atributos ?? []} isLoading={isLoading} isError={isError} error={error} onRetry={() => void refetch()} emptyMessage="Sin atributos registrados." pagination={atributos?.pagination} onPaginationChange={pagination.setOffset} />
       </div>
 
       <AtributoForm open={formOpen} onOpenChange={setFormOpen} atributo={editing} />

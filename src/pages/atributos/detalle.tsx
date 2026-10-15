@@ -62,7 +62,7 @@ export default function AtributoDetailPage() {
   const pagination = useServerPagination()
 
   const { data: atributo } = useAtributo(atributoId)
-  const { data: valores, isLoading } = useAtributoValores(atributoId, pagination.params)
+  const { data: valores, isLoading, isError, error, refetch } = useAtributoValores(atributoId, pagination.params)
   const addValor = useAddAtributoValor(atributoId)
   const removeValor = useRemoveAtributoValor(atributoId)
   const restoreValor = useRestoreAtributoValor(atributoId)
@@ -217,7 +217,7 @@ export default function AtributoDetailPage() {
         }
       />
       <div className="flex flex-col gap-4 px-4 lg:px-6">
-        <CrudTable columns={columns} data={valores ?? []} isLoading={isLoading} emptyMessage="Sin valores registrados." pagination={valores?.pagination} onPaginationChange={pagination.setOffset} />
+        <CrudTable columns={columns} data={valores ?? []} isLoading={isLoading} isError={isError} error={error} onRetry={() => void refetch()} emptyMessage="Sin valores registrados." pagination={valores?.pagination} onPaginationChange={pagination.setOffset} />
       </div>
     </div>
   )

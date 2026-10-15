@@ -11,6 +11,7 @@ import type { ValoracionAgrupacion } from "@/types/reporte"
 import { formatCurrency } from "@/lib/utils"
 import { PageHeader } from "@/components/shared/PageHeader"
 import { ChartErrorBoundary } from "@/components/shared/ChartErrorBoundary"
+import { ErrorState } from "@/components/shared/ErrorState"
 import { ValoracionDistribucionChart } from "@/components/reportes/valoracion-distribucion-chart"
 import { ReportFilters } from "@/components/reportes/ReportFilters"
 import { Button } from "@/components/ui/button"
@@ -21,10 +22,13 @@ export default function ValoracionPage() {
   const reportFilters = useReportFilters()
   const [agruparPor, setAgruparPor] =
     useState<ValoracionAgrupacion>("categoria")
-  const { data: valoracion, isLoading } = useValoracion(reportFilters.apiParams)
+  const { data: valoracion, isLoading, isError, error, refetch } = useValoracion(reportFilters.apiParams)
   const {
     data: distribucion,
     isLoading: isLoadingDistribucion,
+    isError: isErrorDistribucion,
+    error: errorDistribucion,
+    refetch: refetchDistribucion,
   } = useValoracionDistribucion({
     agruparPor,
     ...reportFilters.apiParams,
@@ -46,6 +50,7 @@ export default function ValoracionPage() {
       />
       <div className="flex flex-col gap-4 px-4 lg:px-6">
         <ReportFilters filters={reportFilters} />
+        {isError && <ErrorState error={error} onRetry={() => { void refetch() }} />}
         {isLoading && (
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
             <Skeleton className="h-28 w-full" />
@@ -54,7 +59,7 @@ export default function ValoracionPage() {
           </div>
         )}
 
-        {!isLoading && valoracion && (
+        {!isLoading && !isError && valoracion && (
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
             <Card>
               <CardHeader>
@@ -95,14 +100,18 @@ export default function ValoracionPage() {
           </div>
         )}
 
-        <ChartErrorBoundary resetKey={`${reportFilters.sucursalIds.join(",")}-${agruparPor}`}>
-          <ValoracionDistribucionChart
-            data={distribucion}
-            isLoading={isLoadingDistribucion}
-            agruparPor={agruparPor}
-            onAgruparPorChange={setAgruparPor}
-          />
-        </ChartErrorBoundary>
+        {isErrorDistribucion ? (
+          <ErrorState error={errorDistribucion} title="No pudimos cargar la distribución" onRetry={() => { void refetchDistribucion() }} />
+        ) : (
+          <ChartErrorBoundary resetKey={`${reportFilters.sucursalIds.join(",")}-${agruparPor}`}>
+            <ValoracionDistribucionChart
+              data={distribucion}
+              isLoading={isLoadingDistribucion}
+              agruparPor={agruparPor}
+              onAgruparPorChange={setAgruparPor}
+            />
+          </ChartErrorBoundary>
+        )}
       </div>
     </div>
   )

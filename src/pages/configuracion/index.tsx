@@ -28,7 +28,7 @@ export default function ConfiguracionPage() {
   const [editing, setEditing] = useState<Configuracion | undefined>(undefined)
   const [deactivating, setDeactivating] = useState<Configuracion | undefined>(undefined)
 
-  const { data: configuraciones, isLoading } = useConfiguraciones(pagination.params)
+  const { data: configuraciones, isLoading, isError, error, refetch } = useConfiguraciones(pagination.params)
   const { data: sucursales } = useSucursales()
   const deleteConfiguracion = useDeleteConfiguracion()
   const restoreConfiguracion = useRestoreConfiguracion()
@@ -121,7 +121,7 @@ export default function ConfiguracionPage() {
         }
       />
       <div className="flex flex-col gap-4 px-4 lg:px-6">
-        <CrudTable columns={columns} data={configuraciones ?? []} isLoading={isLoading} emptyMessage="Sin configuraciones registradas." pagination={configuraciones?.pagination} onPaginationChange={pagination.setOffset} />
+        <CrudTable columns={columns} data={configuraciones ?? []} isLoading={isLoading} isError={isError} error={error} onRetry={() => void refetch()} emptyMessage="Sin configuraciones registradas." pagination={configuraciones?.pagination} onPaginationChange={pagination.setOffset} />
       </div>
 
       <ConfiguracionForm open={formOpen} onOpenChange={setFormOpen} configuracion={editing} />

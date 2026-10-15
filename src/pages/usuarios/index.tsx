@@ -35,7 +35,7 @@ export default function UsuariosPage() {
   const [deactivating, setDeactivating] = useState<Usuario | undefined>(undefined)
 
   const pagination = useServerPagination(10, email)
-  const { data: usuarios, isLoading } = useUsuarios({
+  const { data: usuarios, isLoading, isError, error, refetch } = useUsuarios({
     ...(email ? { email } : {}),
     ...pagination.params,
   })
@@ -148,11 +148,11 @@ export default function UsuariosPage() {
       />
       <div className="flex flex-col gap-4 px-4 lg:px-6">
         <SearchInput value={email} onChange={setEmail} placeholder="Buscar por email..." className="max-w-xs" />
-        <CrudTable columns={columns} data={usuarios ?? []} isLoading={isLoading} emptyMessage="Sin usuarios registrados." pagination={usuarios?.pagination} onPaginationChange={pagination.setOffset} />
+        <CrudTable columns={columns} data={usuarios ?? []} isLoading={isLoading} isError={isError} error={error} onRetry={() => { void refetch() }} emptyMessage="Sin usuarios registrados." pagination={usuarios?.pagination} onPaginationChange={pagination.setOffset} />
       </div>
 
       <UsuarioForm open={formOpen} onOpenChange={setFormOpen} />
-      <ChangeRolDialog usuario={changingRol} onOpenChange={(open) => !open && setChangingRol(undefined)} />
+      {changingRol && <ChangeRolDialog key={changingRol.id} usuario={changingRol} onOpenChange={(open) => !open && setChangingRol(undefined)} />}
       <ChangePasswordDialog usuario={changingPassword} onOpenChange={(open) => !open && setChangingPassword(undefined)} />
       <UsuarioAlcanceDialog usuario={changingScope} onOpenChange={(open) => !open && setChangingScope(undefined)} />
       <ConfirmDialog

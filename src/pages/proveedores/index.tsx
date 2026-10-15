@@ -31,7 +31,7 @@ export default function ProveedoresPage() {
   const [deactivating, setDeactivating] = useState<Proveedor | undefined>(undefined)
 
   const pagination = useServerPagination(10, `${activo}:${nombre}`)
-  const { data: proveedores, isLoading } = useProveedores({
+  const { data: proveedores, isLoading, isError, error, refetch } = useProveedores({
     activo,
     ...(nombre ? { nombre } : {}),
     ...pagination.params,
@@ -127,7 +127,7 @@ export default function ProveedoresPage() {
             <ToggleGroupItem value="false">Inactivos</ToggleGroupItem>
           </ToggleGroup>
         </div>
-        <CrudTable columns={columns} data={proveedores ?? []} isLoading={isLoading} emptyMessage={activo === "false" ? "No hay proveedores desactivados." : "Sin proveedores registrados."} pagination={proveedores?.pagination} onPaginationChange={pagination.setOffset} />
+        <CrudTable columns={columns} data={proveedores ?? []} isLoading={isLoading} isError={isError} error={error} onRetry={() => void refetch()} emptyMessage={activo === "false" ? "No hay proveedores desactivados." : "Sin proveedores registrados."} pagination={proveedores?.pagination} onPaginationChange={pagination.setOffset} />
       </div>
 
       <ProveedorForm open={formOpen} onOpenChange={setFormOpen} proveedor={editing} />

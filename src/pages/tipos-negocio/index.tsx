@@ -12,7 +12,7 @@ import { StatusBadge } from "@/components/shared/StatusBadge"
 export default function TiposNegocioPage() {
   const [nombre, setNombre] = useState("")
   const pagination = useServerPagination(10, nombre)
-  const { data: tiposNegocio, isLoading } = useTiposNegocio({
+  const { data: tiposNegocio, isLoading, isError, error, refetch } = useTiposNegocio({
     ...(nombre ? { nombre } : {}),
     ...pagination.params,
   })
@@ -32,7 +32,7 @@ export default function TiposNegocioPage() {
       />
       <div className="flex flex-col gap-4 px-4 lg:px-6">
         <SearchInput value={nombre} onChange={setNombre} placeholder="Buscar por nombre..." className="max-w-xs" />
-        <CrudTable columns={columns} data={tiposNegocio ?? []} isLoading={isLoading} emptyMessage="Sin tipos de negocio registrados." pagination={tiposNegocio?.pagination} onPaginationChange={pagination.setOffset} />
+        <CrudTable columns={columns} data={tiposNegocio ?? []} isLoading={isLoading} isError={isError} error={error} onRetry={() => void refetch()} emptyMessage="Sin tipos de negocio registrados." pagination={tiposNegocio?.pagination} onPaginationChange={pagination.setOffset} />
       </div>
     </div>
   )

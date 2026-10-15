@@ -17,6 +17,7 @@ import { KardexChart } from "@/components/reportes/kardex-chart"
 import { ReportFilters } from "@/components/reportes/ReportFilters"
 import { Button } from "@/components/ui/button"
 import type { QueryParams } from "@/lib/api"
+import { endOfLocalDayISO } from "@/lib/date-range"
 
 type Row = KardexItem & { id: string }
 
@@ -27,13 +28,16 @@ export default function KardexPage() {
   const reportFilters = useReportFilters({ includePeriod: true, defaultDays: 30 })
   const { data: productos } = useProductos({ activo: "true" })
 
-  const filters: QueryParams = { ...reportFilters.apiParams }
+  const filters: QueryParams = {
+    ...reportFilters.apiParams,
+    fechaHasta: endOfLocalDayISO(reportFilters.fechaHasta),
+  }
   if (productoId) filters.productoId = productoId
   if (productoVarianteId) filters.productoVarianteId = productoVarianteId
 
   const canQuery = !!productoId
   const pagination = useServerPagination(20, JSON.stringify(filters))
-  const { data: items, isLoading } = useKardex({ ...filters, ...pagination.params })
+  const { data: items, isLoading, isError, error, refetch } = useKardex({ ...filters, ...pagination.params })
   const safeItems = Array.isArray(items) ? items : []
 
   const rows: Row[] = canQuery ? safeItems.map((item) => ({ ...item, id: item.movimientoId })) : []
@@ -80,10 +84,12 @@ export default function KardexPage() {
 
         {canQuery ? (
           <>
-            <ChartErrorBoundary resetKey={items}>
-              <KardexChart items={safeItems} isLoading={isLoading} />
-            </ChartErrorBoundary>
-            <CrudTable columns={columns} data={rows} isLoading={isLoading} emptyMessage="Sin movimientos registrados." pageSize={20} pagination={items?.pagination} onPaginationChange={pagination.setOffset} />
+            {!isError && (
+              <ChartErrorBoundary resetKey={items}>
+                <KardexChart items={safeItems} isLoading={isLoading} />
+              </ChartErrorBoundary>
+            )}
+            <CrudTable columns={columns} data={rows} isLoading={isLoading} isError={isError} error={error} onRetry={() => { void refetch() }} emptyMessage="Sin movimientos registrados." pageSize={20} pagination={items?.pagination} onPaginationChange={pagination.setOffset} />
           </>
         ) : (
           <EmptyState title="Selecciona un producto" description="Elige un producto para consultar su kardex en el alcance y periodo seleccionados." />

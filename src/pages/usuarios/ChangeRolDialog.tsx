@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react"
+import { useState } from "react"
 import { Loader2 } from "lucide-react"
 import { toast } from "sonner"
 
@@ -24,21 +24,17 @@ import {
 } from "@/components/ui/select"
 
 interface ChangeRolDialogProps {
-  usuario?: Usuario
+  usuario: Usuario
   onOpenChange: (open: boolean) => void
 }
 
 export function ChangeRolDialog({ usuario, onOpenChange }: ChangeRolDialogProps) {
   const { data: roles } = useRoles()
   const updateRol = useUpdateUsuarioRol()
-  const [rolId, setRolId] = useState("")
-
-  useEffect(() => {
-    setRolId(usuario?.rolId ?? "")
-  }, [usuario])
+  const [rolId, setRolId] = useState(usuario.rolId ?? "")
 
   function handleConfirm() {
-    if (!usuario || !rolId) return
+    if (!rolId) return
     updateRol.mutate(
       { id: usuario.id, data: { rolId } },
       {
@@ -54,7 +50,7 @@ export function ChangeRolDialog({ usuario, onOpenChange }: ChangeRolDialogProps)
   }
 
   return (
-    <Dialog open={!!usuario} onOpenChange={onOpenChange}>
+    <Dialog open onOpenChange={onOpenChange}>
       <DialogContent>
         <DialogHeader>
           <DialogTitle>Cambiar rol</DialogTitle>

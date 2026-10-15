@@ -31,7 +31,7 @@ export default function CategoriasPage() {
   const [deactivating, setDeactivating] = useState<Categoria | undefined>(undefined)
 
   const pagination = useServerPagination(10, `${activo}:${nombre}`)
-  const { data: categorias, isLoading } = useCategorias({
+  const { data: categorias, isLoading, isError, error, refetch } = useCategorias({
     activo,
     ...(nombre ? { nombre } : {}),
     ...pagination.params,
@@ -126,7 +126,7 @@ export default function CategoriasPage() {
             <ToggleGroupItem value="false">Inactivos</ToggleGroupItem>
           </ToggleGroup>
         </div>
-        <CrudTable columns={columns} data={categorias ?? []} isLoading={isLoading} emptyMessage={activo === "false" ? "No hay categorías desactivadas." : "Sin categorías registradas."} pagination={categorias?.pagination} onPaginationChange={pagination.setOffset} />
+        <CrudTable columns={columns} data={categorias ?? []} isLoading={isLoading} isError={isError} error={error} onRetry={() => void refetch()} emptyMessage={activo === "false" ? "No hay categorías desactivadas." : "Sin categorías registradas."} pagination={categorias?.pagination} onPaginationChange={pagination.setOffset} />
       </div>
 
       <CategoriaForm open={formOpen} onOpenChange={setFormOpen} categoria={editing} />

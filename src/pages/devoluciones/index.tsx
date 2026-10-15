@@ -62,7 +62,7 @@ export default function DevolucionesPage() {
   const pagination = useServerPagination()
   const { sucursales } = useSucursal()
   const { data: proveedores } = useProveedores()
-  const { data: devoluciones, isLoading } = useDevoluciones(pagination.params)
+  const { data: devoluciones, isLoading, isError, error, refetch } = useDevoluciones(pagination.params)
 
   const nombrePorId = useMemo(() => {
     const sucursalMap = new Map((sucursales ?? []).map((s) => [s.id, s.nombre]))
@@ -132,7 +132,7 @@ export default function DevolucionesPage() {
         }
       />
       <div className="flex flex-col gap-4 px-4 lg:px-6">
-        <CrudTable columns={columns} data={devoluciones ?? []} isLoading={isLoading} emptyMessage="Sin devoluciones registradas." pagination={devoluciones?.pagination} onPaginationChange={pagination.setOffset} />
+        <CrudTable columns={columns} data={devoluciones ?? []} isLoading={isLoading} isError={isError} error={error} onRetry={() => void refetch()} emptyMessage="Sin devoluciones registradas." pagination={devoluciones?.pagination} onPaginationChange={pagination.setOffset} />
       </div>
     </div>
   )

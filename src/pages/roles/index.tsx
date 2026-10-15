@@ -24,7 +24,7 @@ export default function RolesPage() {
   const [formOpen, setFormOpen] = useState(false)
   const [editing, setEditing] = useState<Rol | undefined>(undefined)
 
-  const { data: roles, isLoading } = useRoles(pagination.params)
+  const { data: roles, isLoading, isError, error, refetch } = useRoles(pagination.params)
 
   const columns: ColumnDef<Rol>[] = [
     { accessorKey: "codigo", header: "Código" },
@@ -75,7 +75,7 @@ export default function RolesPage() {
         }
       />
       <div className="flex flex-col gap-4 px-4 lg:px-6">
-        <CrudTable columns={columns} data={roles ?? []} isLoading={isLoading} emptyMessage="Sin roles registrados." pagination={roles?.pagination} onPaginationChange={pagination.setOffset} />
+        <CrudTable columns={columns} data={roles ?? []} isLoading={isLoading} isError={isError} error={error} onRetry={() => { void refetch() }} emptyMessage="Sin roles registrados." pagination={roles?.pagination} onPaginationChange={pagination.setOffset} />
       </div>
 
       <RolForm open={formOpen} onOpenChange={setFormOpen} rol={editing} />
